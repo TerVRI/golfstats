@@ -230,14 +230,14 @@ export default function TrendsPage() {
                     border: "1px solid #334155",
                     borderRadius: "8px",
                   }}
-                  formatter={(value: number, name: string) => {
+                  formatter={(value, name) => {
                     const labels: Record<string, string> = {
                       sg_tee: "Off Tee",
                       sg_approach: "Approach",
                       sg_around: "Around Green",
                       sg_putting: "Putting",
                     };
-                    return [formatSG(value), labels[name] || name];
+                    return [formatSG(value as number), labels[name as string] || name];
                   }}
                 />
                 <Legend
