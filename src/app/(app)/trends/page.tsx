@@ -188,7 +188,7 @@ export default function TrendsPage() {
                     border: "1px solid #334155",
                     borderRadius: "8px",
                   }}
-                  formatter={(value: number) => [formatSG(value), "Total SG"]}
+                  formatter={(value) => [formatSG(value as number), "Total SG"]}
                 />
                 <ReferenceLine y={0} stroke="#475569" strokeDasharray="3 3" />
                 <Area
@@ -313,7 +313,7 @@ export default function TrendsPage() {
                     border: "1px solid #334155",
                     borderRadius: "8px",
                   }}
-                  formatter={(value: number) => [value, "Score"]}
+                  formatter={(value) => [value as number, "Score"]}
                 />
                 <ReferenceLine y={averages.score} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: `Avg: ${averages.score.toFixed(1)}`, fill: "#f59e0b", fontSize: 11 }} />
                 <Line

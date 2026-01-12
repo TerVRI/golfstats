@@ -228,7 +228,7 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
                       border: "1px solid #334155",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [formatSG(value), "SG"]}
+                    formatter={(value) => [formatSG(value as number), "SG"]}
                   />
                   <ReferenceLine y={0} stroke="#475569" />
                   <Bar dataKey="sg" radius={[4, 4, 0, 0]}>
@@ -270,7 +270,7 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
                       border: "1px solid #334155",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [formatSG(value), "Cumulative SG"]}
+                    formatter={(value) => [formatSG(value as number), "Cumulative SG"]}
                   />
                   <ReferenceLine y={0} stroke="#475569" strokeDasharray="3 3" />
                   <Line
