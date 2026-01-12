@@ -208,7 +208,7 @@ export default function DashboardPage() {
                       border: "1px solid #334155",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [formatSG(value), "SG"]}
+                    formatter={(value) => [formatSG(value as number), "SG"]}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {sgBreakdownData.map((entry, index) => (
