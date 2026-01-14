@@ -1,101 +1,97 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/components/ui";
 import { cn, formatSG, calculateScoreToPar, getScoreColor, formatDate } from "@/lib/utils";
-import { PlusCircle, Flag, Calendar, Target, Search, Filter } from "lucide-react";
-import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { PlusCircle, Flag, Calendar, Target, Search, Filter, Loader2 } from "lucide-react";
 
-// Demo data
-const demoRounds = [
-  {
-    id: "1",
-    course_name: "Pebble Beach Golf Links",
-    played_at: "2026-01-10",
-    total_score: 82,
-    total_par: 72,
-    total_putts: 32,
-    fairways_hit: 8,
-    fairways_total: 14,
-    gir: 9,
-    sg_total: -0.84,
-    sg_off_tee: 0.52,
-    sg_approach: -1.12,
-    sg_around_green: -0.24,
-    sg_putting: 0.00,
-  },
-  {
-    id: "2",
-    course_name: "TPC Sawgrass",
-    played_at: "2026-01-07",
-    total_score: 78,
-    total_par: 72,
-    total_putts: 29,
-    fairways_hit: 10,
-    fairways_total: 14,
-    gir: 12,
-    sg_total: 1.22,
-    sg_off_tee: 0.78,
-    sg_approach: 0.34,
-    sg_around_green: 0.56,
-    sg_putting: -0.46,
-  },
-  {
-    id: "3",
-    course_name: "Augusta National",
-    played_at: "2026-01-03",
-    total_score: 85,
-    total_par: 72,
-    total_putts: 34,
-    fairways_hit: 6,
-    fairways_total: 14,
-    gir: 7,
-    sg_total: -2.15,
-    sg_off_tee: -0.45,
-    sg_approach: -0.89,
-    sg_around_green: -0.31,
-    sg_putting: -0.50,
-  },
-  {
-    id: "4",
-    course_name: "St Andrews - Old Course",
-    played_at: "2025-12-28",
-    total_score: 80,
-    total_par: 72,
-    total_putts: 31,
-    fairways_hit: 9,
-    fairways_total: 14,
-    gir: 10,
-    sg_total: -0.56,
-    sg_off_tee: 0.22,
-    sg_approach: -0.45,
-    sg_around_green: -0.11,
-    sg_putting: -0.22,
-  },
-  {
-    id: "5",
-    course_name: "Cypress Point",
-    played_at: "2025-12-21",
-    total_score: 79,
-    total_par: 72,
-    total_putts: 30,
-    fairways_hit: 11,
-    fairways_total: 14,
-    gir: 11,
-    sg_total: 0.89,
-    sg_off_tee: 0.67,
-    sg_approach: 0.12,
-    sg_around_green: 0.44,
-    sg_putting: -0.34,
-  },
-];
+interface Round {
+  id: string;
+  course_name: string;
+  played_at: string;
+  total_score: number;
+  total_putts: number | null;
+  fairways_hit: number | null;
+  fairways_total: number | null;
+  greens_in_regulation: number | null;
+  sg_total: number | null;
+  sg_off_tee: number | null;
+  sg_approach: number | null;
+  sg_around_green: number | null;
+  sg_putting: number | null;
+}
 
 export default function RoundsPage() {
+  const supabase = createClient();
+  const [rounds, setRounds] = useState<Round[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
-  const filteredRounds = demoRounds.filter((round) =>
+  useEffect(() => {
+    async function fetchRounds() {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setRounds([]);
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error: fetchError } = await supabase
+          .from("rounds")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("played_at", { ascending: false });
+
+        if (fetchError) throw fetchError;
+        setRounds(data || []);
+      } catch (err) {
+        console.error("Error fetching rounds:", err);
+        setError(err instanceof Error ? err.message : "Failed to load rounds");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchRounds();
+  }, [supabase]);
+
+  const filteredRounds = rounds.filter((round) =>
     round.course_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const avgScore = rounds.length > 0
+    ? Math.round(rounds.reduce((sum, r) => sum + r.total_score, 0) / rounds.length)
+    : 0;
+  const bestScore = rounds.length > 0
+    ? Math.min(...rounds.map((r) => r.total_score))
+    : 0;
+  const avgSG = rounds.length > 0
+    ? rounds.reduce((sum, r) => sum + (r.sg_total || 0), 0) / rounds.length
+    : 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-accent-green" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-accent-red mb-4">{error}</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -134,43 +130,39 @@ export default function RoundsPage() {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-foreground-muted mb-1">Rounds</p>
-            <p className="text-2xl font-bold text-foreground">{demoRounds.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-foreground-muted mb-1">Avg Score</p>
-            <p className="text-2xl font-bold text-foreground">
-              {Math.round(demoRounds.reduce((sum, r) => sum + r.total_score, 0) / demoRounds.length)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-foreground-muted mb-1">Best Score</p>
-            <p className="text-2xl font-bold text-accent-green">
-              {Math.min(...demoRounds.map((r) => r.total_score))}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-foreground-muted mb-1">Avg SG</p>
-            <p className={cn(
-              "text-2xl font-bold",
-              demoRounds.reduce((sum, r) => sum + r.sg_total, 0) / demoRounds.length >= 0
-                ? "text-accent-green"
-                : "text-accent-red"
-            )}>
-              {formatSG(demoRounds.reduce((sum, r) => sum + r.sg_total, 0) / demoRounds.length)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {rounds.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-foreground-muted mb-1">Rounds</p>
+              <p className="text-2xl font-bold text-foreground">{rounds.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-foreground-muted mb-1">Avg Score</p>
+              <p className="text-2xl font-bold text-foreground">{avgScore}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-foreground-muted mb-1">Best Score</p>
+              <p className="text-2xl font-bold text-accent-green">{bestScore}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-foreground-muted mb-1">Avg SG</p>
+              <p className={cn(
+                "text-2xl font-bold",
+                avgSG >= 0 ? "text-accent-green" : "text-accent-red"
+              )}>
+                {formatSG(avgSG)}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Rounds List */}
       <div className="space-y-4">
@@ -198,29 +190,29 @@ export default function RoundsPage() {
                     {/* Score */}
                     <div className="text-center">
                       <p className="text-xs text-foreground-muted mb-1">Score</p>
-                      <p className={cn("text-xl font-bold", getScoreColor(round.total_score, round.total_par))}>
+                      <p className={cn("text-xl font-bold", getScoreColor(round.total_score, 72))}>
                         {round.total_score}
                       </p>
                       <p className="text-xs text-foreground-muted">
-                        {calculateScoreToPar(round.total_score, round.total_par)}
+                        {calculateScoreToPar(round.total_score, 72)}
                       </p>
                     </div>
 
                     {/* Putts */}
                     <div className="text-center">
                       <p className="text-xs text-foreground-muted mb-1">Putts</p>
-                      <p className="text-xl font-bold text-foreground">{round.total_putts}</p>
+                      <p className="text-xl font-bold text-foreground">{round.total_putts ?? "-"}</p>
                       <p className="text-xs text-foreground-muted">
-                        {(round.total_putts / 18).toFixed(1)}/hole
+                        {round.total_putts ? `${(round.total_putts / 18).toFixed(1)}/hole` : "-"}
                       </p>
                     </div>
 
                     {/* GIR */}
                     <div className="text-center">
                       <p className="text-xs text-foreground-muted mb-1">GIR</p>
-                      <p className="text-xl font-bold text-foreground">{round.gir}</p>
+                      <p className="text-xl font-bold text-foreground">{round.greens_in_regulation ?? "-"}</p>
                       <p className="text-xs text-foreground-muted">
-                        {((round.gir / 18) * 100).toFixed(0)}%
+                        {round.greens_in_regulation ? `${((round.greens_in_regulation / 18) * 100).toFixed(0)}%` : "-"}
                       </p>
                     </div>
 
@@ -229,9 +221,9 @@ export default function RoundsPage() {
                       <p className="text-xs text-foreground-muted mb-1">SG</p>
                       <p className={cn(
                         "text-xl font-bold",
-                        round.sg_total >= 0 ? "text-accent-green" : "text-accent-red"
+                        (round.sg_total ?? 0) >= 0 ? "text-accent-green" : "text-accent-red"
                       )}>
-                        {formatSG(round.sg_total)}
+                        {round.sg_total != null ? formatSG(round.sg_total) : "-"}
                       </p>
                       <p className="text-xs text-foreground-muted">Total</p>
                     </div>
@@ -239,32 +231,34 @@ export default function RoundsPage() {
                 </div>
 
                 {/* SG Breakdown Bar */}
-                <div className="border-t border-card-border px-4 md:px-6 py-3 flex flex-wrap gap-4 text-xs">
-                  <div className="flex items-center gap-1">
-                    <span className="text-foreground-muted">Tee:</span>
-                    <span className={cn("font-medium", round.sg_off_tee >= 0 ? "text-accent-green" : "text-accent-red")}>
-                      {formatSG(round.sg_off_tee)}
-                    </span>
+                {round.sg_total != null && (
+                  <div className="border-t border-card-border px-4 md:px-6 py-3 flex flex-wrap gap-4 text-xs">
+                    <div className="flex items-center gap-1">
+                      <span className="text-foreground-muted">Tee:</span>
+                      <span className={cn("font-medium", (round.sg_off_tee ?? 0) >= 0 ? "text-accent-green" : "text-accent-red")}>
+                        {round.sg_off_tee != null ? formatSG(round.sg_off_tee) : "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-foreground-muted">Approach:</span>
+                      <span className={cn("font-medium", (round.sg_approach ?? 0) >= 0 ? "text-accent-green" : "text-accent-red")}>
+                        {round.sg_approach != null ? formatSG(round.sg_approach) : "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-foreground-muted">Around:</span>
+                      <span className={cn("font-medium", (round.sg_around_green ?? 0) >= 0 ? "text-accent-green" : "text-accent-red")}>
+                        {round.sg_around_green != null ? formatSG(round.sg_around_green) : "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-foreground-muted">Putting:</span>
+                      <span className={cn("font-medium", (round.sg_putting ?? 0) >= 0 ? "text-accent-green" : "text-accent-red")}>
+                        {round.sg_putting != null ? formatSG(round.sg_putting) : "-"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-foreground-muted">Approach:</span>
-                    <span className={cn("font-medium", round.sg_approach >= 0 ? "text-accent-green" : "text-accent-red")}>
-                      {formatSG(round.sg_approach)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-foreground-muted">Around:</span>
-                    <span className={cn("font-medium", round.sg_around_green >= 0 ? "text-accent-green" : "text-accent-red")}>
-                      {formatSG(round.sg_around_green)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-foreground-muted">Putting:</span>
-                    <span className={cn("font-medium", round.sg_putting >= 0 ? "text-accent-green" : "text-accent-red")}>
-                      {formatSG(round.sg_putting)}
-                    </span>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </Link>
@@ -295,4 +289,3 @@ export default function RoundsPage() {
     </div>
   );
 }
-

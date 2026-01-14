@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent, Button, Input, Select } from 
 import { cn, getScoreColor } from "@/lib/utils";
 import { calculateRoundStrokesGained } from "@/lib/strokes-gained";
 import { HoleEntryData, DEFAULT_COURSE_PARS, CLUBS, createDefaultHoleData } from "@/types/golf";
+import { createClient } from "@/lib/supabase/client";
 import {
   ArrowLeft,
   ArrowRight,
@@ -15,14 +16,18 @@ import {
   Flag,
   Target,
   CircleDot,
+  Loader2,
 } from "lucide-react";
 
 type Step = "course" | "holes" | "review";
 
 export default function NewRoundPage() {
   const router = useRouter();
+  const supabase = createClient();
   const [step, setStep] = useState<Step>("course");
   const [currentHole, setCurrentHole] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   
   // Course info
   const [courseName, setCourseName] = useState("");
@@ -68,23 +73,80 @@ export default function NewRoundPage() {
   };
 
   const handleSubmit = async () => {
-    // Calculate strokes gained
-    const sg = calculateRoundStrokesGained(holes);
+    setIsSaving(true);
+    setSaveError(null);
     
-    // For demo, just log and redirect
-    console.log("Round data:", {
-      courseName,
-      courseRating,
-      slopeRating,
-      playedAt,
-      holes,
-      strokesGained: sg,
-    });
-    
-    // TODO: Save to database via Supabase
-    
-    // Redirect to dashboard
-    router.push("/dashboard");
+    try {
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error("You must be logged in to save a round");
+      }
+
+      // Calculate strokes gained
+      const sg = calculateRoundStrokesGained(holes);
+      const totals = calculateTotals();
+
+      // Insert round
+      const { data: round, error: roundError } = await supabase
+        .from("rounds")
+        .insert({
+          user_id: user.id,
+          course_name: courseName,
+          course_rating: courseRating ? parseFloat(courseRating) : null,
+          slope_rating: slopeRating ? parseInt(slopeRating) : null,
+          played_at: playedAt,
+          total_score: totals.totalScore,
+          total_putts: totals.totalPutts,
+          fairways_hit: totals.fairwaysHit,
+          fairways_total: totals.fairwaysTotal,
+          greens_in_regulation: totals.girCount,
+          penalties: totals.penalties,
+          sg_total: sg.sg_total,
+          sg_off_tee: sg.sg_off_tee,
+          sg_approach: sg.sg_approach,
+          sg_around_green: sg.sg_around_green,
+          sg_putting: sg.sg_putting,
+        })
+        .select()
+        .single();
+
+      if (roundError) {
+        throw new Error(`Failed to save round: ${roundError.message}`);
+      }
+
+      // Insert hole scores
+      const holeScores = holes.map((hole) => ({
+        round_id: round.id,
+        hole_number: hole.hole_number,
+        par: hole.par,
+        score: hole.score,
+        putts: hole.putts,
+        fairway_hit: hole.par >= 4 ? hole.fairway_hit : null,
+        green_in_regulation: hole.gir,
+        penalties: hole.penalties,
+        approach_distance: hole.approach_distance,
+        first_putt_distance: hole.first_putt_distance,
+      }));
+
+      const { error: holesError } = await supabase
+        .from("hole_scores")
+        .insert(holeScores);
+
+      if (holesError) {
+        // Try to clean up the round if hole scores fail
+        await supabase.from("rounds").delete().eq("id", round.id);
+        throw new Error(`Failed to save hole scores: ${holesError.message}`);
+      }
+
+      // Success! Redirect to the round detail page
+      router.push(`/rounds/${round.id}`);
+    } catch (error) {
+      console.error("Save error:", error);
+      setSaveError(error instanceof Error ? error.message : "An unexpected error occurred");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderCourseStep = () => (
@@ -585,15 +647,31 @@ export default function NewRoundPage() {
           </CardContent>
         </Card>
 
+        {/* Error Message */}
+        {saveError && (
+          <div className="mb-4 p-4 rounded-lg bg-accent-red/10 border border-accent-red/20 text-accent-red">
+            {saveError}
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex gap-4">
-          <Button variant="secondary" onClick={() => setStep("holes")} className="flex-1">
+          <Button variant="secondary" onClick={() => setStep("holes")} className="flex-1" disabled={isSaving}>
             <ArrowLeft className="w-5 h-5 mr-2" />
             Edit Scores
           </Button>
-          <Button onClick={handleSubmit} className="flex-1">
-            <Check className="w-5 h-5 mr-2" />
-            Save Round
+          <Button onClick={handleSubmit} className="flex-1" disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Check className="w-5 h-5 mr-2" />
+                Save Round
+              </>
+            )}
           </Button>
         </div>
       </div>
