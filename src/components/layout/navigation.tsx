@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/hooks/useUser";
 import {
   LayoutDashboard,
   PlusCircle,
@@ -11,6 +12,8 @@ import {
   Menu,
   X,
   Target,
+  LogOut,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,6 +43,11 @@ const navItems = [
 export function Navigation() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useUser();
+
+  const userInitial = user?.email?.charAt(0).toUpperCase() || "U";
+  const userEmail = user?.email || "";
+  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || userEmail.split("@")[0];
 
   return (
     <>
@@ -80,11 +88,26 @@ export function Navigation() {
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-card-border">
-          <p className="text-xs text-foreground-muted text-center">
-            Tour-level analytics for every golfer
-          </p>
+        {/* User Section */}
+        <div className="px-4 py-4 border-t border-card-border">
+          {user && (
+            <div className="flex items-center gap-3 px-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-accent-green/20 flex items-center justify-center text-accent-green font-medium text-sm">
+                {userInitial}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{userName}</p>
+                <p className="text-xs text-foreground-muted truncate">{userEmail}</p>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={signOut}
+            className="flex items-center gap-3 px-4 py-2 w-full rounded-lg text-foreground-muted hover:text-accent-red hover:bg-accent-red/10 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm font-medium">Sign Out</span>
+          </button>
         </div>
       </aside>
 
@@ -130,10 +153,31 @@ export function Navigation() {
                 </Link>
               );
             })}
+
+            {/* Mobile User Section */}
+            <div className="pt-4 mt-4 border-t border-card-border">
+              {user && (
+                <div className="flex items-center gap-3 px-4 py-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-accent-green/20 flex items-center justify-center text-accent-green font-medium text-sm">
+                    {userInitial}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{userName}</p>
+                    <p className="text-xs text-foreground-muted truncate">{userEmail}</p>
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={signOut}
+                className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-foreground-muted hover:text-accent-red hover:bg-accent-red/10 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="font-medium">Sign Out</span>
+              </button>
+            </div>
           </nav>
         )}
       </header>
     </>
   );
 }
-
