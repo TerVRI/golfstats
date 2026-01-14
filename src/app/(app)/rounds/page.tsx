@@ -15,7 +15,7 @@ interface Round {
   total_putts: number | null;
   fairways_hit: number | null;
   fairways_total: number | null;
-  greens_in_regulation: number | null;
+  gir: number | null;
   sg_total: number | null;
   sg_off_tee: number | null;
   sg_approach: number | null;
@@ -210,9 +210,9 @@ export default function RoundsPage() {
                     {/* GIR */}
                     <div className="text-center">
                       <p className="text-xs text-foreground-muted mb-1">GIR</p>
-                      <p className="text-xl font-bold text-foreground">{round.greens_in_regulation ?? "-"}</p>
+                      <p className="text-xl font-bold text-foreground">{round.gir ?? "-"}</p>
                       <p className="text-xs text-foreground-muted">
-                        {round.greens_in_regulation ? `${((round.greens_in_regulation / 18) * 100).toFixed(0)}%` : "-"}
+                        {round.gir ? `${((round.gir / 18) * 100).toFixed(0)}%` : "-"}
                       </p>
                     </div>
 

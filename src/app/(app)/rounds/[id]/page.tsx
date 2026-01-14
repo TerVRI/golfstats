@@ -32,7 +32,7 @@ interface Round {
   total_putts: number | null;
   fairways_hit: number | null;
   fairways_total: number | null;
-  greens_in_regulation: number | null;
+  gir: number | null;
   penalties: number | null;
   sg_total: number | null;
   sg_off_tee: number | null;
@@ -49,7 +49,7 @@ interface HoleScore {
   score: number;
   putts: number | null;
   fairway_hit: boolean | null;
-  green_in_regulation: boolean | null;
+  gir: boolean | null;
   penalties: number | null;
 }
 
@@ -254,10 +254,10 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-sm text-foreground-muted mb-1">Greens in Reg</p>
-            <p className="text-4xl font-bold text-foreground">{round.greens_in_regulation ?? "-"}/18</p>
+            <p className="text-4xl font-bold text-foreground">{round.gir ?? "-"}/18</p>
             <p className="text-sm text-foreground-muted mt-1">
-              {round.greens_in_regulation 
-                ? `${((round.greens_in_regulation / 18) * 100).toFixed(0)}%`
+              {round.gir 
+                ? `${((round.gir / 18) * 100).toFixed(0)}%`
                 : "-"}
             </p>
           </CardContent>
@@ -453,7 +453,7 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
                     <td className="py-2 px-2 text-foreground-muted">GIR</td>
                     {frontNine.map((h) => (
                       <td key={h.hole_number} className="py-2 px-2 text-center">
-                        {h.green_in_regulation ? (
+                        {h.gir ? (
                           <span className="text-accent-green">✓</span>
                         ) : (
                           <span className="text-accent-red">✗</span>
@@ -461,7 +461,7 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
                       </td>
                     ))}
                     <td className="py-2 px-2 text-center text-foreground-muted bg-background-tertiary">
-                      {frontNine.filter((h) => h.green_in_regulation).length}/9
+                      {frontNine.filter((h) => h.gir).length}/9
                     </td>
                   </tr>
                 </tbody>
@@ -537,7 +537,7 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
                       <td className="py-2 px-2 text-foreground-muted">GIR</td>
                       {backNine.map((h) => (
                         <td key={h.hole_number} className="py-2 px-2 text-center">
-                          {h.green_in_regulation ? (
+                          {h.gir ? (
                             <span className="text-accent-green">✓</span>
                           ) : (
                             <span className="text-accent-red">✗</span>
@@ -545,10 +545,10 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
                         </td>
                       ))}
                       <td className="py-2 px-2 text-center text-foreground-muted bg-background-tertiary">
-                        {backNine.filter((h) => h.green_in_regulation).length}/9
+                        {backNine.filter((h) => h.gir).length}/9
                       </td>
                       <td className="py-2 px-2 text-center text-foreground-muted bg-background-secondary">
-                        {round.greens_in_regulation ?? "-"}/18
+                        {round.gir ?? "-"}/18
                       </td>
                     </tr>
                   </tbody>
