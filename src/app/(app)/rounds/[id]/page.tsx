@@ -192,14 +192,12 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="secondary" 
-            size="sm"
-            onClick={() => alert("Edit functionality coming soon!")}
-          >
-            <Pencil className="w-4 h-4 mr-2" />
-            Edit
-          </Button>
+          <Link href={`/rounds/${id}/edit`}>
+            <Button variant="secondary" size="sm">
+              <Pencil className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+          </Link>
           <Button 
             variant="danger" 
             size="sm"

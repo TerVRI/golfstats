@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/components/ui";
 import { StrokesGainedCard } from "@/components/stats";
 import { cn, formatSG, formatDateShort } from "@/lib/utils";
-import { Calendar, TrendingUp, TrendingDown, Minus, Target, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Calendar, TrendingUp, TrendingDown, Minus, Target, Loader2, PlusCircle } from "lucide-react";
+import Link from "next/link";
 import {
   ResponsiveContainer,
   LineChart,
@@ -19,73 +21,174 @@ import {
   ReferenceLine,
 } from "recharts";
 
-// Demo data - last 10 rounds
-const trendData = [
-  { date: "2025-11-15", sg_total: -1.8, sg_tee: -0.2, sg_approach: -0.9, sg_around: -0.3, sg_putting: -0.4, score: 86 },
-  { date: "2025-11-22", sg_total: -1.2, sg_tee: 0.1, sg_approach: -0.7, sg_around: -0.2, sg_putting: -0.4, score: 84 },
-  { date: "2025-11-29", sg_total: -0.9, sg_tee: 0.3, sg_approach: -0.8, sg_around: -0.1, sg_putting: -0.3, score: 83 },
-  { date: "2025-12-07", sg_total: -1.5, sg_tee: -0.1, sg_approach: -0.9, sg_around: -0.3, sg_putting: -0.2, score: 85 },
-  { date: "2025-12-14", sg_total: 0.2, sg_tee: 0.5, sg_approach: -0.2, sg_around: 0.1, sg_putting: -0.2, score: 79 },
-  { date: "2025-12-21", sg_total: 0.89, sg_tee: 0.67, sg_approach: 0.12, sg_around: 0.44, sg_putting: -0.34, score: 79 },
-  { date: "2025-12-28", sg_total: -0.56, sg_tee: 0.22, sg_approach: -0.45, sg_around: -0.11, sg_putting: -0.22, score: 80 },
-  { date: "2026-01-03", sg_total: -2.15, sg_tee: -0.45, sg_approach: -0.89, sg_around: -0.31, sg_putting: -0.50, score: 85 },
-  { date: "2026-01-07", sg_total: 1.22, sg_tee: 0.78, sg_approach: 0.34, sg_around: 0.56, sg_putting: -0.46, score: 78 },
-  { date: "2026-01-10", sg_total: -0.84, sg_tee: 0.52, sg_approach: -1.12, sg_around: -0.24, sg_putting: 0.00, score: 82 },
-];
-
-// Calculate averages
-const calculateAverage = (data: typeof trendData, key: keyof typeof trendData[0]) => {
-  const values = data.map((d) => d[key] as number);
-  return values.reduce((sum, v) => sum + v, 0) / values.length;
-};
-
-const averages = {
-  sg_total: calculateAverage(trendData, "sg_total"),
-  sg_tee: calculateAverage(trendData, "sg_tee"),
-  sg_approach: calculateAverage(trendData, "sg_approach"),
-  sg_around: calculateAverage(trendData, "sg_around"),
-  sg_putting: calculateAverage(trendData, "sg_putting"),
-  score: calculateAverage(trendData, "score"),
-};
-
-// Calculate trends (last 5 vs previous 5)
-const calculateTrend = (data: typeof trendData, key: keyof typeof trendData[0]) => {
-  const recent = data.slice(-5).map((d) => d[key] as number);
-  const previous = data.slice(-10, -5).map((d) => d[key] as number);
-  const recentAvg = recent.reduce((sum, v) => sum + v, 0) / recent.length;
-  const previousAvg = previous.reduce((sum, v) => sum + v, 0) / previous.length;
-  return recentAvg - previousAvg;
-};
-
-const trends = {
-  sg_total: calculateTrend(trendData, "sg_total"),
-  sg_tee: calculateTrend(trendData, "sg_tee"),
-  sg_approach: calculateTrend(trendData, "sg_approach"),
-  sg_around: calculateTrend(trendData, "sg_around"),
-  sg_putting: calculateTrend(trendData, "sg_putting"),
-};
+interface Round {
+  id: string;
+  played_at: string;
+  total_score: number;
+  sg_total: number | null;
+  sg_off_tee: number | null;
+  sg_approach: number | null;
+  sg_around_green: number | null;
+  sg_putting: number | null;
+}
 
 type TimeRange = "last5" | "last10" | "all";
 
 export default function TrendsPage() {
+  const supabase = createClient();
+  const [rounds, setRounds] = useState<Round[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<TimeRange>("last10");
 
-  const filteredData = timeRange === "last5" 
-    ? trendData.slice(-5) 
-    : timeRange === "last10" 
-    ? trendData.slice(-10)
-    : trendData;
+  useEffect(() => {
+    async function fetchRounds() {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setRounds([]);
+          setIsLoading(false);
+          return;
+        }
 
-  const chartData = filteredData.map((d) => ({
-    ...d,
-    date: formatDateShort(d.date),
+        const { data, error } = await supabase
+          .from("rounds")
+          .select("id, played_at, total_score, sg_total, sg_off_tee, sg_approach, sg_around_green, sg_putting")
+          .eq("user_id", user.id)
+          .order("played_at", { ascending: true });
+
+        if (error) throw error;
+        setRounds(data || []);
+      } catch (err) {
+        console.error("Error fetching rounds:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchRounds();
+  }, [supabase]);
+
+  // Filter data based on time range
+  const filteredRounds = timeRange === "last5"
+    ? rounds.slice(-5)
+    : timeRange === "last10"
+    ? rounds.slice(-10)
+    : rounds;
+
+  // Calculate averages
+  const calculateAverage = (data: Round[], key: keyof Round) => {
+    if (data.length === 0) return 0;
+    const values = data.map((d) => (d[key] as number) || 0);
+    return values.reduce((sum, v) => sum + v, 0) / values.length;
+  };
+
+  const averages = {
+    sg_total: calculateAverage(filteredRounds, "sg_total"),
+    sg_off_tee: calculateAverage(filteredRounds, "sg_off_tee"),
+    sg_approach: calculateAverage(filteredRounds, "sg_approach"),
+    sg_around_green: calculateAverage(filteredRounds, "sg_around_green"),
+    sg_putting: calculateAverage(filteredRounds, "sg_putting"),
+    score: calculateAverage(filteredRounds, "total_score"),
+  };
+
+  // Calculate trends (last 5 vs previous 5)
+  const calculateTrend = (data: Round[], key: keyof Round) => {
+    if (data.length < 6) return 0;
+    const recent = data.slice(-5).map((d) => (d[key] as number) || 0);
+    const previous = data.slice(-10, -5).map((d) => (d[key] as number) || 0);
+    if (previous.length === 0) return 0;
+    const recentAvg = recent.reduce((sum, v) => sum + v, 0) / recent.length;
+    const previousAvg = previous.reduce((sum, v) => sum + v, 0) / previous.length;
+    return recentAvg - previousAvg;
+  };
+
+  const trends = {
+    sg_total: calculateTrend(rounds, "sg_total"),
+    sg_off_tee: calculateTrend(rounds, "sg_off_tee"),
+    sg_approach: calculateTrend(rounds, "sg_approach"),
+    sg_around_green: calculateTrend(rounds, "sg_around_green"),
+    sg_putting: calculateTrend(rounds, "sg_putting"),
+  };
+
+  // Prepare chart data
+  const chartData = filteredRounds.map((d) => ({
+    date: formatDateShort(d.played_at),
+    sg_total: d.sg_total || 0,
+    sg_tee: d.sg_off_tee || 0,
+    sg_approach: d.sg_approach || 0,
+    sg_around: d.sg_around_green || 0,
+    sg_putting: d.sg_putting || 0,
+    score: d.total_score,
   }));
 
-  const TrendIndicator = ({ value }: { value: number }) => {
-    if (value > 0.1) return <TrendingUp className="w-4 h-4 text-accent-green" />;
-    if (value < -0.1) return <TrendingDown className="w-4 h-4 text-accent-red" />;
-    return <Minus className="w-4 h-4 text-foreground-muted" />;
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-accent-green" />
+      </div>
+    );
+  }
+
+  // Empty state
+  if (rounds.length === 0) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Trends</h1>
+          <p className="text-foreground-muted mt-1">
+            Track your improvement over time
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="py-16 text-center">
+            <TrendingUp className="w-16 h-16 text-foreground-muted mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">No Data Yet</h2>
+            <p className="text-foreground-muted mb-6 max-w-md mx-auto">
+              Log some rounds to start seeing your trends and track your improvement over time.
+            </p>
+            <Link href="/rounds/new">
+              <Button size="lg">
+                <PlusCircle className="w-5 h-5 mr-2" />
+                Log Your First Round
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Need at least 2 rounds for trends
+  if (rounds.length < 2) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Trends</h1>
+          <p className="text-foreground-muted mt-1">
+            Track your improvement over time
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="py-16 text-center">
+            <TrendingUp className="w-16 h-16 text-foreground-muted mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">More Rounds Needed</h2>
+            <p className="text-foreground-muted mb-6 max-w-md mx-auto">
+              Log at least 2 rounds to start seeing your trends. You have {rounds.length} round{rounds.length !== 1 ? "s" : ""} logged.
+            </p>
+            <Link href="/rounds/new">
+              <Button size="lg">
+                <PlusCircle className="w-5 h-5 mr-2" />
+                Log Another Round
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -128,10 +231,10 @@ export default function TrendsPage() {
         />
         <StrokesGainedCard
           category="off_tee"
-          value={averages.sg_tee}
+          value={averages.sg_off_tee}
           label="Avg SG: Tee"
           showTrend
-          trend={trends.sg_tee}
+          trend={trends.sg_off_tee}
         />
         <StrokesGainedCard
           category="approach"
@@ -142,10 +245,10 @@ export default function TrendsPage() {
         />
         <StrokesGainedCard
           category="around_green"
-          value={averages.sg_around}
+          value={averages.sg_around_green}
           label="Avg SG: Around"
           showTrend
-          trend={trends.sg_around}
+          trend={trends.sg_around_green}
         />
         <StrokesGainedCard
           category="putting"
@@ -304,7 +407,7 @@ export default function TrendsPage() {
                 <YAxis
                   tick={{ fill: "#94a3b8", fontSize: 11 }}
                   axisLine={{ stroke: "#334155" }}
-                  domain={[75, 90]}
+                  domain={["dataMin - 5", "dataMax + 5"]}
                   reversed
                 />
                 <Tooltip
@@ -349,9 +452,9 @@ export default function TrendsPage() {
                 .map(([key, value]) => {
                   const labels: Record<string, string> = {
                     sg_total: "Total",
-                    sg_tee: "Off the Tee",
+                    sg_off_tee: "Off the Tee",
                     sg_approach: "Approach",
-                    sg_around: "Around the Green",
+                    sg_around_green: "Around the Green",
                     sg_putting: "Putting",
                   };
                   return (
@@ -385,9 +488,9 @@ export default function TrendsPage() {
                 .map(([key, value]) => {
                   const labels: Record<string, string> = {
                     sg_total: "Total",
-                    sg_tee: "Off the Tee",
+                    sg_off_tee: "Off the Tee",
                     sg_approach: "Approach",
-                    sg_around: "Around the Green",
+                    sg_around_green: "Around the Green",
                     sg_putting: "Putting",
                   };
                   return (
@@ -408,25 +511,47 @@ export default function TrendsPage() {
       </div>
 
       {/* Recommendation */}
-      <Card className="border-accent-amber/20">
-        <CardContent className="py-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-accent-amber/10 flex items-center justify-center flex-shrink-0">
-              <Target className="w-6 h-6 text-accent-amber" />
+      {rounds.length >= 5 && (
+        <Card className="border-accent-amber/20">
+          <CardContent className="py-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-accent-amber/10 flex items-center justify-center flex-shrink-0">
+                <Target className="w-6 h-6 text-accent-amber" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Practice Recommendation</h3>
+                <p className="text-foreground-muted text-sm">
+                  {(() => {
+                    const weakest = Object.entries({
+                      "approach shots": averages.sg_approach,
+                      "off the tee": averages.sg_off_tee,
+                      "around the green": averages.sg_around_green,
+                      "putting": averages.sg_putting,
+                    }).reduce((worst, [name, val]) => val < worst[1] ? [name, val] : worst, ["", 0]);
+                    
+                    const strongest = Object.entries({
+                      "off the tee": averages.sg_off_tee,
+                      "approach shots": averages.sg_approach,
+                      "around the green": averages.sg_around_green,
+                      "putting": averages.sg_putting,
+                    }).reduce((best, [name, val]) => val > best[1] ? [name, val] : best, ["", -10]);
+
+                    return (
+                      <>
+                        Based on your trends, your <span className="text-accent-red font-medium">{weakest[0]}</span> are
+                        your biggest opportunity for improvement. Focus your practice sessions on this area.
+                        {strongest[1] > 0 && (
+                          <> Your <span className="text-accent-green font-medium">{strongest[0]}</span> game is a strength - keep it up!</>
+                        )}
+                      </>
+                    );
+                  })()}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-1">Practice Recommendation</h3>
-              <p className="text-foreground-muted text-sm">
-                Based on your trends, your <span className="text-accent-red font-medium">approach shots</span> are 
-                your biggest opportunity for improvement. Focus on iron play from 100-150 yards. 
-                Your <span className="text-accent-green font-medium">off the tee</span> game has been improving - 
-                keep up the good work on the driving range!
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
-

@@ -1,18 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { StrokesGainedCard, StatCard } from "@/components/stats";
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/components/ui";
 import { formatSG, calculateScoreToPar, getScoreColor, formatDate } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import {
   PlusCircle,
   Trophy,
   Target,
   Flag,
-  CircleDot,
   TrendingUp,
   Calendar,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -29,41 +31,138 @@ import {
   Cell,
 } from "recharts";
 
-// Demo data - in production this would come from the database
-const demoStrokesGained = {
-  sg_total: -1.24,
-  sg_off_tee: 0.42,
-  sg_approach: -0.89,
-  sg_around_green: -0.31,
-  sg_putting: -0.46,
-};
-
-const demoRecentRounds = [
-  { id: "1", course_name: "Pebble Beach", played_at: "2026-01-10", total_score: 82, par: 72, sg_total: -0.84 },
-  { id: "2", course_name: "TPC Sawgrass", played_at: "2026-01-07", total_score: 78, par: 72, sg_total: 1.22 },
-  { id: "3", course_name: "Augusta National", played_at: "2026-01-03", total_score: 85, par: 72, sg_total: -2.15 },
-  { id: "4", course_name: "St Andrews", played_at: "2025-12-28", total_score: 80, par: 72, sg_total: -0.56 },
-];
-
-const radarData = [
-  { category: "Off Tee", value: demoStrokesGained.sg_off_tee + 2, fullMark: 4 },
-  { category: "Approach", value: demoStrokesGained.sg_approach + 2, fullMark: 4 },
-  { category: "Around Green", value: demoStrokesGained.sg_around_green + 2, fullMark: 4 },
-  { category: "Putting", value: demoStrokesGained.sg_putting + 2, fullMark: 4 },
-];
-
-const sgBreakdownData = [
-  { name: "Off Tee", value: demoStrokesGained.sg_off_tee },
-  { name: "Approach", value: demoStrokesGained.sg_approach },
-  { name: "Around Green", value: demoStrokesGained.sg_around_green },
-  { name: "Putting", value: demoStrokesGained.sg_putting },
-];
+interface Round {
+  id: string;
+  course_name: string;
+  played_at: string;
+  total_score: number;
+  sg_total: number | null;
+  sg_off_tee: number | null;
+  sg_approach: number | null;
+  sg_around_green: number | null;
+  sg_putting: number | null;
+}
 
 export default function DashboardPage() {
-  const roundsCount = demoRecentRounds.length;
-  const avgScore = Math.round(
-    demoRecentRounds.reduce((sum, r) => sum + r.total_score, 0) / roundsCount
-  );
+  const supabase = createClient();
+  const [rounds, setRounds] = useState<Round[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRounds() {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setRounds([]);
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("rounds")
+          .select("id, course_name, played_at, total_score, sg_total, sg_off_tee, sg_approach, sg_around_green, sg_putting")
+          .eq("user_id", user.id)
+          .order("played_at", { ascending: false })
+          .limit(10);
+
+        if (error) throw error;
+        setRounds(data || []);
+      } catch (err) {
+        console.error("Error fetching rounds:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchRounds();
+  }, [supabase]);
+
+  // Calculate averages from real data
+  const roundsCount = rounds.length;
+  const avgScore = roundsCount > 0
+    ? Math.round(rounds.reduce((sum, r) => sum + r.total_score, 0) / roundsCount)
+    : 0;
+  const bestRound = roundsCount > 0
+    ? rounds.reduce((best, r) => r.total_score < best.total_score ? r : best, rounds[0])
+    : null;
+
+  const avgStrokesGained = {
+    sg_total: roundsCount > 0 ? rounds.reduce((sum, r) => sum + (r.sg_total || 0), 0) / roundsCount : 0,
+    sg_off_tee: roundsCount > 0 ? rounds.reduce((sum, r) => sum + (r.sg_off_tee || 0), 0) / roundsCount : 0,
+    sg_approach: roundsCount > 0 ? rounds.reduce((sum, r) => sum + (r.sg_approach || 0), 0) / roundsCount : 0,
+    sg_around_green: roundsCount > 0 ? rounds.reduce((sum, r) => sum + (r.sg_around_green || 0), 0) / roundsCount : 0,
+    sg_putting: roundsCount > 0 ? rounds.reduce((sum, r) => sum + (r.sg_putting || 0), 0) / roundsCount : 0,
+  };
+
+  // Calculate improvement (last 3 vs previous 3)
+  const improvement = roundsCount >= 6
+    ? (rounds.slice(0, 3).reduce((sum, r) => sum + (r.sg_total || 0), 0) / 3) -
+      (rounds.slice(3, 6).reduce((sum, r) => sum + (r.sg_total || 0), 0) / 3)
+    : 0;
+
+  // Find weakest area
+  const sgCategories = [
+    { name: "Approach", value: avgStrokesGained.sg_approach, key: "approach" },
+    { name: "Off Tee", value: avgStrokesGained.sg_off_tee, key: "off_tee" },
+    { name: "Around Green", value: avgStrokesGained.sg_around_green, key: "around_green" },
+    { name: "Putting", value: avgStrokesGained.sg_putting, key: "putting" },
+  ];
+  const weakestArea = sgCategories.reduce((worst, cat) => cat.value < worst.value ? cat : worst, sgCategories[0]);
+
+  const radarData = [
+    { category: "Off Tee", value: avgStrokesGained.sg_off_tee + 2, fullMark: 4 },
+    { category: "Approach", value: avgStrokesGained.sg_approach + 2, fullMark: 4 },
+    { category: "Around Green", value: avgStrokesGained.sg_around_green + 2, fullMark: 4 },
+    { category: "Putting", value: avgStrokesGained.sg_putting + 2, fullMark: 4 },
+  ];
+
+  const sgBreakdownData = [
+    { name: "Off Tee", value: avgStrokesGained.sg_off_tee },
+    { name: "Approach", value: avgStrokesGained.sg_approach },
+    { name: "Around Green", value: avgStrokesGained.sg_around_green },
+    { name: "Putting", value: avgStrokesGained.sg_putting },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-accent-green" />
+      </div>
+    );
+  }
+
+  // Empty state
+  if (rounds.length === 0) {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-foreground-muted mt-1">
+              Your strokes gained analysis at a glance
+            </p>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="py-16 text-center">
+            <Target className="w-16 h-16 text-foreground-muted mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">No Rounds Yet</h2>
+            <p className="text-foreground-muted mb-6 max-w-md mx-auto">
+              Start tracking your rounds to see your strokes gained analysis and identify areas for improvement.
+            </p>
+            <Link href="/rounds/new">
+              <Button size="lg">
+                <PlusCircle className="w-5 h-5 mr-2" />
+                Log Your First Round
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -87,29 +186,29 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StrokesGainedCard
           category="total"
-          value={demoStrokesGained.sg_total}
+          value={avgStrokesGained.sg_total}
           label="Total SG"
           description="Per round average"
           className="lg:col-span-1"
         />
         <StrokesGainedCard
           category="off_tee"
-          value={demoStrokesGained.sg_off_tee}
+          value={avgStrokesGained.sg_off_tee}
           label="SG: Off the Tee"
         />
         <StrokesGainedCard
           category="approach"
-          value={demoStrokesGained.sg_approach}
+          value={avgStrokesGained.sg_approach}
           label="SG: Approach"
         />
         <StrokesGainedCard
           category="around_green"
-          value={demoStrokesGained.sg_around_green}
+          value={avgStrokesGained.sg_around_green}
           label="SG: Around Green"
         />
         <StrokesGainedCard
           category="putting"
-          value={demoStrokesGained.sg_putting}
+          value={avgStrokesGained.sg_putting}
           label="SG: Putting"
         />
       </div>
@@ -120,7 +219,7 @@ export default function DashboardPage() {
           label="Rounds Played"
           value={roundsCount}
           icon={Calendar}
-          subtitle="This month"
+          subtitle="Total tracked"
           color="blue"
         />
         <StatCard
@@ -132,17 +231,17 @@ export default function DashboardPage() {
         />
         <StatCard
           label="Best Round"
-          value={Math.min(...demoRecentRounds.map(r => r.total_score))}
+          value={bestRound?.total_score ?? "-"}
           icon={Target}
-          subtitle="TPC Sawgrass"
+          subtitle={bestRound?.course_name ?? ""}
           color="green"
         />
         <StatCard
           label="Improvement"
-          value="+2.1"
+          value={improvement >= 0 ? `+${improvement.toFixed(1)}` : improvement.toFixed(1)}
           icon={TrendingUp}
-          subtitle="Strokes gained"
-          color="green"
+          subtitle="SG trend"
+          color={improvement >= 0 ? "green" : "red"}
         />
       </div>
 
@@ -246,7 +345,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {demoRecentRounds.map((round) => (
+            {rounds.slice(0, 4).map((round) => (
               <Link
                 key={round.id}
                 href={`/rounds/${round.id}`}
@@ -263,16 +362,16 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className={`text-lg font-bold ${getScoreColor(round.total_score, round.par)}`}>
+                    <p className={`text-lg font-bold ${getScoreColor(round.total_score, 72)}`}>
                       {round.total_score}
                     </p>
                     <p className="text-xs text-foreground-muted">
-                      {calculateScoreToPar(round.total_score, round.par)}
+                      {calculateScoreToPar(round.total_score, 72)}
                     </p>
                   </div>
                   <div className="text-right min-w-[60px]">
-                    <p className={`text-lg font-bold ${round.sg_total >= 0 ? "text-accent-green" : "text-accent-red"}`}>
-                      {formatSG(round.sg_total)}
+                    <p className={`text-lg font-bold ${(round.sg_total ?? 0) >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+                      {formatSG(round.sg_total ?? 0)}
                     </p>
                     <p className="text-xs text-foreground-muted">SG</p>
                   </div>
@@ -284,24 +383,25 @@ export default function DashboardPage() {
       </Card>
 
       {/* Insight Card */}
-      <Card className="bg-gradient-to-br from-background-secondary to-background-tertiary border-accent-amber/20">
-        <CardContent className="py-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-accent-amber/10 flex items-center justify-center flex-shrink-0">
-              <Target className="w-6 h-6 text-accent-amber" />
+      {weakestArea && weakestArea.value < 0 && (
+        <Card className="bg-gradient-to-br from-background-secondary to-background-tertiary border-accent-amber/20">
+          <CardContent className="py-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-accent-amber/10 flex items-center justify-center flex-shrink-0">
+                <Target className="w-6 h-6 text-accent-amber" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Focus Area: {weakestArea.name}</h3>
+                <p className="text-foreground-muted text-sm">
+                  Your {weakestArea.name.toLowerCase()} shots are costing you{" "}
+                  <span className="text-accent-red font-medium">{Math.abs(weakestArea.value).toFixed(2)} strokes per round</span>.
+                  This is your biggest opportunity for improvement. Focus your practice sessions on this area.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-1">Focus Area: Approach Shots</h3>
-              <p className="text-foreground-muted text-sm">
-                Your approach shots are costing you <span className="text-accent-red font-medium">0.89 strokes per round</span>. 
-                This is your biggest opportunity for improvement. Consider working on distance control with your irons 
-                and practicing from 100-150 yards.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
-
