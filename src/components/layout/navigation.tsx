@@ -14,6 +14,9 @@ import {
   Target,
   LogOut,
   User,
+  Dumbbell,
+  Trophy,
+  Flag,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -37,6 +40,26 @@ const navItems = [
     href: "/trends",
     label: "Trends",
     icon: TrendingUp,
+  },
+  {
+    href: "/practice",
+    label: "Practice Log",
+    icon: Dumbbell,
+  },
+  {
+    href: "/goals",
+    label: "Goals",
+    icon: Flag,
+  },
+  {
+    href: "/leaderboard",
+    label: "Leaderboard",
+    icon: Trophy,
+  },
+  {
+    href: "/profile",
+    label: "Profile",
+    icon: User,
   },
 ];
 

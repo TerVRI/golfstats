@@ -7,6 +7,7 @@ import { cn, getScoreColor } from "@/lib/utils";
 import { calculateRoundStrokesGained } from "@/lib/strokes-gained";
 import { HoleEntryData, DEFAULT_COURSE_PARS, CLUBS, createDefaultHoleData } from "@/types/golf";
 import { createClient } from "@/lib/supabase/client";
+import { CourseSearch } from "@/components/course-search";
 import {
   ArrowLeft,
   ArrowRight,
@@ -153,15 +154,21 @@ export default function NewRoundPage() {
     <div className="max-w-xl mx-auto space-y-6 animate-fade-in">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-foreground">Course Information</h2>
-        <p className="text-foreground-muted mt-1">Enter the details about the course you played</p>
+        <p className="text-foreground-muted mt-1">Search for a course or enter details manually</p>
       </div>
 
-      <Input
-        label="Course Name"
-        placeholder="e.g., Pebble Beach Golf Links"
-        value={courseName}
-        onChange={(e) => setCourseName(e.target.value)}
-      />
+      <div>
+        <label className="block text-sm font-medium text-foreground-muted mb-2">Course Name</label>
+        <CourseSearch
+          value={courseName}
+          onChange={setCourseName}
+          onSelect={(course) => {
+            setCourseName(course.name);
+            if (course.course_rating) setCourseRating(course.course_rating.toString());
+            if (course.slope_rating) setSlopeRating(course.slope_rating.toString());
+          }}
+        />
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Input

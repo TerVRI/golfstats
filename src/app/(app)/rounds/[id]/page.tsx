@@ -7,7 +7,8 @@ import { Card, CardHeader, CardTitle, CardContent, Button } from "@/components/u
 import { StrokesGainedCard } from "@/components/stats";
 import { cn, formatSG, calculateScoreToPar, getScoreColor, formatDate } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { ArrowLeft, Calendar, Flag, Target, Pencil, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Calendar, Flag, Target, Pencil, Trash2, Loader2, Download } from "lucide-react";
+import { generateRoundPDF } from "@/components/pdf/round-pdf";
 import {
   ResponsiveContainer,
   BarChart,
@@ -63,6 +64,7 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     async function fetchRound() {
@@ -118,6 +120,27 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
       alert("Failed to delete round");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (!round) return;
+    setIsExporting(true);
+    try {
+      const blob = await generateRoundPDF(round, holes);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${round.course_name.replace(/\s+/g, "_")}_${round.played_at}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error exporting PDF:", err);
+      alert("Failed to export PDF");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -192,6 +215,19 @@ export default function RoundDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleExportPDF}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 mr-2" />
+            )}
+            Export PDF
+          </Button>
           <Link href={`/rounds/${id}/edit`}>
             <Button variant="secondary" size="sm">
               <Pencil className="w-4 h-4 mr-2" />
