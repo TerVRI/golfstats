@@ -105,6 +105,7 @@ export default function EditRoundPage({ params }: { params: Promise<{ id: string
             first_putt_distance: h.first_putt_distance,
             tee_club: null,
             approach_club: null,
+            approach_result: null,
           }));
           setHoles(holesData);
         } else {
