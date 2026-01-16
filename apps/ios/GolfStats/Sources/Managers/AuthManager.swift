@@ -178,11 +178,14 @@ class AuthManager: ObservableObject {
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             if let accessToken = json?["access_token"] as? String, !accessToken.isEmpty {
                 try await handleAuthResponse(data: data)
+            } else if json?["id"] != nil {
+                // User created but email confirmation required
+                throw AuthError.emailConfirmationRequired
             } else {
-                // Email confirmation required
-                self.error = "Check your email to confirm your account"
+                throw AuthError.signInFailed
             }
         } catch let authError as AuthError {
+            // For email confirmation, this is actually a success
             self.error = authError.message
         } catch {
             self.error = "Sign up failed: \(error.localizedDescription)"
@@ -333,6 +336,7 @@ enum AuthError: Error {
     case refreshFailed
     case signInFailed
     case customError(String)
+    case emailConfirmationRequired
     
     var message: String {
         switch self {
@@ -344,6 +348,17 @@ enum AuthError: Error {
             return "Sign in failed. Please try again."
         case .customError(let msg):
             return msg
+        case .emailConfirmationRequired:
+            return "✅ Check your email to confirm your account, then sign in."
+        }
+    }
+    
+    var isSuccess: Bool {
+        switch self {
+        case .emailConfirmationRequired:
+            return true
+        default:
+            return false
         }
     }
 }

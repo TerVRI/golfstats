@@ -90,13 +90,15 @@ struct LoginView: View {
                             .padding()
                     }
                     
-                    // Error message
+                    // Error/Success message
                     if let error = authManager.error {
                         Text(error)
-                            .font(.caption)
-                            .foregroundColor(error.contains("Check your email") ? .green : .red)
+                            .font(.subheadline)
+                            .fontWeight(error.contains("✅") ? .medium : .regular)
+                            .foregroundColor(error.contains("✅") || error.contains("Check your email") ? .green : .red)
                             .padding(.horizontal)
                             .multilineTextAlignment(.center)
+                            .padding(.vertical, 8)
                     }
                     
                     // Terms
