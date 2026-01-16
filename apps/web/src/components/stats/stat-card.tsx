@@ -9,7 +9,7 @@ interface StatCardProps {
   value: string | number;
   icon?: LucideIcon;
   subtitle?: string;
-  color?: "default" | "green" | "red" | "amber" | "blue";
+  color?: "default" | "green" | "red" | "amber" | "blue" | "purple";
   className?: string;
 }
 
@@ -19,6 +19,7 @@ const colorClasses = {
   red: "text-accent-red",
   amber: "text-amber-400",
   blue: "text-accent-blue",
+  purple: "text-purple-400",
 };
 
 const iconBgClasses = {
@@ -27,6 +28,7 @@ const iconBgClasses = {
   red: "bg-accent-red/10",
   amber: "bg-amber-400/10",
   blue: "bg-accent-blue/10",
+  purple: "bg-purple-400/10",
 };
 
 export function StatCard({

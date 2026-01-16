@@ -121,32 +121,62 @@ struct DashboardView: View {
     // MARK: - Quick Stats Section
     
     private var quickStatsSection: some View {
-        LazyVGrid(columns: [
-            GridItem(.flexible()),
-            GridItem(.flexible()),
-            GridItem(.flexible()),
-            GridItem(.flexible())
-        ], spacing: 12) {
-            StatCard(title: "Rounds", value: "\(stats.roundsPlayed)", icon: "flag.fill")
-            StatCard(
-                title: "Avg Score",
-                value: stats.roundsPlayed > 0 ? String(format: "%.0f", stats.averageScore) : "-",
-                icon: "chart.bar.fill"
-            )
-            StatCard(
-                title: "Best",
-                value: stats.bestScore > 0 ? "\(stats.bestScore)" : "-",
-                icon: "trophy.fill",
-                color: .yellow
-            )
-            StatCard(
-                title: "Avg SG",
-                value: formatSG(stats.averageSG),
-                icon: "arrow.up.right",
-                color: stats.averageSG >= 0 ? .green : .red
-            )
+        VStack(spacing: 12) {
+            // Top row - 4 stats
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 12) {
+                StatCard(title: "Rounds", value: "\(stats.roundsPlayed)", icon: "flag.fill")
+                StatCard(
+                    title: "Avg Score",
+                    value: stats.roundsPlayed > 0 ? String(format: "%.0f", stats.averageScore) : "-",
+                    icon: "chart.bar.fill"
+                )
+                StatCard(
+                    title: "Best",
+                    value: stats.bestScore > 0 ? "\(stats.bestScore)" : "-",
+                    icon: "trophy.fill",
+                    color: .yellow
+                )
+                StatCard(
+                    title: "Avg SG",
+                    value: formatSG(stats.averageSG),
+                    icon: "arrow.up.right",
+                    color: stats.averageSG >= 0 ? .green : .red
+                )
+            }
+            
+            // Bottom row - Improvement + Handicap
+            HStack(spacing: 12) {
+                let improvement = calculateImprovement()
+                StatCard(
+                    title: "Trend",
+                    value: improvement != 0 ? formatSG(improvement) : "-",
+                    icon: improvement >= 0 ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill",
+                    color: improvement >= 0 ? .green : .red
+                )
+                
+                if let handicap = stats.handicapIndex {
+                    StatCard(
+                        title: "Handicap",
+                        value: String(format: "%.1f", handicap),
+                        icon: "number.circle.fill",
+                        color: .purple
+                    )
+                }
+            }
         }
         .padding(.horizontal)
+    }
+    
+    private func calculateImprovement() -> Double {
+        guard recentRounds.count >= 6 else { return 0 }
+        let recent3 = recentRounds.prefix(3).compactMap { $0.sgTotal }.reduce(0, +) / 3.0
+        let previous3 = recentRounds.dropFirst(3).prefix(3).compactMap { $0.sgTotal }.reduce(0, +) / 3.0
+        return recent3 - previous3
     }
     
     // MARK: - Action Buttons
