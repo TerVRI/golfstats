@@ -9,7 +9,6 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter=@golfstats/web",
-    "dev:mobile": "turbo run dev --filter=@golfstats/mobile",
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@golfstats/web",
     "lint": "turbo run lint",
