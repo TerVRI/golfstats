@@ -22,6 +22,10 @@ interface Round {
   sg_approach: number | null;
   sg_around_green: number | null;
   sg_putting: number | null;
+  course_rating: number | null;
+  slope_rating: number | null;
+  penalties: number | null;
+  scoring_format?: string;
 }
 
 export default function RoundsPage() {
@@ -133,7 +137,7 @@ export default function RoundsPage() {
             variant="secondary"
             className="flex items-center gap-2"
             onClick={() => {
-              const csv = roundsToCSV(rounds as any);
+              const csv = roundsToCSV(rounds);
               downloadCSV(csv, `golfstats-rounds-${new Date().toISOString().split("T")[0]}.csv`);
             }}
           >

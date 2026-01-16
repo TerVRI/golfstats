@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { ClubData, ClubType } from "@/types/golf";
@@ -75,13 +75,7 @@ export default function BagPage() {
   const [saving, setSaving] = useState(false);
   const [expandedType, setExpandedType] = useState<ClubType | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchClubs();
-    }
-  }, [user]);
-
-  const fetchClubs = async () => {
+  const fetchClubs = useCallback(async () => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -96,7 +90,13 @@ export default function BagPage() {
       setClubs(data || []);
     }
     setLoading(false);
-  };
+  }, [supabase, user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchClubs();
+    }
+  }, [user, fetchClubs]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

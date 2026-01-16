@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { Achievement, UserAchievement, AchievementTier, AchievementCategory } from "@/types/golf";
@@ -46,11 +46,7 @@ export default function AchievementsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<AchievementCategory | "all">("all");
 
-  useEffect(() => {
-    fetchAchievements();
-  }, [user]);
-
-  const fetchAchievements = async () => {
+  const fetchAchievements = useCallback(async () => {
     // Fetch all achievement definitions
     const { data: allAchievements, error: achError } = await supabase
       .from("achievement_definitions")
@@ -79,7 +75,11 @@ export default function AchievementsPage() {
     }
 
     setLoading(false);
-  };
+  }, [supabase, user]);
+
+  useEffect(() => {
+    fetchAchievements();
+  }, [fetchAchievements]);
 
   const unlockedIds = new Set(userAchievements.map((ua) => ua.achievement_id));
   const totalPoints = userAchievements.reduce((sum, ua) => {

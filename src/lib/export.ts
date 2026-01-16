@@ -1,7 +1,27 @@
 import { Round, HoleScore } from "@/types/golf";
 
+// Round data shape for CSV export
+interface RoundForExport {
+  played_at: string;
+  course_name: string;
+  total_score: number;
+  total_putts: number | null;
+  fairways_hit: number | null;
+  fairways_total: number | null;
+  gir: number | null;
+  penalties: number | null;
+  sg_total: number | null;
+  sg_off_tee: number | null;
+  sg_approach: number | null;
+  sg_around_green: number | null;
+  sg_putting: number | null;
+  course_rating: number | null;
+  slope_rating: number | null;
+  scoring_format?: string;
+}
+
 // Convert rounds to CSV format
-export function roundsToCSV(rounds: Round[]): string {
+export function roundsToCSV(rounds: RoundForExport[]): string {
   const headers = [
     "Date",
     "Course",
@@ -41,7 +61,7 @@ export function roundsToCSV(rounds: Round[]): string {
       round.sg_putting?.toFixed(2) || "N/A",
       round.course_rating || "N/A",
       round.slope_rating || "N/A",
-      (round as Round & { scoring_format?: string }).scoring_format || "stroke",
+      round.scoring_format || "stroke",
     ];
   });
 
