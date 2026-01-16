@@ -1,41 +1,25 @@
 {
-  "name": "golfstats",
+  "name": "golfstats-monorepo",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
-  },
-  "dependencies": {
-    "@react-pdf/renderer": "^4.3.2",
-    "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.90.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.562.0",
-    "next": "16.1.1",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "recharts": "^3.6.0",
-    "tailwind-merge": "^3.4.0"
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@golfstats/web",
+    "dev:mobile": "turbo run dev --filter=@golfstats/mobile",
+    "build": "turbo run build",
+    "build:web": "turbo run build --filter=@golfstats/web",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:run": "turbo run test:run",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.1",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^5.1.2",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.1",
-    "jsdom": "^27.4.0",
-    "tailwindcss": "^4",
-    "typescript": "^5",
-    "vitest": "^4.0.17"
-  }
+    "turbo": "^2.7.4"
+  },
+  "packageManager": "npm@10.2.0"
 }

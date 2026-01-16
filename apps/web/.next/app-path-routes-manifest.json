@@ -1,0 +1,22 @@
+{
+  "/(app)/achievements/page": "/achievements",
+  "/(app)/bag/page": "/bag",
+  "/(app)/courses/[id]/page": "/courses/[id]",
+  "/(app)/courses/page": "/courses",
+  "/(app)/dashboard/page": "/dashboard",
+  "/(app)/goals/page": "/goals",
+  "/(app)/leaderboard/page": "/leaderboard",
+  "/(app)/practice/page": "/practice",
+  "/(app)/profile/page": "/profile",
+  "/(app)/rounds/[id]/edit/page": "/rounds/[id]/edit",
+  "/(app)/rounds/[id]/page": "/rounds/[id]",
+  "/(app)/rounds/new/page": "/rounds/new",
+  "/(app)/rounds/page": "/rounds",
+  "/(app)/trends/page": "/trends",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/auth/callback/route": "/auth/callback",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/page": "/"
+}

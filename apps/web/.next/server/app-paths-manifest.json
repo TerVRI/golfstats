@@ -1,0 +1,22 @@
+{
+  "/(app)/achievements/page": "app/(app)/achievements/page.js",
+  "/(app)/bag/page": "app/(app)/bag/page.js",
+  "/(app)/courses/[id]/page": "app/(app)/courses/[id]/page.js",
+  "/(app)/courses/page": "app/(app)/courses/page.js",
+  "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
+  "/(app)/goals/page": "app/(app)/goals/page.js",
+  "/(app)/leaderboard/page": "app/(app)/leaderboard/page.js",
+  "/(app)/practice/page": "app/(app)/practice/page.js",
+  "/(app)/profile/page": "app/(app)/profile/page.js",
+  "/(app)/rounds/[id]/edit/page": "app/(app)/rounds/[id]/edit/page.js",
+  "/(app)/rounds/[id]/page": "app/(app)/rounds/[id]/page.js",
+  "/(app)/rounds/new/page": "app/(app)/rounds/new/page.js",
+  "/(app)/rounds/page": "app/(app)/rounds/page.js",
+  "/(app)/trends/page": "app/(app)/trends/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/auth/callback/route": "app/auth/callback/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}
