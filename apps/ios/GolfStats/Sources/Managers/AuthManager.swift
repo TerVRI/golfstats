@@ -2,18 +2,25 @@ import Foundation
 import AuthenticationServices
 import CryptoKit
 
+enum AuthProvider: String {
+    case apple
+    case google
+    case email
+}
+
 @MainActor
 class AuthManager: ObservableObject {
     @Published var currentUser: User?
     @Published var isLoading = true
     @Published var error: String?
+    @Published var isSigningIn = false
     
     var isAuthenticated: Bool {
         currentUser != nil
     }
     
     private let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
-    private let supabaseKey = "sb_publishable_JftEdMATFsi78Ba8rIFObg_tpOeIS2J"
+    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthbnZocXdyZmt6cWt0dXZweG5wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxNjU4MzMsImV4cCI6MjA1Mjc0MTgzM30.dsMo4NWPw6t-h1OlMfPqfgC8E7i6w4aXa0g6xaZF3TA"
     
     private var accessToken: String? {
         get { UserDefaults.standard.string(forKey: "access_token") }
@@ -104,13 +111,97 @@ class AuthManager: ObservableObject {
         }
     }
     
+    // MARK: - Sign In with Email
+    
+    func signInWithEmail(email: String, password: String) async {
+        isSigningIn = true
+        error = nil
+        
+        do {
+            var request = URLRequest(url: URL(string: "\(supabaseUrl)/auth/v1/token?grant_type=password")!)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(supabaseKey, forHTTPHeaderField: "apikey")
+            
+            let body: [String: Any] = [
+                "email": email,
+                "password": password
+            ]
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                let errorMessage = errorJson?["error_description"] as? String ?? errorJson?["msg"] as? String ?? "Sign in failed"
+                throw AuthError.customError(errorMessage)
+            }
+            
+            try await handleAuthResponse(data: data)
+        } catch let authError as AuthError {
+            self.error = authError.message
+        } catch {
+            self.error = "Sign in failed: \(error.localizedDescription)"
+        }
+        
+        isSigningIn = false
+    }
+    
+    // MARK: - Sign Up with Email
+    
+    func signUpWithEmail(email: String, password: String, fullName: String) async {
+        isSigningIn = true
+        error = nil
+        
+        do {
+            var request = URLRequest(url: URL(string: "\(supabaseUrl)/auth/v1/signup")!)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(supabaseKey, forHTTPHeaderField: "apikey")
+            
+            let body: [String: Any] = [
+                "email": email,
+                "password": password,
+                "data": ["full_name": fullName]
+            ]
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                let errorMessage = errorJson?["error_description"] as? String ?? errorJson?["msg"] as? String ?? "Sign up failed"
+                throw AuthError.customError(errorMessage)
+            }
+            
+            // Check if email confirmation is required
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            if let accessToken = json?["access_token"] as? String, !accessToken.isEmpty {
+                try await handleAuthResponse(data: data)
+            } else {
+                // Email confirmation required
+                self.error = "Check your email to confirm your account"
+            }
+        } catch let authError as AuthError {
+            self.error = authError.message
+        } catch {
+            self.error = "Sign up failed: \(error.localizedDescription)"
+        }
+        
+        isSigningIn = false
+    }
+    
     // MARK: - Sign In with Apple
     
     func signInWithApple(authorization: ASAuthorization) async {
+        isSigningIn = true
+        error = nil
+        
         guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
               let identityToken = credential.identityToken,
               let tokenString = String(data: identityToken, encoding: .utf8) else {
             self.error = "Failed to get Apple ID credential"
+            isSigningIn = false
             return
         }
         
@@ -128,19 +219,82 @@ class AuthManager: ObservableObject {
             
             let (data, response) = try await URLSession.shared.data(for: request)
             
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                throw AuthError.signInFailed
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                let errorMessage = errorJson?["error_description"] as? String ?? errorJson?["msg"] as? String ?? "Apple sign in failed"
+                throw AuthError.customError(errorMessage)
             }
             
-            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            self.accessToken = json?["access_token"] as? String
-            self.refreshToken = json?["refresh_token"] as? String
-            
-            if let token = self.accessToken {
-                self.currentUser = try await fetchUser(token: token)
-            }
+            try await handleAuthResponse(data: data)
+        } catch let authError as AuthError {
+            self.error = authError.message
         } catch {
             self.error = "Sign in failed: \(error.localizedDescription)"
+        }
+        
+        isSigningIn = false
+    }
+    
+    // MARK: - Sign In with Google (OAuth)
+    
+    func getGoogleSignInURL() -> URL? {
+        var components = URLComponents(string: "\(supabaseUrl)/auth/v1/authorize")
+        components?.queryItems = [
+            URLQueryItem(name: "provider", value: "google"),
+            URLQueryItem(name: "redirect_to", value: "golfstats://auth/callback")
+        ]
+        return components?.url
+    }
+    
+    func handleOAuthCallback(url: URL) async {
+        isSigningIn = true
+        error = nil
+        
+        // Parse the callback URL for tokens
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let fragment = components.fragment else {
+            self.error = "Invalid callback URL"
+            isSigningIn = false
+            return
+        }
+        
+        // Parse fragment (access_token=...&refresh_token=...&...)
+        var params: [String: String] = [:]
+        for param in fragment.split(separator: "&") {
+            let pair = param.split(separator: "=", maxSplits: 1)
+            if pair.count == 2 {
+                params[String(pair[0])] = String(pair[1])
+            }
+        }
+        
+        if let accessToken = params["access_token"],
+           let refreshToken = params["refresh_token"] {
+            self.accessToken = accessToken
+            self.refreshToken = refreshToken
+            
+            do {
+                self.currentUser = try await fetchUser(token: accessToken)
+            } catch {
+                self.error = "Failed to fetch user profile"
+            }
+        } else if let errorDescription = params["error_description"] {
+            self.error = errorDescription.removingPercentEncoding ?? errorDescription
+        } else {
+            self.error = "Authentication failed"
+        }
+        
+        isSigningIn = false
+    }
+    
+    // MARK: - Auth Response Handler
+    
+    private func handleAuthResponse(data: Data) async throws {
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        self.accessToken = json?["access_token"] as? String
+        self.refreshToken = json?["refresh_token"] as? String
+        
+        if let token = self.accessToken {
+            self.currentUser = try await fetchUser(token: token)
         }
     }
     
@@ -178,4 +332,18 @@ enum AuthError: Error {
     case invalidSession
     case refreshFailed
     case signInFailed
+    case customError(String)
+    
+    var message: String {
+        switch self {
+        case .invalidSession:
+            return "Session expired. Please sign in again."
+        case .refreshFailed:
+            return "Failed to refresh session. Please sign in again."
+        case .signInFailed:
+            return "Sign in failed. Please try again."
+        case .customError(let msg):
+            return msg
+        }
+    }
 }
