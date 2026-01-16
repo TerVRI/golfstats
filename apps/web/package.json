@@ -1,5 +1,5 @@
 {
-  "name": "@golfstats/web",
+  "name": "@roundcaddy/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,7 +12,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@golfstats/shared": "*",
+    "@roundcaddy/shared": "*",
     "@react-pdf/renderer": "^4.3.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.90.1",

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GolfStats - Strokes Gained Analytics",
+  title: "RoundCaddy - Strokes Gained Analytics",
   description: "Tour-level strokes gained analytics for every golfer. Track your rounds, analyze your game, and identify where to improve.",
-  keywords: ["golf", "strokes gained", "golf stats", "golf analytics", "handicap", "golf tracking"],
+  keywords: ["golf", "strokes gained", "round caddy", "golf analytics", "handicap", "golf tracking"],
 };
 
 export default function RootLayout({

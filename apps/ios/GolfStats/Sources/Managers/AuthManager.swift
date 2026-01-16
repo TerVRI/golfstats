@@ -244,7 +244,7 @@ class AuthManager: ObservableObject {
         var components = URLComponents(string: "\(supabaseUrl)/auth/v1/authorize")
         components?.queryItems = [
             URLQueryItem(name: "provider", value: "google"),
-            URLQueryItem(name: "redirect_to", value: "golfstats://auth/callback")
+            URLQueryItem(name: "redirect_to", value: "roundcaddy://auth/callback")
         ]
         return components?.url
     }

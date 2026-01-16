@@ -3,9 +3,11 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var watchSyncManager: WatchSyncManager
+    @StateObject private var golfBag = GolfBag.shared
     @State private var stats: UserStats = .empty
     @State private var isLoading = true
     @State private var showSignOutAlert = false
+    @State private var showBagEditor = false
     
     var body: some View {
         NavigationStack {
@@ -63,6 +65,47 @@ struct ProfileView: View {
                     }
                     .padding(.horizontal)
                     
+                    // My Bag Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("My Bag")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Button {
+                                showBagEditor = true
+                            } label: {
+                                Text("Edit")
+                                    .font(.subheadline)
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        
+                        Text("\(golfBag.clubs.count) clubs")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        
+                        // Club grid
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 8) {
+                            ForEach(golfBag.clubs) { club in
+                                Text(club.rawValue)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(Color.green.opacity(0.3))
+                                    .cornerRadius(8)
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Color("BackgroundSecondary"))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    
                     // Watch Status
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Connected Devices")
@@ -113,7 +156,7 @@ struct ProfileView: View {
                     
                     // App Info
                     VStack(spacing: 4) {
-                        Text("GolfStats")
+                        Text("RoundCaddy")
                             .font(.caption)
                             .foregroundColor(.gray)
                         Text("Version 1.0.0")
@@ -137,8 +180,15 @@ struct ProfileView: View {
         } message: {
             Text("Are you sure you want to sign out?")
         }
+        .sheet(isPresented: $showBagEditor) {
+            BagEditorView(golfBag: golfBag, watchSyncManager: watchSyncManager)
+        }
         .task {
             await loadStats()
+        }
+        .onAppear {
+            // Sync bag to watch when profile loads
+            watchSyncManager.sendBagToWatch(clubs: golfBag.clubNames)
         }
     }
     
@@ -183,6 +233,74 @@ struct ProfileStatCard: View {
         .padding()
         .background(Color("BackgroundSecondary"))
         .cornerRadius(12)
+    }
+}
+
+// MARK: - Bag Editor View
+
+struct BagEditorView: View {
+    @ObservedObject var golfBag: GolfBag
+    @ObservedObject var watchSyncManager: WatchSyncManager
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(ClubCategory.allCases, id: \.self) { category in
+                    Section(header: Text(category.rawValue)) {
+                        let clubsInCategory = ClubType.allCases.filter { $0.category == category }
+                        ForEach(clubsInCategory) { club in
+                            HStack {
+                                Text(club.rawValue)
+                                    .foregroundColor(.white)
+                                
+                                Spacer()
+                                
+                                if golfBag.isInBag(club) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                } else {
+                                    Image(systemName: "circle")
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                toggleClub(club)
+                            }
+                        }
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color("Background"))
+            .navigationTitle("Edit My Bag")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        // Sync to watch when done editing
+                        watchSyncManager.sendBagToWatch(clubs: golfBag.clubNames)
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+    
+    private func toggleClub(_ club: ClubType) {
+        if golfBag.isInBag(club) {
+            golfBag.removeClub(club)
+        } else {
+            golfBag.addClub(club)
+        }
     }
 }
 

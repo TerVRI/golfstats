@@ -12,6 +12,9 @@ class RoundManager: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
     
+    // Watch sync callback - set by the view that has access to WatchSyncManager
+    var onStateChanged: (() -> Void)?
+    
     // Computed properties
     var totalScore: Int {
         holeScores.compactMap { $0.score }.reduce(0, +)
@@ -60,18 +63,21 @@ class RoundManager: ObservableObject {
     func nextHole() {
         if currentHole < 18 {
             currentHole += 1
+            onStateChanged?()
         }
     }
     
     func previousHole() {
         if currentHole > 1 {
             currentHole -= 1
+            onStateChanged?()
         }
     }
     
     func goToHole(_ hole: Int) {
         guard hole >= 1 && hole <= 18 else { return }
         currentHole = hole
+        onStateChanged?()
     }
     
     // MARK: - Score Entry
@@ -79,27 +85,32 @@ class RoundManager: ObservableObject {
     func updateScore(_ score: Int) {
         guard let index = holeScores.firstIndex(where: { $0.holeNumber == currentHole }) else { return }
         holeScores[index].score = score
+        onStateChanged?()
     }
     
     func updatePutts(_ putts: Int) {
         guard let index = holeScores.firstIndex(where: { $0.holeNumber == currentHole }) else { return }
         holeScores[index].putts = putts
+        onStateChanged?()
     }
     
     func toggleFairway() {
         guard let index = holeScores.firstIndex(where: { $0.holeNumber == currentHole }) else { return }
         holeScores[index].fairwayHit = !(holeScores[index].fairwayHit ?? false)
+        onStateChanged?()
     }
     
     func toggleGIR() {
         guard let index = holeScores.firstIndex(where: { $0.holeNumber == currentHole }) else { return }
         holeScores[index].gir = !(holeScores[index].gir ?? false)
+        onStateChanged?()
     }
     
     func incrementScore() {
         guard let index = holeScores.firstIndex(where: { $0.holeNumber == currentHole }) else { return }
         let current = holeScores[index].score ?? holeScores[index].par
         holeScores[index].score = current + 1
+        onStateChanged?()
     }
     
     func decrementScore() {
@@ -107,6 +118,34 @@ class RoundManager: ObservableObject {
         let current = holeScores[index].score ?? holeScores[index].par
         if current > 1 {
             holeScores[index].score = current - 1
+            onStateChanged?()
+        }
+    }
+    
+    // MARK: - Apply Watch Updates
+    
+    func applyWatchUpdate(_ message: [String: Any]) {
+        if let hole = message["currentHole"] as? Int {
+            currentHole = hole
+        }
+        if let scores = message["scores"] as? [[String: Any]] {
+            for scoreData in scores {
+                if let holeNumber = scoreData["holeNumber"] as? Int,
+                   let index = holeScores.firstIndex(where: { $0.holeNumber == holeNumber }) {
+                    if let score = scoreData["score"] as? Int {
+                        holeScores[index].score = score
+                    }
+                    if let putts = scoreData["putts"] as? Int {
+                        holeScores[index].putts = putts
+                    }
+                    if let fw = scoreData["fairwayHit"] as? Bool {
+                        holeScores[index].fairwayHit = fw
+                    }
+                    if let gir = scoreData["gir"] as? Bool {
+                        holeScores[index].gir = gir
+                    }
+                }
+            }
         }
     }
     

@@ -47,7 +47,7 @@ struct LoginView: View {
                                 .foregroundColor(.white)
                         }
                         
-                        Text("GolfStats")
+                        Text("RoundCaddy")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                         
@@ -113,7 +113,7 @@ struct LoginView: View {
         }
         .onOpenURL { url in
             // Handle Google OAuth callback
-            if url.scheme == "golfstats" && url.host == "auth" {
+            if url.scheme == "roundcaddy" && url.host == "auth" {
                 Task {
                     await authManager.handleOAuthCallback(url: url)
                 }

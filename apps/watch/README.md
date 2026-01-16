@@ -1,6 +1,6 @@
-# GolfStats Apple Watch App
+# RoundCaddy Apple Watch App
 
-A native SwiftUI Apple Watch app for GolfStats that provides:
+A native SwiftUI Apple Watch app for RoundCaddy that provides:
 - **GPS Distance Tracking**: Front/Center/Back yardages to the green
 - **Scorecard Entry**: Quick score entry with stepper controls
 - **Shot Tracking**: Mark shots with GPS coordinates and club selection
@@ -11,7 +11,7 @@ A native SwiftUI Apple Watch app for GolfStats that provides:
 ### Prerequisites
 - Xcode 15.0+ installed on your Mac
 - Apple Developer account with watchOS capabilities
-- iPhone running the GolfStats iOS app (for full functionality)
+- iPhone running the RoundCaddy iOS app (for full functionality)
 
 ### Opening the Project
 
@@ -19,9 +19,9 @@ A native SwiftUI Apple Watch app for GolfStats that provides:
    - Open Xcode
    - File → New → Project
    - Choose "watchOS" tab → "App"
-   - Product Name: "GolfStatsWatch"
+   - Product Name: "RoundCaddyWatch"
    - Team: Select your Apple Developer account
-   - Bundle Identifier: `com.golfstats.watch`
+   - Bundle Identifier: `com.roundcaddy.watch`
    - Interface: SwiftUI
    - Language: Swift
    - Include: Watch Companion App (optional, for iOS companion)
@@ -30,9 +30,9 @@ A native SwiftUI Apple Watch app for GolfStats that provides:
    - Replace the generated source files with the Swift files in this directory
    - Structure:
      ```
-     GolfStatsWatch WatchKit Extension/
+     RoundCaddyWatch WatchKit Extension/
      └── Sources/
-         ├── GolfStatsWatchApp.swift
+         ├── RoundCaddyWatchApp.swift
          ├── ContentView.swift
          ├── GPSManager.swift
          ├── RoundManager.swift
@@ -52,9 +52,9 @@ A native SwiftUI Apple Watch app for GolfStats that provides:
    Add these keys to your Info.plist:
    ```xml
    <key>NSLocationWhenInUseUsageDescription</key>
-   <string>GolfStats needs location to calculate distances to greens and track shots.</string>
+   <string>RoundCaddy needs location to calculate distances to greens and track shots.</string>
    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-   <string>GolfStats needs background location to track your round continuously.</string>
+   <string>RoundCaddy needs background location to track your round continuously.</string>
    ```
 
 ### Building & Running

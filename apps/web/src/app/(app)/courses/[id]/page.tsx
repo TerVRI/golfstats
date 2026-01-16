@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
-import { fetchWeather, WeatherForecast } from "@golfstats/shared";
+import { fetchWeather, WeatherForecast } from "@roundcaddy/shared";
 import {
   MapPin,
   Star,

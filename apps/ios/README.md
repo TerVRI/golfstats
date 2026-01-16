@@ -1,6 +1,6 @@
-# GolfStats iOS App
+# RoundCaddy iOS App
 
-A native SwiftUI iOS app for GolfStats with full GPS tracking, Apple Watch sync, and Supabase backend integration.
+A native SwiftUI iOS app for RoundCaddy with full GPS tracking, Apple Watch sync, and Supabase backend integration.
 
 ## Features
 
@@ -14,9 +14,9 @@ A native SwiftUI iOS app for GolfStats with full GPS tracking, Apple Watch sync,
 ## Project Structure
 
 ```
-apps/ios/GolfStats/
+apps/ios/RoundCaddy/
 ├── Sources/
-│   ├── GolfStatsApp.swift          # App entry point
+│   ├── RoundCaddyApp.swift          # App entry point
 │   ├── Models/
 │   │   └── Models.swift            # Data models (Round, Course, Shot, etc.)
 │   ├── Managers/
@@ -57,9 +57,9 @@ apps/ios/GolfStats/
    - Click Next
 
 3. **Project Options**:
-   - Product Name: `GolfStats`
+   - Product Name: `RoundCaddy`
    - Team: Your Apple Developer team
-   - Organization Identifier: `com.golfstats`
+   - Organization Identifier: `com.roundcaddy`
    - Interface: SwiftUI
    - Language: Swift
    - Storage: None
@@ -94,13 +94,13 @@ Add these keys to your Info.plist:
 
 ```xml
 <key>NSLocationWhenInUseUsageDescription</key>
-<string>GolfStats needs your location to calculate distances to greens and track shots.</string>
+<string>RoundCaddy needs your location to calculate distances to greens and track shots.</string>
 
 <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>GolfStats needs background location to track your round continuously.</string>
+<string>RoundCaddy needs background location to track your round continuously.</string>
 
 <key>NSLocationAlwaysUsageDescription</key>
-<string>GolfStats uses background location for continuous GPS tracking during rounds.</string>
+<string>RoundCaddy uses background location for continuous GPS tracking during rounds.</string>
 ```
 
 ### Asset Catalog Colors

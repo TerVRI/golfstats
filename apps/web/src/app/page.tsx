@@ -142,16 +142,24 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-card-border py-8">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-green to-accent-blue flex items-center justify-center">
-              <Target className="w-5 h-5 text-white" />
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-green to-accent-blue flex items-center justify-center">
+                <Target className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-bold text-foreground">RoundCaddy</span>
             </div>
-            <span className="font-bold text-foreground">GolfStats</span>
+            <p className="text-sm text-foreground-muted">
+              Tour-level strokes gained analytics for every golfer
+            </p>
+            <a 
+              href="mailto:hello@roundcaddy.com" 
+              className="text-sm text-foreground-muted hover:text-accent-green transition-colors"
+            >
+              hello@roundcaddy.com
+            </a>
           </div>
-          <p className="text-sm text-foreground-muted">
-            Tour-level strokes gained analytics for every golfer
-          </p>
         </div>
       </footer>
     </div>

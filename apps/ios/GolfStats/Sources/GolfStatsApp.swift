@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct GolfStatsApp: App {
+struct RoundCaddyApp: App {
     @StateObject private var authManager = AuthManager()
     @StateObject private var gpsManager = GPSManager()
     @StateObject private var roundManager = RoundManager()
@@ -44,7 +44,7 @@ struct LoadingView: View {
                 Image(systemName: "flag.fill")
                     .font(.system(size: 60))
                     .foregroundColor(.green)
-                Text("GolfStats")
+                Text("RoundCaddy")
                     .font(.title)
                     .fontWeight(.bold)
                 ProgressView()

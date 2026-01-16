@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct GolfStatsWatchApp: App {
+struct RoundCaddyWatchApp: App {
     @StateObject private var gpsManager = GPSManager()
     @StateObject private var roundManager = RoundManager()
     

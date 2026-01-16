@@ -34,13 +34,20 @@ struct LiveRoundView: View {
                 
                 Spacer()
                 
-                // Watch status
-                if watchSyncManager.isWatchConnected {
-                    Image(systemName: "applewatch")
-                        .foregroundColor(.green)
-                } else {
-                    Image(systemName: "applewatch.slash")
-                        .foregroundColor(.gray)
+                // Watch status with sync indicator
+                VStack(spacing: 2) {
+                    if watchSyncManager.isWatchConnected {
+                        Image(systemName: "applewatch")
+                            .foregroundColor(.green)
+                        if watchSyncManager.lastWatchUpdate != nil {
+                            Text("Synced")
+                                .font(.caption2)
+                                .foregroundColor(.green)
+                        }
+                    } else {
+                        Image(systemName: "applewatch.slash")
+                            .foregroundColor(.gray)
+                    }
                 }
             }
             .padding()
@@ -69,9 +76,22 @@ struct LiveRoundView: View {
         .background(Color("Background"))
         .onAppear {
             gpsManager.startTracking()
+            setupWatchSync()
         }
         .onDisappear {
             gpsManager.stopTracking()
+            roundManager.onStateChanged = nil
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .watchRoundStateUpdate)) { notification in
+            if let userInfo = notification.userInfo as? [String: Any] {
+                roundManager.applyWatchUpdate(userInfo)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .watchRoundEnded)) { _ in
+            // Watch ended the round - save it if we can
+            Task {
+                await saveAndEndRound()
+            }
         }
         .alert("End Round?", isPresented: $showEndRoundAlert) {
             Button("Cancel", role: .cancel) { }
@@ -99,7 +119,7 @@ struct LiveRoundView: View {
         
         do {
             try await roundManager.saveRound(userId: user.id, authHeaders: authManager.authHeaders)
-            watchSyncManager.sendRoundEnd()
+            watchSyncManager.sendEndRoundToWatch()
         } catch {
             print("Error saving round: \(error)")
         }
@@ -112,6 +132,28 @@ struct LiveRoundView: View {
         roundManager.addShot(
             club: selectedClub,
             location: gpsManager.currentLocation?.coordinate
+        )
+    }
+    
+    private func setupWatchSync() {
+        // Set up callback to sync state to watch when changes are made on iPhone
+        roundManager.onStateChanged = { [self] in
+            syncStateToWatch()
+        }
+        
+        // Send initial state to watch
+        syncStateToWatch()
+        
+        // Also send the golf bag to watch
+        watchSyncManager.sendBagToWatch(clubs: GolfBag.shared.clubNames)
+    }
+    
+    private func syncStateToWatch() {
+        watchSyncManager.sendRoundStateToWatch(
+            isActive: roundManager.isRoundActive,
+            currentHole: roundManager.currentHole,
+            courseName: roundManager.selectedCourse?.name ?? "Unknown Course",
+            holeScores: roundManager.holeScores
         )
     }
 }

@@ -101,7 +101,7 @@ export function Navigation() {
             <Target className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">GolfStats</h1>
+            <h1 className="text-lg font-bold text-foreground">RoundCaddy</h1>
             <p className="text-xs text-foreground-muted">Strokes Gained Analytics</p>
           </div>
         </div>
@@ -161,7 +161,7 @@ export function Navigation() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-green to-accent-blue flex items-center justify-center">
               <Target className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-lg font-bold text-foreground">GolfStats</h1>
+            <h1 className="text-lg font-bold text-foreground">RoundCaddy</h1>
           </div>
           
           <button

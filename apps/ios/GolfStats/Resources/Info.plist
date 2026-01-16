@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>GolfStats</string>
+    <string>RoundCaddy</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -54,11 +54,11 @@
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>GolfStats needs your location to calculate distances to greens and track your shots during a round.</string>
+    <string>RoundCaddy needs your location to calculate distances to greens and track your shots during a round.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>GolfStats needs background location access to continuously track your round, even when the app is in the background.</string>
+    <string>RoundCaddy needs background location access to continuously track your round, even when the app is in the background.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>GolfStats uses background location for continuous GPS tracking during your golf rounds.</string>
+    <string>RoundCaddy uses background location for continuous GPS tracking during your golf rounds.</string>
     <key>UIBackgroundModes</key>
     <array>
         <string>location</string>
@@ -69,10 +69,10 @@
     <array>
         <dict>
             <key>CFBundleURLName</key>
-            <string>com.golfstats.ios</string>
+            <string>com.roundcaddy.ios</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>golfstats</string>
+                <string>roundcaddy</string>
             </array>
         </dict>
     </array>

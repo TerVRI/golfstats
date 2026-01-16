@@ -223,11 +223,17 @@ struct Weather: Codable {
 
 // MARK: - Clubs
 
-enum ClubType: String, CaseIterable {
+enum ClubType: String, CaseIterable, Codable, Identifiable {
     case driver = "Driver"
     case threeWood = "3W"
     case fiveWood = "5W"
-    case hybrid = "Hybrid"
+    case sevenWood = "7W"
+    case hybrid2 = "2H"
+    case hybrid3 = "3H"
+    case hybrid4 = "4H"
+    case hybrid5 = "5H"
+    case twoIron = "2i"
+    case threeIron = "3i"
     case fourIron = "4i"
     case fiveIron = "5i"
     case sixIron = "6i"
@@ -238,5 +244,117 @@ enum ClubType: String, CaseIterable {
     case gapWedge = "GW"
     case sandWedge = "SW"
     case lobWedge = "LW"
+    case wedge52 = "52°"
+    case wedge54 = "54°"
+    case wedge56 = "56°"
+    case wedge58 = "58°"
+    case wedge60 = "60°"
     case putter = "Putter"
+    
+    var id: String { rawValue }
+    
+    var category: ClubCategory {
+        switch self {
+        case .driver: return .driver
+        case .threeWood, .fiveWood, .sevenWood: return .woods
+        case .hybrid2, .hybrid3, .hybrid4, .hybrid5: return .hybrids
+        case .twoIron, .threeIron, .fourIron, .fiveIron, .sixIron, .sevenIron, .eightIron, .nineIron: return .irons
+        case .pitchingWedge, .gapWedge, .sandWedge, .lobWedge, .wedge52, .wedge54, .wedge56, .wedge58, .wedge60: return .wedges
+        case .putter: return .putter
+        }
+    }
+    
+    static var defaultBag: [ClubType] {
+        [.driver, .threeWood, .fiveWood, .fourIron, .fiveIron, .sixIron, .sevenIron, .eightIron, .nineIron, .pitchingWedge, .sandWedge, .putter]
+    }
+}
+
+enum ClubCategory: String, CaseIterable {
+    case driver = "Driver"
+    case woods = "Woods"
+    case hybrids = "Hybrids"
+    case irons = "Irons"
+    case wedges = "Wedges"
+    case putter = "Putter"
+}
+
+// MARK: - Golf Bag
+
+class GolfBag: ObservableObject {
+    static let shared = GolfBag()
+    
+    @Published var clubs: [ClubType] {
+        didSet {
+            saveToUserDefaults()
+        }
+    }
+    
+    private let userDefaultsKey = "userGolfBag"
+    
+    init() {
+        if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
+           let savedClubs = try? JSONDecoder().decode([ClubType].self, from: data) {
+            self.clubs = savedClubs
+        } else {
+            self.clubs = ClubType.defaultBag
+        }
+    }
+    
+    private func saveToUserDefaults() {
+        if let data = try? JSONEncoder().encode(clubs) {
+            UserDefaults.standard.set(data, forKey: userDefaultsKey)
+        }
+    }
+    
+    func addClub(_ club: ClubType) {
+        if !clubs.contains(club) {
+            clubs.append(club)
+            clubs.sort { $0.sortOrder < $1.sortOrder }
+        }
+    }
+    
+    func removeClub(_ club: ClubType) {
+        clubs.removeAll { $0 == club }
+    }
+    
+    func isInBag(_ club: ClubType) -> Bool {
+        clubs.contains(club)
+    }
+    
+    var clubNames: [String] {
+        clubs.map { $0.rawValue }
+    }
+}
+
+extension ClubType {
+    var sortOrder: Int {
+        switch self {
+        case .driver: return 0
+        case .threeWood: return 1
+        case .fiveWood: return 2
+        case .sevenWood: return 3
+        case .hybrid2: return 4
+        case .hybrid3: return 5
+        case .hybrid4: return 6
+        case .hybrid5: return 7
+        case .twoIron: return 8
+        case .threeIron: return 9
+        case .fourIron: return 10
+        case .fiveIron: return 11
+        case .sixIron: return 12
+        case .sevenIron: return 13
+        case .eightIron: return 14
+        case .nineIron: return 15
+        case .pitchingWedge: return 16
+        case .gapWedge: return 17
+        case .wedge52: return 18
+        case .wedge54: return 19
+        case .sandWedge: return 20
+        case .wedge56: return 21
+        case .wedge58: return 22
+        case .lobWedge: return 23
+        case .wedge60: return 24
+        case .putter: return 25
+        }
+    }
 }

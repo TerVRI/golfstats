@@ -1,5 +1,5 @@
 {
-  "name": "golfstats-monorepo",
+  "name": "roundcaddy-monorepo",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=@golfstats/web",
+    "dev:web": "turbo run dev --filter=@roundcaddy/web",
     "build": "turbo run build",
-    "build:web": "turbo run build --filter=@golfstats/web",
+    "build:web": "turbo run build --filter=@roundcaddy/web",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "test:run": "turbo run test:run",

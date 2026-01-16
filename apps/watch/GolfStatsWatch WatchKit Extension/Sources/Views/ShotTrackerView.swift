@@ -3,9 +3,7 @@ import SwiftUI
 struct ShotTrackerView: View {
     @EnvironmentObject var gpsManager: GPSManager
     @EnvironmentObject var roundManager: RoundManager
-    @State private var selectedClub: String = "7i"
-    
-    let clubs = ["Driver", "3W", "5W", "4i", "5i", "6i", "7i", "8i", "9i", "PW", "SW", "Putter"]
+    @State private var selectedClub: String = ""
     
     var currentHoleShots: [Shot] {
         roundManager.shots.filter { $0.holeNumber == roundManager.currentHole }
@@ -23,14 +21,26 @@ struct ShotTrackerView: View {
                     .foregroundColor(.secondary)
             }
             
-            // Club Picker
+            // Club Picker - uses synced bag from iPhone
             Picker("Club", selection: $selectedClub) {
-                ForEach(clubs, id: \.self) { club in
+                ForEach(roundManager.clubBag, id: \.self) { club in
                     Text(club).tag(club)
                 }
             }
             .pickerStyle(.wheel)
             .frame(height: 60)
+            .onAppear {
+                // Set default selection to middle of bag (usually an iron)
+                if selectedClub.isEmpty, let midClub = roundManager.clubBag.dropFirst(roundManager.clubBag.count / 2).first {
+                    selectedClub = midClub
+                }
+            }
+            .onChange(of: roundManager.clubBag) { _, newBag in
+                // If current selection is not in new bag, reset to middle club
+                if !newBag.contains(selectedClub), let midClub = newBag.dropFirst(newBag.count / 2).first {
+                    selectedClub = midClub
+                }
+            }
             
             // Mark Shot Button
             Button(action: markShot) {

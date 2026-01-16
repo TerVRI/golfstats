@@ -4,6 +4,11 @@ import WatchConnectivity
 class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     @Published var isWatchConnected = false
     @Published var isWatchAppInstalled = false
+    @Published var watchRoundActive = false
+    @Published var watchCurrentHole = 1
+    @Published var watchTotalScore = 0
+    @Published var watchHoleScores: [[String: Any]] = []
+    @Published var lastWatchUpdate: Date?
     
     private var session: WCSession?
     
@@ -83,6 +88,27 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
         session.sendMessage(message, replyHandler: nil, errorHandler: nil)
     }
     
+    func sendBagToWatch(clubs: [String]) {
+        guard let session = session else { return }
+        
+        let message: [String: Any] = [
+            "action": "setBag",
+            "clubs": clubs
+        ]
+        
+        // Use transferUserInfo for non-urgent data that should persist
+        // This ensures the watch receives it even if not currently reachable
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil) { error in
+                print("Error sending bag to watch: \(error.localizedDescription)")
+                // Fall back to transferUserInfo
+                session.transferUserInfo(message)
+            }
+        } else {
+            session.transferUserInfo(message)
+        }
+    }
+    
     // MARK: - WCSessionDelegate
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
@@ -130,7 +156,32 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
             NotificationCenter.default.post(name: .watchRoundStarted, object: nil, userInfo: message)
             
         case "roundEnded":
+            watchRoundActive = false
             NotificationCenter.default.post(name: .watchRoundEnded, object: nil, userInfo: message)
+            
+        case "roundDiscarded":
+            watchRoundActive = false
+            watchHoleScores = []
+            watchTotalScore = 0
+            watchCurrentHole = 1
+            NotificationCenter.default.post(name: .watchRoundDiscarded, object: nil, userInfo: message)
+            
+        case "roundStateUpdate":
+            // Real-time state update from watch
+            if let isActive = message["isRoundActive"] as? Bool {
+                watchRoundActive = isActive
+            }
+            if let hole = message["currentHole"] as? Int {
+                watchCurrentHole = hole
+            }
+            if let score = message["totalScore"] as? Int {
+                watchTotalScore = score
+            }
+            if let scores = message["scores"] as? [[String: Any]] {
+                watchHoleScores = scores
+            }
+            lastWatchUpdate = Date()
+            NotificationCenter.default.post(name: .watchRoundStateUpdate, object: nil, userInfo: message)
             
         case "scoreUpdate":
             NotificationCenter.default.post(name: .watchScoreUpdate, object: nil, userInfo: message)
@@ -142,12 +193,76 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
             break
         }
     }
+    
+    // MARK: - Send Round State to Watch
+    
+    func sendRoundStateToWatch(isActive: Bool, currentHole: Int, courseName: String, holeScores: [HoleScore]) {
+        guard let session = session, session.isReachable else { return }
+        
+        let message: [String: Any] = [
+            "action": "roundStateUpdate",
+            "isRoundActive": isActive,
+            "currentHole": currentHole,
+            "courseName": courseName,
+            "scores": holeScores.map { hole -> [String: Any] in
+                [
+                    "holeNumber": hole.holeNumber,
+                    "par": hole.par,
+                    "score": hole.score as Any,
+                    "putts": hole.putts as Any,
+                    "fairwayHit": hole.fairwayHit as Any,
+                    "gir": hole.gir as Any
+                ]
+            },
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        
+        session.sendMessage(message, replyHandler: nil) { error in
+            print("Error sending round state to watch: \(error.localizedDescription)")
+        }
+    }
+    
+    func sendEndRoundToWatch() {
+        guard let session = session else { return }
+        
+        let message: [String: Any] = [
+            "action": "endRound",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil, errorHandler: nil)
+        } else {
+            session.transferUserInfo(message)
+        }
+        
+        watchRoundActive = false
+    }
+    
+    func sendStartRoundToWatch(courseName: String, pars: [Int]) {
+        guard let session = session else { return }
+        
+        let message: [String: Any] = [
+            "action": "startRound",
+            "courseName": courseName,
+            "pars": pars,
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil, errorHandler: nil)
+        } else {
+            session.transferUserInfo(message)
+        }
+    }
 }
 
 // Notification names for watch events
 extension Notification.Name {
     static let watchRoundStarted = Notification.Name("watchRoundStarted")
     static let watchRoundEnded = Notification.Name("watchRoundEnded")
+    static let watchRoundDiscarded = Notification.Name("watchRoundDiscarded")
+    static let watchRoundStateUpdate = Notification.Name("watchRoundStateUpdate")
     static let watchScoreUpdate = Notification.Name("watchScoreUpdate")
     static let watchShotAdded = Notification.Name("watchShotAdded")
 }
