@@ -1,0 +1,590 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0D16389DA91852B7E13A1C04 /* ShotTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16511D520A92D136619960BF /* ShotTrackerView.swift */; };
+		1353CC1311C4929C78678FD8 /* RoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89269198685992FF93CBEF70 /* RoundManager.swift */; };
+		13AF69A7B468F6D8A5A94AB3 /* GolfStatsWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 700EC730B457084B328F8B30 /* GolfStatsWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		25A0F4B26D8B9FD472063823 /* WatchSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005625B093456541D3F8C9E7 /* WatchSyncManager.swift */; };
+		295C97832202581E405B132E /* GolfStatsWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7BD3148ECFCBA8392C276F /* GolfStatsWatchApp.swift */; };
+		310BFFA17E3B124E256307E4 /* CoursesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB5224974328326D13F00 /* CoursesView.swift */; };
+		3182B5219F8FAA6FB39861F1 /* GolfStatsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464EFCA82DD634609B8E21DD /* GolfStatsApp.swift */; };
+		55941193F83061E40F040A45 /* NewRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01BF2C0F10B04E7509DA4F3 /* NewRoundView.swift */; };
+		5BABDBD68F2C1B55DDCED537 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36114890994CEAF825F7D7A /* DataService.swift */; };
+		6D17AA37B976ACB4862AD952 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91BC93CE99D0D15307AE6881 /* ProfileView.swift */; };
+		74565865D55F5AF283C64680 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8C1113A4AC70FF3D82C30C /* DashboardView.swift */; };
+		8272D1CC9B6E6D91AAFF4A09 /* RoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9DD8EBD4FF4AEE61F74625D /* RoundManager.swift */; };
+		873391ABCF683A4FFFD17B7B /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E67861E83117708E03C33 /* AuthManager.swift */; };
+		87BE595FA82BE4230A895C14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1378B2EF28FAC146E77A62B /* Assets.xcassets */; };
+		8A77E91AABF4C8A7D422D81E /* Contents.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BABBACCD49D62286B31FF4D /* Contents.json */; };
+		988D5131DAA6CD86D39845FD /* DistanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C0FED6C3AD1F8EC28785AA /* DistanceView.swift */; };
+		98BC8CDF2FCBDB04D05C4D28 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE122F755F1082A95499BB2 /* MainTabView.swift */; };
+		9B83A4DF0D0495DE18424248 /* GPSManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7882F3E5164700B2E43321D9 /* GPSManager.swift */; };
+		9D26625307148701BC17F095 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05E736282ABFC82BB8AFCBE6 /* Assets.xcassets */; };
+		9FC7070CB40F77E8A2D6AF2A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7A668263E64A25A8386FBF /* ContentView.swift */; };
+		A73BB42E2CBCF41D52C03809 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267D854F8CD885D6A0E06240 /* Models.swift */; };
+		B3B8DE1D0526D6A257861751 /* LiveRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BDB110088A877AA7933D8D /* LiveRoundView.swift */; };
+		B8714EE412B118CDF33088E6 /* RoundsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6138B093534245EDA0DA31 /* RoundsListView.swift */; };
+		D03951D2BFF33B2E19F8D777 /* ScorecardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DEB7FE63C1A652D88FF9580 /* ScorecardView.swift */; };
+		DDDFCE21D7B6737B6684DF4E /* GPSManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E63A84CB193104EC7A83F2 /* GPSManager.swift */; };
+		F6361DAB5447D8E70706850A /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7996E92E24BDCF5490F8B3D5 /* LoginView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4657825C217DA3B01B5A4AC3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3FA6413637771D526F8BEB72 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6BD6B9B5E6A94B145F6E4091;
+			remoteInfo = GolfStatsWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CCEF14C0793AE67213060434 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				13AF69A7B468F6D8A5A94AB3 /* GolfStatsWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		005625B093456541D3F8C9E7 /* WatchSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncManager.swift; sourceTree = "<group>"; };
+		05E736282ABFC82BB8AFCBE6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		09F23702B53303D5750699D6 /* GolfStats.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GolfStats.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BABBACCD49D62286B31FF4D /* Contents.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Contents.json; sourceTree = "<group>"; };
+		0C7BD3148ECFCBA8392C276F /* GolfStatsWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GolfStatsWatchApp.swift; sourceTree = "<group>"; };
+		16511D520A92D136619960BF /* ShotTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotTrackerView.swift; sourceTree = "<group>"; };
+		267D854F8CD885D6A0E06240 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		3B6138B093534245EDA0DA31 /* RoundsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundsListView.swift; sourceTree = "<group>"; };
+		464EFCA82DD634609B8E21DD /* GolfStatsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GolfStatsApp.swift; sourceTree = "<group>"; };
+		58C0FED6C3AD1F8EC28785AA /* DistanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceView.swift; sourceTree = "<group>"; };
+		5CE122F755F1082A95499BB2 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		700EC730B457084B328F8B30 /* GolfStatsWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GolfStatsWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7882F3E5164700B2E43321D9 /* GPSManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSManager.swift; sourceTree = "<group>"; };
+		78E63A84CB193104EC7A83F2 /* GPSManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSManager.swift; sourceTree = "<group>"; };
+		7996E92E24BDCF5490F8B3D5 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		8736BE05677EC900CD526F9C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		89269198685992FF93CBEF70 /* RoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundManager.swift; sourceTree = "<group>"; };
+		8DEB7FE63C1A652D88FF9580 /* ScorecardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorecardView.swift; sourceTree = "<group>"; };
+		91BC93CE99D0D15307AE6881 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		9E7A668263E64A25A8386FBF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A9DD8EBD4FF4AEE61F74625D /* RoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundManager.swift; sourceTree = "<group>"; };
+		AB4AB5224974328326D13F00 /* CoursesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesView.swift; sourceTree = "<group>"; };
+		B36114890994CEAF825F7D7A /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		BC4E3D40A572DC1F8C52F33E /* GolfStats.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GolfStats.entitlements; sourceTree = "<group>"; };
+		C0BDB110088A877AA7933D8D /* LiveRoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveRoundView.swift; sourceTree = "<group>"; };
+		C67E67861E83117708E03C33 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		CB8C1113A4AC70FF3D82C30C /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		DA2A5F4F30E0ABBEED7D98EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E01BF2C0F10B04E7509DA4F3 /* NewRoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRoundView.swift; sourceTree = "<group>"; };
+		E1378B2EF28FAC146E77A62B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		01D927EA19EA83304EF842CC /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				18ED119F9E0555F609D5FC5E /* Managers */,
+				7878AEB1122BB962CC051FE2 /* Models */,
+				A6A53DA1806A10BE754FEA0B /* Views */,
+				464EFCA82DD634609B8E21DD /* GolfStatsApp.swift */,
+			);
+			name = Sources;
+			path = GolfStats/Sources;
+			sourceTree = "<group>";
+		};
+		18ED119F9E0555F609D5FC5E /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				C67E67861E83117708E03C33 /* AuthManager.swift */,
+				B36114890994CEAF825F7D7A /* DataService.swift */,
+				7882F3E5164700B2E43321D9 /* GPSManager.swift */,
+				89269198685992FF93CBEF70 /* RoundManager.swift */,
+				005625B093456541D3F8C9E7 /* WatchSyncManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		53D550754978F31163AE41C3 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				560D4BAC7FF05507CB6BF0F1 /* AccentColor.colorset */,
+				E1378B2EF28FAC146E77A62B /* Assets.xcassets */,
+				DA2A5F4F30E0ABBEED7D98EA /* Info.plist */,
+			);
+			name = Resources;
+			path = "../watch/GolfStatsWatch WatchKit Extension/Resources";
+			sourceTree = "<group>";
+		};
+		560D4BAC7FF05507CB6BF0F1 /* AccentColor.colorset */ = {
+			isa = PBXGroup;
+			children = (
+				0BABBACCD49D62286B31FF4D /* Contents.json */,
+			);
+			path = AccentColor.colorset;
+			sourceTree = "<group>";
+		};
+		675DB505C9180B2C9DD0E4AC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				05E736282ABFC82BB8AFCBE6 /* Assets.xcassets */,
+				BC4E3D40A572DC1F8C52F33E /* GolfStats.entitlements */,
+				8736BE05677EC900CD526F9C /* Info.plist */,
+			);
+			name = Resources;
+			path = GolfStats/Resources;
+			sourceTree = "<group>";
+		};
+		7878AEB1122BB962CC051FE2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				267D854F8CD885D6A0E06240 /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		7F59BBCF056C2DFD3CB7AFD8 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				96681A8EA48728E26118A74A /* Views */,
+				9E7A668263E64A25A8386FBF /* ContentView.swift */,
+				0C7BD3148ECFCBA8392C276F /* GolfStatsWatchApp.swift */,
+				78E63A84CB193104EC7A83F2 /* GPSManager.swift */,
+				A9DD8EBD4FF4AEE61F74625D /* RoundManager.swift */,
+			);
+			name = Sources;
+			path = "../watch/GolfStatsWatch WatchKit Extension/Sources";
+			sourceTree = "<group>";
+		};
+		96681A8EA48728E26118A74A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				58C0FED6C3AD1F8EC28785AA /* DistanceView.swift */,
+				8DEB7FE63C1A652D88FF9580 /* ScorecardView.swift */,
+				16511D520A92D136619960BF /* ShotTrackerView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A6A53DA1806A10BE754FEA0B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AB4AB5224974328326D13F00 /* CoursesView.swift */,
+				CB8C1113A4AC70FF3D82C30C /* DashboardView.swift */,
+				C0BDB110088A877AA7933D8D /* LiveRoundView.swift */,
+				7996E92E24BDCF5490F8B3D5 /* LoginView.swift */,
+				5CE122F755F1082A95499BB2 /* MainTabView.swift */,
+				E01BF2C0F10B04E7509DA4F3 /* NewRoundView.swift */,
+				91BC93CE99D0D15307AE6881 /* ProfileView.swift */,
+				3B6138B093534245EDA0DA31 /* RoundsListView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AE16B9DAA02DDF562E6DD4AC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				09F23702B53303D5750699D6 /* GolfStats.app */,
+				700EC730B457084B328F8B30 /* GolfStatsWatch.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EAE168B7FFD69949B3B676C2 = {
+			isa = PBXGroup;
+			children = (
+				53D550754978F31163AE41C3 /* Resources */,
+				675DB505C9180B2C9DD0E4AC /* Resources */,
+				7F59BBCF056C2DFD3CB7AFD8 /* Sources */,
+				01D927EA19EA83304EF842CC /* Sources */,
+				AE16B9DAA02DDF562E6DD4AC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1D9273535EE7E437EB2B7C78 /* GolfStats */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4D3100446F412E0E42235F62 /* Build configuration list for PBXNativeTarget "GolfStats" */;
+			buildPhases = (
+				5BC8557122F4808DBD53B8C9 /* Sources */,
+				E7682413FB02C5224ADAEC27 /* Resources */,
+				CCEF14C0793AE67213060434 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B5715E49684DF0B85AF26ACB /* PBXTargetDependency */,
+			);
+			name = GolfStats;
+			packageProductDependencies = (
+			);
+			productName = GolfStats;
+			productReference = 09F23702B53303D5750699D6 /* GolfStats.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6BD6B9B5E6A94B145F6E4091 /* GolfStatsWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F70C14A895827EC8A005DB91 /* Build configuration list for PBXNativeTarget "GolfStatsWatch" */;
+			buildPhases = (
+				233BC328DE76FAFCC0051C9D /* Sources */,
+				0E1012CBC2F0C3C78D1730AD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GolfStatsWatch;
+			packageProductDependencies = (
+			);
+			productName = GolfStatsWatch;
+			productReference = 700EC730B457084B328F8B30 /* GolfStatsWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3FA6413637771D526F8BEB72 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					1D9273535EE7E437EB2B7C78 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					6BD6B9B5E6A94B145F6E4091 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C151FD54330E0831FC548818 /* Build configuration list for PBXProject "RoundCaddy" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = EAE168B7FFD69949B3B676C2;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1D9273535EE7E437EB2B7C78 /* GolfStats */,
+				6BD6B9B5E6A94B145F6E4091 /* GolfStatsWatch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0E1012CBC2F0C3C78D1730AD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87BE595FA82BE4230A895C14 /* Assets.xcassets in Resources */,
+				8A77E91AABF4C8A7D422D81E /* Contents.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E7682413FB02C5224ADAEC27 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D26625307148701BC17F095 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		233BC328DE76FAFCC0051C9D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9FC7070CB40F77E8A2D6AF2A /* ContentView.swift in Sources */,
+				988D5131DAA6CD86D39845FD /* DistanceView.swift in Sources */,
+				DDDFCE21D7B6737B6684DF4E /* GPSManager.swift in Sources */,
+				295C97832202581E405B132E /* GolfStatsWatchApp.swift in Sources */,
+				8272D1CC9B6E6D91AAFF4A09 /* RoundManager.swift in Sources */,
+				D03951D2BFF33B2E19F8D777 /* ScorecardView.swift in Sources */,
+				0D16389DA91852B7E13A1C04 /* ShotTrackerView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5BC8557122F4808DBD53B8C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				873391ABCF683A4FFFD17B7B /* AuthManager.swift in Sources */,
+				310BFFA17E3B124E256307E4 /* CoursesView.swift in Sources */,
+				74565865D55F5AF283C64680 /* DashboardView.swift in Sources */,
+				5BABDBD68F2C1B55DDCED537 /* DataService.swift in Sources */,
+				9B83A4DF0D0495DE18424248 /* GPSManager.swift in Sources */,
+				3182B5219F8FAA6FB39861F1 /* GolfStatsApp.swift in Sources */,
+				B3B8DE1D0526D6A257861751 /* LiveRoundView.swift in Sources */,
+				F6361DAB5447D8E70706850A /* LoginView.swift in Sources */,
+				98BC8CDF2FCBDB04D05C4D28 /* MainTabView.swift in Sources */,
+				A73BB42E2CBCF41D52C03809 /* Models.swift in Sources */,
+				55941193F83061E40F040A45 /* NewRoundView.swift in Sources */,
+				6D17AA37B976ACB4862AD952 /* ProfileView.swift in Sources */,
+				1353CC1311C4929C78678FD8 /* RoundManager.swift in Sources */,
+				B8714EE412B118CDF33088E6 /* RoundsListView.swift in Sources */,
+				25A0F4B26D8B9FD472063823 /* WatchSyncManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B5715E49684DF0B85AF26ACB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6BD6B9B5E6A94B145F6E4091 /* GolfStatsWatch */;
+			targetProxy = 4657825C217DA3B01B5A4AC3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0F9E16A2E1C8A169257D84DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		247D9A029B40DCE5B8107D64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "../watch/GolfStatsWatch WatchKit Extension/Resources/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = com.roundcaddy.ios.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		76CE49B2D93E7B3A0B519CBE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = GolfStats/Resources/GolfStats.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GolfStats/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.roundcaddy.ios;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		882F3DAE3C14BD8EE3A2D846 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = GolfStats/Resources/GolfStats.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GolfStats/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.roundcaddy.ios;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		8B6D23E6E80F0AFABF726EE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		E12A1E8E0297C2E41F9A716B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "../watch/GolfStatsWatch WatchKit Extension/Resources/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = com.roundcaddy.ios.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4D3100446F412E0E42235F62 /* Build configuration list for PBXNativeTarget "GolfStats" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				76CE49B2D93E7B3A0B519CBE /* Debug */,
+				882F3DAE3C14BD8EE3A2D846 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C151FD54330E0831FC548818 /* Build configuration list for PBXProject "RoundCaddy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0F9E16A2E1C8A169257D84DA /* Debug */,
+				8B6D23E6E80F0AFABF726EE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F70C14A895827EC8A005DB91 /* Build configuration list for PBXNativeTarget "GolfStatsWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				247D9A029B40DCE5B8107D64 /* Debug */,
+				E12A1E8E0297C2E41F9A716B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3FA6413637771D526F8BEB72 /* Project object */;
+}

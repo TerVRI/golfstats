@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "562758FDB8348C526CEB94C6"
+               BlueprintIdentifier = "1D9273535EE7E437EB2B7C78"
                BuildableName = "GolfStats.app"
                BlueprintName = "GolfStats"
-               ReferencedContainer = "container:GolfStats.xcodeproj">
+               ReferencedContainer = "container:RoundCaddy.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,10 +29,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D7D79E18EF4BC8DC764414C6"
+               BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
                BuildableName = "GolfStatsWatch.app"
                BlueprintName = "GolfStatsWatch"
-               ReferencedContainer = "container:GolfStats.xcodeproj">
+               ReferencedContainer = "container:RoundCaddy.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,10 +46,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "562758FDB8348C526CEB94C6"
+            BlueprintIdentifier = "1D9273535EE7E437EB2B7C78"
             BuildableName = "GolfStats.app"
             BlueprintName = "GolfStats"
-            ReferencedContainer = "container:GolfStats.xcodeproj">
+            ReferencedContainer = "container:RoundCaddy.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -71,10 +71,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "562758FDB8348C526CEB94C6"
+            BlueprintIdentifier = "1D9273535EE7E437EB2B7C78"
             BuildableName = "GolfStats.app"
             BlueprintName = "GolfStats"
-            ReferencedContainer = "container:GolfStats.xcodeproj">
+            ReferencedContainer = "container:RoundCaddy.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -90,10 +90,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "562758FDB8348C526CEB94C6"
+            BlueprintIdentifier = "1D9273535EE7E437EB2B7C78"
             BuildableName = "GolfStats.app"
             BlueprintName = "GolfStats"
-            ReferencedContainer = "container:GolfStats.xcodeproj">
+            ReferencedContainer = "container:RoundCaddy.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>

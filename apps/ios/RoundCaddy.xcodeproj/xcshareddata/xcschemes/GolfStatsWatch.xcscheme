@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1500"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      runPostActionsOnFailure = "NO">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -14,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D7D79E18EF4BC8DC764414C6"
+               BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
                BuildableName = "GolfStatsWatch.app"
                BlueprintName = "GolfStatsWatch"
-               ReferencedContainer = "container:GolfStats.xcodeproj">
+               ReferencedContainer = "container:RoundCaddy.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -26,18 +27,21 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "NO">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D7D79E18EF4BC8DC764414C6"
+            BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
             BuildableName = "GolfStatsWatch.app"
             BlueprintName = "GolfStatsWatch"
-            ReferencedContainer = "container:GolfStats.xcodeproj">
+            ReferencedContainer = "container:RoundCaddy.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -53,12 +57,14 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D7D79E18EF4BC8DC764414C6"
+            BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
             BuildableName = "GolfStatsWatch.app"
             BlueprintName = "GolfStatsWatch"
-            ReferencedContainer = "container:GolfStats.xcodeproj">
+            ReferencedContainer = "container:RoundCaddy.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -70,12 +76,14 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D7D79E18EF4BC8DC764414C6"
+            BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
             BuildableName = "GolfStatsWatch.app"
             BlueprintName = "GolfStatsWatch"
-            ReferencedContainer = "container:GolfStats.xcodeproj">
+            ReferencedContainer = "container:RoundCaddy.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
