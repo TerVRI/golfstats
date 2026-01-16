@@ -193,13 +193,50 @@ actor DataService {
         }
         
         let scores = rounds.map { $0.totalScore }
-        let sgValues = rounds.compactMap { $0.sgTotal }
+        let sgTotals = rounds.compactMap { $0.sgTotal }
+        let sgOffTeeValues = rounds.compactMap { $0.sgOffTee }
+        let sgApproachValues = rounds.compactMap { $0.sgApproach }
+        let sgAroundGreenValues = rounds.compactMap { $0.sgAroundGreen }
+        let sgPuttingValues = rounds.compactMap { $0.sgPutting }
+        
+        // Calculate fairway percentage
+        let fairwayData = rounds.compactMap { round -> (hit: Int, total: Int)? in
+            guard let hit = round.fairwaysHit, let total = round.fairwaysTotal, total > 0 else { return nil }
+            return (hit, total)
+        }
+        let totalFairwaysHit = fairwayData.reduce(0) { $0 + $1.hit }
+        let totalFairways = fairwayData.reduce(0) { $0 + $1.total }
+        let fairwayPercentage = totalFairways > 0 ? Double(totalFairwaysHit) / Double(totalFairways) * 100 : 0
+        
+        // Calculate GIR percentage (assume 18 greens per round)
+        let girData = rounds.compactMap { $0.gir }
+        let totalGIR = girData.reduce(0, +)
+        let totalGreens = girData.count * 18
+        let girPercentage = totalGreens > 0 ? Double(totalGIR) / Double(totalGreens) * 100 : 0
+        
+        // Calculate putts per hole
+        let puttsData = rounds.compactMap { $0.totalPutts }
+        let totalPutts = puttsData.reduce(0, +)
+        let totalHoles = puttsData.count * 18
+        let puttsPerHole = totalHoles > 0 ? Double(totalPutts) / Double(totalHoles) : 0
+        
+        // Scrambling percentage (estimate based on GIR and score)
+        // Real scrambling would need hole-by-hole data
+        let scramblingPercentage = max(0, min(100, 50 + (sgAroundGreenValues.isEmpty ? 0 : sgAroundGreenValues.reduce(0, +) / Double(sgAroundGreenValues.count) * 10)))
         
         return UserStats(
             roundsPlayed: rounds.count,
             averageScore: Double(scores.reduce(0, +)) / Double(scores.count),
             bestScore: scores.min() ?? 0,
-            averageSG: sgValues.isEmpty ? 0 : sgValues.reduce(0, +) / Double(sgValues.count),
+            averageSG: sgTotals.isEmpty ? 0 : sgTotals.reduce(0, +) / Double(sgTotals.count),
+            sgOffTee: sgOffTeeValues.isEmpty ? 0 : sgOffTeeValues.reduce(0, +) / Double(sgOffTeeValues.count),
+            sgApproach: sgApproachValues.isEmpty ? 0 : sgApproachValues.reduce(0, +) / Double(sgApproachValues.count),
+            sgAroundGreen: sgAroundGreenValues.isEmpty ? 0 : sgAroundGreenValues.reduce(0, +) / Double(sgAroundGreenValues.count),
+            sgPutting: sgPuttingValues.isEmpty ? 0 : sgPuttingValues.reduce(0, +) / Double(sgPuttingValues.count),
+            fairwayPercentage: fairwayPercentage,
+            girPercentage: girPercentage,
+            puttsPerHole: puttsPerHole,
+            scramblingPercentage: scramblingPercentage,
             handicapIndex: calculateHandicap(rounds: rounds)
         )
     }
@@ -228,9 +265,31 @@ struct UserStats {
     let averageScore: Double
     let bestScore: Int
     let averageSG: Double
+    let sgOffTee: Double
+    let sgApproach: Double
+    let sgAroundGreen: Double
+    let sgPutting: Double
+    let fairwayPercentage: Double
+    let girPercentage: Double
+    let puttsPerHole: Double
+    let scramblingPercentage: Double
     let handicapIndex: Double?
     
-    static let empty = UserStats(roundsPlayed: 0, averageScore: 0, bestScore: 0, averageSG: 0, handicapIndex: nil)
+    static let empty = UserStats(
+        roundsPlayed: 0,
+        averageScore: 0,
+        bestScore: 0,
+        averageSG: 0,
+        sgOffTee: 0,
+        sgApproach: 0,
+        sgAroundGreen: 0,
+        sgPutting: 0,
+        fairwayPercentage: 0,
+        girPercentage: 0,
+        puttsPerHole: 0,
+        scramblingPercentage: 0,
+        handicapIndex: nil
+    )
 }
 
 enum DataError: Error, LocalizedError {
