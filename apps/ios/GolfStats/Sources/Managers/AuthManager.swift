@@ -20,7 +20,7 @@ class AuthManager: ObservableObject {
     }
     
     private let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
-    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthbnZocXdyZmt6cWt0dXZweG5wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxNjU4MzMsImV4cCI6MjA1Mjc0MTgzM30.dsMo4NWPw6t-h1OlMfPqfgC8E7i6w4aXa0g6xaZF3TA"
+    private let supabaseKey = "sb_publishable_JftEdMATFsi78Ba8rIFObg_tpOeIS2J"
     
     private var accessToken: String? {
         get { UserDefaults.standard.string(forKey: "access_token") }
