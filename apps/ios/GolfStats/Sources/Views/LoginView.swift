@@ -125,7 +125,7 @@ struct LoginView: View {
     
     private var socialSignInSection: some View {
         VStack(spacing: 12) {
-            // Sign in with Apple
+            // Sign in with Apple - wrapped to fix constraint conflicts
             SignInWithAppleButton(
                 onRequest: { request in
                     request.requestedScopes = [.fullName, .email]
@@ -142,8 +142,8 @@ struct LoginView: View {
                 }
             )
             .signInWithAppleButtonStyle(.white)
-            .frame(height: 55)
-            .cornerRadius(12)
+            .frame(maxWidth: .infinity, minHeight: 55, maxHeight: 55)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .disabled(authManager.isSigningIn)
             
             // Sign in with Google
