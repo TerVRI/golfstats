@@ -2,8 +2,8 @@ name: GolfStats
 options:
   bundleIdPrefix: com.golfstats
   deploymentTarget:
-    iOS: "17.0"
-    watchOS: "10.0"
+    iOS: "18.0"
+    watchOS: "11.0"
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
   groupSortPosition: top
