@@ -7,14 +7,29 @@ options:
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
   groupSortPosition: top
+  createIntermediateGroups: true
 
 settings:
   base:
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
+    # Apple Developer Team ID
+    DEVELOPMENT_TEAM: "AYEZVE9ZJ6"
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "5.9"
+    # App Store optimization
+    ENABLE_BITCODE: false
+    DEBUG_INFORMATION_FORMAT: "dwarf-with-dsym"
+    # Archive settings
+    SKIP_INSTALL: false
+    INSTALL_PATH: "$(LOCAL_APPS_DIR)"
+  configs:
+    Debug:
+      DEBUG_INFORMATION_FORMAT: dwarf
+    Release:
+      DEBUG_INFORMATION_FORMAT: "dwarf-with-dsym"
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+      SWIFT_COMPILATION_MODE: wholemodule
 
 targets:
   GolfStats:
@@ -33,15 +48,20 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: false
         ENABLE_PREVIEWS: true
+        # App Store requirements
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: true
     entitlements:
       path: GolfStats/Resources/GolfStats.entitlements
       properties:
         com.apple.developer.applesignin:
           - Default
+        com.apple.security.application-groups:
+          - group.com.roundcaddy
     preBuildScripts: []
     postBuildScripts: []
     dependencies:
       - target: GolfStatsWatch
+        embed: true
 
   GolfStatsWatch:
     type: application
@@ -51,6 +71,10 @@ targets:
         type: group
       - path: ../watch/GolfStatsWatch WatchKit Extension/Resources
         type: group
+        buildPhase: resources
+        excludes:
+          - "Info.plist"
+          - "*.entitlements"
     settings:
       base:
         INFOPLIST_FILE: ../watch/GolfStatsWatch WatchKit Extension/Resources/Info.plist
@@ -59,6 +83,9 @@ targets:
         ENABLE_PREVIEWS: true
         SKIP_INSTALL: true
         WATCHOS_DEPLOYMENT_TARGET: "10.0"
+        # Watch app embedding
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: true
+        CODE_SIGN_ENTITLEMENTS: ../watch/GolfStatsWatch WatchKit Extension/Resources/GolfStatsWatch.entitlements
 
 schemes:
   GolfStats:

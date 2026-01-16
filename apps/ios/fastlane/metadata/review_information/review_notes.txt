@@ -1,0 +1,12 @@
+RoundCaddy is a golf GPS and scoring app. To test:
+
+1. Sign in with Apple (or use test account below)
+2. Start a new round by selecting any course
+3. Enter scores and track shots
+4. View statistics and round history
+
+The app requires location permission for GPS tracking. This is used to calculate distances to greens and track shot locations – core functionality for a golf GPS app.
+
+Apple Watch app syncs with the iPhone app via WatchConnectivity for real-time score updates.
+
+Contact: support@roundcaddy.com for any questions.

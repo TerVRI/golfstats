@@ -26,6 +26,25 @@ class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = 1 // meters
         authorizationStatus = locationManager.authorizationStatus
+        
+        // SCREENSHOT_MODE: Set demo distances for App Store screenshots
+        #if DEBUG
+        let screenshotMode = false
+        if screenshotMode {
+            setupDemoDistances()
+        }
+        #endif
+    }
+    
+    /// Set up demo distances for App Store screenshots
+    private func setupDemoDistances() {
+        distanceToGreenFront = 142
+        distanceToGreenCenter = 156
+        distanceToGreenBack = 171
+        lastShotDistance = 267  // Nice drive distance
+        isTracking = true
+        // Pretend we're authorized so no permission dialog shows
+        authorizationStatus = .authorizedWhenInUse
     }
     
     func requestAuthorization() {
@@ -33,6 +52,14 @@ class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func startTracking() {
+        // In demo mode, skip actual location tracking
+        #if DEBUG
+        if distanceToGreenCenter > 0 {
+            // Already have demo distances, skip real tracking
+            return
+        }
+        #endif
+        
         guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
             requestAuthorization()
             return

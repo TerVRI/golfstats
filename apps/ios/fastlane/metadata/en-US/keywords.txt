@@ -1,0 +1,1 @@
+golf,gps,scorecard,tracker,handicap,strokes gained,watch,distance,rangefinder,stats,score

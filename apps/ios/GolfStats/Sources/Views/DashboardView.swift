@@ -581,6 +581,16 @@ struct DashboardView: View {
         guard let user = authManager.currentUser else { return }
         isLoading = true
         
+        #if DEBUG
+        if isDemoMode {
+            // Use demo data for App Store screenshots
+            stats = DemoStats.stats
+            recentRounds = DemoStats.recentRounds
+            isLoading = false
+            return
+        }
+        #endif
+        
         do {
             stats = try await DataService.shared.fetchStats(
                 userId: user.id,
@@ -895,3 +905,88 @@ struct Insight {
         .environmentObject(GPSManager())
         .preferredColorScheme(.dark)
 }
+
+// MARK: - Demo Data for Screenshots
+#if DEBUG
+enum DemoStats {
+    static func dateString(daysAgo: Int) -> String {
+        let date = Date().addingTimeInterval(-Double(daysAgo) * 86400)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+    
+    static let stats = UserStats(
+        roundsPlayed: 24,
+        averageScore: 78.3,
+        bestScore: 72,
+        averageSG: 0.42,
+        sgOffTee: 0.65,
+        sgApproach: -0.35,
+        sgAroundGreen: 0.28,
+        sgPutting: -0.16,
+        fairwayPercentage: 62,
+        girPercentage: 48,
+        puttsPerHole: 1.78,
+        scramblingPercentage: 45,
+        handicapIndex: 8.4
+    )
+    
+    static let recentRounds: [Round] = [
+        Round(
+            id: "1", userId: "demo", courseName: "Pebble Beach",
+            playedAt: dateString(daysAgo: 2), totalScore: 76,
+            totalPutts: 30, fairwaysHit: 10, fairwaysTotal: 14, gir: 11,
+            penalties: 1, courseRating: 75.5, slopeRating: 145,
+            sgTotal: 0.6, sgOffTee: 0.8, sgApproach: -0.3,
+            sgAroundGreen: 0.2, sgPutting: -0.1,
+            scoringFormat: "stroke", createdAt: dateString(daysAgo: 2)
+        ),
+        Round(
+            id: "2", userId: "demo", courseName: "Augusta National",
+            playedAt: dateString(daysAgo: 5), totalScore: 79,
+            totalPutts: 33, fairwaysHit: 9, fairwaysTotal: 14, gir: 9,
+            penalties: 2, courseRating: 76.2, slopeRating: 148,
+            sgTotal: -0.5, sgOffTee: 0.3, sgApproach: -0.5,
+            sgAroundGreen: 0.1, sgPutting: -0.4,
+            scoringFormat: "stroke", createdAt: dateString(daysAgo: 5)
+        ),
+        Round(
+            id: "3", userId: "demo", courseName: "St Andrews - Old Course",
+            playedAt: dateString(daysAgo: 8), totalScore: 74,
+            totalPutts: 28, fairwaysHit: 11, fairwaysTotal: 14, gir: 13,
+            penalties: 0, courseRating: 73.1, slopeRating: 132,
+            sgTotal: 2.0, sgOffTee: 1.2, sgApproach: 0.4,
+            sgAroundGreen: 0.3, sgPutting: 0.1,
+            scoringFormat: "stroke", createdAt: dateString(daysAgo: 8)
+        ),
+        Round(
+            id: "4", userId: "demo", courseName: "Torrey Pines - South",
+            playedAt: dateString(daysAgo: 12), totalScore: 81,
+            totalPutts: 31, fairwaysHit: 7, fairwaysTotal: 14, gir: 8,
+            penalties: 3, courseRating: 74.6, slopeRating: 143,
+            sgTotal: -1.0, sgOffTee: -0.4, sgApproach: -0.8,
+            sgAroundGreen: 0.0, sgPutting: 0.2,
+            scoringFormat: "stroke", createdAt: dateString(daysAgo: 12)
+        ),
+        Round(
+            id: "5", userId: "demo", courseName: "Bethpage Black",
+            playedAt: dateString(daysAgo: 15), totalScore: 77,
+            totalPutts: 29, fairwaysHit: 10, fairwaysTotal: 14, gir: 10,
+            penalties: 1, courseRating: 75.4, slopeRating: 155,
+            sgTotal: 0.6, sgOffTee: 0.5, sgApproach: 0.2,
+            sgAroundGreen: -0.2, sgPutting: 0.1,
+            scoringFormat: "stroke", createdAt: dateString(daysAgo: 15)
+        ),
+        Round(
+            id: "6", userId: "demo", courseName: "Pinehurst No. 2",
+            playedAt: dateString(daysAgo: 20), totalScore: 78,
+            totalPutts: 32, fairwaysHit: 9, fairwaysTotal: 14, gir: 10,
+            penalties: 1, courseRating: 74.3, slopeRating: 135,
+            sgTotal: 0.3, sgOffTee: 0.3, sgApproach: -0.1,
+            sgAroundGreen: 0.4, sgPutting: -0.3,
+            scoringFormat: "stroke", createdAt: dateString(daysAgo: 20)
+        )
+    ]
+}
+#endif

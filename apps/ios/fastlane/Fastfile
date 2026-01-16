@@ -1,0 +1,222 @@
+# Fastfile for RoundCaddy iOS & watchOS
+# Documentation: https://docs.fastlane.tools
+
+default_platform(:ios)
+
+platform :ios do
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # SETUP
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  before_all do
+    # Ensure we're on a clean git state
+    # ensure_git_status_clean
+  end
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # LANES
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  desc "Sync certificates and provisioning profiles"
+  lane :sync_certs do
+    # Using automatic signing - Xcode manages this
+    # If you switch to manual signing, uncomment below:
+    # match(type: "appstore")
+    # match(type: "development")
+    UI.success "Using automatic code signing. Xcode will manage certificates."
+  end
+
+  desc "Build the app for testing"
+  lane :build do
+    build_app(
+      project: "RoundCaddy.xcodeproj",
+      scheme: "GolfStats",
+      configuration: "Debug",
+      skip_archive: true,
+      skip_codesigning: true,
+      destination: "generic/platform=iOS Simulator"
+    )
+  end
+
+  desc "Run tests"
+  lane :test do
+    run_tests(
+      project: "RoundCaddy.xcodeproj",
+      scheme: "GolfStats",
+      device: "iPhone 15 Pro",
+      clean: true
+    )
+  end
+
+  desc "Increment build number"
+  lane :bump do |options|
+    # Increment build number
+    increment_build_number(
+      xcodeproj: "RoundCaddy.xcodeproj"
+    )
+    
+    build_number = get_build_number(xcodeproj: "RoundCaddy.xcodeproj")
+    UI.success "Build number is now #{build_number}"
+  end
+
+  desc "Increment version number"
+  lane :bump_version do |options|
+    bump_type = options[:type] || "patch" # major, minor, patch
+    
+    increment_version_number(
+      xcodeproj: "RoundCaddy.xcodeproj",
+      bump_type: bump_type
+    )
+    
+    version = get_version_number(xcodeproj: "RoundCaddy.xcodeproj", target: "GolfStats")
+    UI.success "Version number is now #{version}"
+  end
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # TESTFLIGHT
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    # Increment build number
+    increment_build_number(
+      xcodeproj: "RoundCaddy.xcodeproj"
+    )
+
+    # Build the app
+    build_app(
+      project: "RoundCaddy.xcodeproj",
+      scheme: "GolfStats",
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          "com.roundcaddy.ios" => "match AppStore com.roundcaddy.ios",
+          "com.roundcaddy.ios.watchkitapp" => "match AppStore com.roundcaddy.ios.watchkitapp"
+        }
+      },
+      output_directory: "./build",
+      output_name: "RoundCaddy.ipa"
+    )
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+      notify_external_testers: false,
+      changelog: "Bug fixes and improvements"
+    )
+
+    # Clean up
+    clean_build_artifacts
+
+    UI.success "Successfully uploaded to TestFlight! 🚀"
+  end
+
+  desc "Build and upload to TestFlight (automatic signing)"
+  lane :beta_auto do
+    # Increment build number
+    increment_build_number(
+      xcodeproj: "RoundCaddy.xcodeproj"
+    )
+
+    # Build with automatic signing
+    build_app(
+      project: "RoundCaddy.xcodeproj",
+      scheme: "GolfStats",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "RoundCaddy.ipa"
+    )
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+      notify_external_testers: false
+    )
+
+    # Clean up
+    clean_build_artifacts
+
+    UI.success "Successfully uploaded to TestFlight! 🚀"
+  end
+
+  desc "Upload existing IPA to TestFlight"
+  lane :upload do |options|
+    ipa_path = options[:ipa] || "./build/RoundCaddy.ipa"
+    
+    upload_to_testflight(
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # APP STORE
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  desc "Build and submit to App Store review"
+  lane :release do
+    # Ensure on main branch
+    ensure_git_branch(branch: "main")
+    
+    # Increment version (optional)
+    # increment_version_number(bump_type: "patch")
+    
+    # Increment build
+    increment_build_number(xcodeproj: "RoundCaddy.xcodeproj")
+    
+    # Build
+    build_app(
+      project: "RoundCaddy.xcodeproj",
+      scheme: "GolfStats",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+    
+    # Upload to App Store Connect
+    upload_to_app_store(
+      force: true,
+      skip_metadata: false,
+      skip_screenshots: true,
+      submit_for_review: false,  # Set to true to auto-submit
+      automatic_release: false
+    )
+    
+    # Clean up
+    clean_build_artifacts
+    
+    version = get_version_number(xcodeproj: "RoundCaddy.xcodeproj", target: "GolfStats")
+    UI.success "Version #{version} submitted to App Store! 🎉"
+  end
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # UTILITIES
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  desc "Download dSYMs from App Store Connect"
+  lane :dsyms do
+    download_dsyms(
+      app_identifier: "com.roundcaddy.ios",
+      version: "latest"
+    )
+  end
+
+  desc "Take screenshots for App Store"
+  lane :screenshots do
+    capture_screenshots(
+      project: "RoundCaddy.xcodeproj",
+      scheme: "GolfStats"
+    )
+  end
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ERROR HANDLING
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  error do |lane, exception|
+    UI.error "Lane #{lane} failed with error: #{exception.message}"
+  end
+end

@@ -113,3 +113,28 @@ The watch app communicates with the iPhone app via WatchConnectivity:
 - CoreLocation for GPS
 - WatchConnectivity for iPhone sync
 - No external dependencies required
+
+## TestFlight Deployment
+
+The watchOS app is embedded within the iOS app and deployed together.
+
+### Bundle IDs
+- iOS App: `com.roundcaddy.ios`
+- Watch App: `com.roundcaddy.ios.watchkitapp`
+
+### Deployment Steps
+
+1. Both apps are built together when archiving the iOS app
+2. Open `apps/ios/RoundCaddy.xcodeproj`
+3. Archive with scheme "GolfStats" (includes watch target)
+4. Upload to App Store Connect
+5. Watch app appears in TestFlight alongside iOS app
+
+### Testing on Physical Watch
+
+1. Install TestFlight on your iPhone
+2. Install the iOS beta app
+3. Open Watch app on iPhone
+4. Find RoundCaddy → Install on Watch
+
+See `apps/ios/TESTFLIGHT_GUIDE.md` for complete instructions.

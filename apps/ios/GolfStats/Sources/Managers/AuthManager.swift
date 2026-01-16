@@ -33,6 +33,22 @@ class AuthManager: ObservableObject {
     }
     
     init() {
+        // SCREENSHOT_MODE: Set to true only when capturing App Store screenshots
+        #if DEBUG
+        let screenshotMode = false  // Set to true to enable demo mode for screenshots
+        
+        if screenshotMode {
+            self.currentUser = User(
+                id: "demo-user-id",
+                email: "demo@roundcaddy.com",
+                fullName: "Mike Johnson",
+                avatarUrl: nil
+            )
+            self.isLoading = false
+            return
+        }
+        #endif
+        
         Task {
             await checkSession()
         }
@@ -309,6 +325,14 @@ class AuthManager: ObservableObject {
         currentUser = nil
         UserDefaults.standard.removeObject(forKey: "access_token")
         UserDefaults.standard.removeObject(forKey: "refresh_token")
+    }
+    
+    // MARK: - Demo Mode
+    
+    /// Set up demo mode for App Store screenshots
+    func setupDemoUser(_ user: User) {
+        self.currentUser = user
+        self.isLoading = false
     }
     
     // MARK: - API Helpers

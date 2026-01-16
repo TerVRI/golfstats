@@ -1,0 +1,26 @@
+# Appfile for RoundCaddy
+# Documentation: https://docs.fastlane.tools/advanced/Appfile/
+
+# App identifier (bundle ID)
+app_identifier("com.roundcaddy.ios")
+
+# Your Apple Developer account email
+# Set via environment variable or uncomment and fill in:
+# apple_id("your-apple-id@example.com")
+
+# For more information about the Appfile, see:
+# https://docs.fastlane.tools/advanced/Appfile/
+
+# Team ID (find at developer.apple.com/account -> Membership)
+team_id("AYEZVE9ZJ6")
+
+# iTunes Connect Team ID (usually same as team_id)
+# itc_team_id("123456789")
+
+# App Store Connect API Key (recommended for CI/CD)
+# Store key file at fastlane/AuthKey_XXXXXXXXXX.p8
+# app_store_connect_api_key(
+#   key_id: "XXXXXXXXXX",
+#   issuer_id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+#   key_filepath: "fastlane/AuthKey_XXXXXXXXXX.p8"
+# )

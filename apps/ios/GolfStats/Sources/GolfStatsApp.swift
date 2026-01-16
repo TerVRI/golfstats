@@ -1,5 +1,13 @@
 import SwiftUI
 
+// MARK: - Demo/Screenshot Mode Configuration
+// Set to true when capturing App Store screenshots
+#if DEBUG
+let isDemoMode = false  // Set to true to enable demo mode for screenshots
+#else
+let isDemoMode = false
+#endif
+
 @main
 struct RoundCaddyApp: App {
     @StateObject private var authManager = AuthManager()

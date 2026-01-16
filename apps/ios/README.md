@@ -2,6 +2,26 @@
 
 A native SwiftUI iOS app for RoundCaddy with full GPS tracking, Apple Watch sync, and Supabase backend integration.
 
+## Quick Start for TestFlight
+
+See [TESTFLIGHT_GUIDE.md](./TESTFLIGHT_GUIDE.md) for complete TestFlight and App Store setup instructions.
+
+### Quick Commands
+
+```bash
+# Generate app icons (requires 1024x1024 source image)
+./scripts/generate-app-icons.sh ~/path/to/your-icon.png
+
+# Build and upload to TestFlight (using Fastlane)
+cd apps/ios
+bundle install
+bundle exec fastlane beta_auto
+
+# Or manually via Xcode
+open RoundCaddy.xcodeproj
+# Product → Archive → Distribute App
+```
+
 ## Features
 
 - **Sign in with Apple** - Secure authentication via Supabase
@@ -175,3 +195,51 @@ Open-Meteo:
 - [ ] Shot dispersion visualization
 - [ ] HealthKit integration
 - [ ] Siri shortcuts
+
+## TestFlight Deployment
+
+### Prerequisites Checklist
+
+- [ ] Apple Developer Program membership
+- [ ] Development Team ID set in Xcode project
+- [ ] App created in App Store Connect
+- [ ] App icons added (run `./scripts/generate-app-icons.sh`)
+
+### Deploy to TestFlight
+
+**Option 1: Xcode (Recommended for first time)**
+1. Open `RoundCaddy.xcodeproj`
+2. Set your Team in Signing & Capabilities
+3. Product → Archive
+4. Distribute App → App Store Connect → Upload
+
+**Option 2: Fastlane (Automated)**
+```bash
+cd apps/ios
+bundle install
+bundle exec fastlane beta_auto
+```
+
+**Option 3: Script**
+```bash
+cd apps/ios
+./scripts/testflight-upload.sh
+```
+
+### Files Overview
+
+```
+apps/ios/
+├── TESTFLIGHT_GUIDE.md      # Complete setup guide
+├── ExportOptions.plist      # Archive export settings
+├── Gemfile                  # Ruby dependencies (Fastlane)
+├── fastlane/
+│   ├── Appfile              # App Store Connect config
+│   └── Fastfile             # Automation lanes
+├── metadata/
+│   ├── app-store-info.md    # App Store text content
+│   └── privacy-policy.md    # Privacy policy template
+└── scripts/
+    ├── generate-app-icons.sh    # Icon generator
+    └── testflight-upload.sh     # Upload script
+```

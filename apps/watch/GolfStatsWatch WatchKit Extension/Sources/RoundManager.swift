@@ -43,8 +43,54 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
         super.init()
         loadSavedBag()
         initializeHoles()
+        
+        // SCREENSHOT_MODE: Set to true only when capturing App Store screenshots
+        #if DEBUG
+        let screenshotMode = false  // Set to true to enable demo mode for screenshots
+        
+        if screenshotMode {
+            setupDemoRound()
+            return
+        }
+        #endif
+        
         restoreCachedRound()
         setupWatchConnectivity()
+    }
+    
+    /// Set up demo data for App Store screenshots
+    private func setupDemoRound() {
+        isRoundActive = true
+        currentHole = 7
+        courseName = "Pebble Beach Golf Links"
+        roundStartTime = Date().addingTimeInterval(-7200) // 2 hours ago
+        
+        // Set up realistic pars for Pebble Beach front 9
+        let pebbleBeachPars = [4, 5, 4, 4, 3, 5, 3, 4, 4, 4, 4, 3, 4, 5, 4, 3, 4, 5]
+        
+        // Demo scores through hole 6 (playing hole 7)
+        let demoScores = [
+            (1, 4, 2, true, true),   // Hole 1: Par, 2 putts, FW hit, GIR
+            (2, 5, 2, true, true),   // Hole 2: Birdie on par 5
+            (3, 4, 2, false, true),  // Hole 3: Par, missed FW
+            (4, 5, 3, true, false),  // Hole 4: Bogey, missed GIR
+            (5, 2, 1, nil, true),    // Hole 5: Birdie on par 3 (no FW for par 3)
+            (6, 6, 2, true, false),  // Hole 6: Bogey on par 5
+        ]
+        
+        for i in 0..<18 {
+            holeScores[i].par = pebbleBeachPars[i]
+            
+            if i < demoScores.count {
+                let demo = demoScores[i]
+                holeScores[i].score = demo.1
+                holeScores[i].putts = demo.2
+                holeScores[i].fairwayHit = demo.3
+                holeScores[i].gir = demo.4
+            }
+        }
+        
+        calculateTotalScore()
     }
     
     private func loadSavedBag() {
@@ -433,6 +479,19 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
             }
         }
     }
+    
+    #if os(iOS)
+    // Required for iOS but not watchOS
+    func sessionDidBecomeInactive(_ session: WCSession) {
+        print("WCSession became inactive")
+    }
+    
+    func sessionDidDeactivate(_ session: WCSession) {
+        print("WCSession deactivated")
+        // Reactivate the session
+        session.activate()
+    }
+    #endif
     
     func sessionReachabilityDidChange(_ session: WCSession) {
         if session.isReachable {

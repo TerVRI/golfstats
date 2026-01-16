@@ -1,0 +1,9 @@
+Welcome to RoundCaddy! This initial release includes:
+
+• GPS distance tracking to every green
+• Digital scorecard with statistics
+• Apple Watch companion app
+• Sign In with Apple for secure authentication
+• Course search with weather integration
+• Strokes gained analytics
+• Shot tracking with GPS coordinates
