@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
-import { Club, ClubType } from "@/types/golf";
+import { ClubData, ClubType } from "@/types/golf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,10 +67,10 @@ export default function BagPage() {
   const { user } = useUser();
   const supabase = createClient();
 
-  const [clubs, setClubs] = useState<Club[]>([]);
+  const [clubs, setClubs] = useState<ClubData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingClub, setEditingClub] = useState<Club | null>(null);
+  const [editingClub, setEditingClub] = useState<ClubData | null>(null);
   const [formData, setFormData] = useState<ClubFormData>(defaultFormData);
   const [saving, setSaving] = useState(false);
   const [expandedType, setExpandedType] = useState<ClubType | null>(null);
@@ -142,7 +142,7 @@ export default function BagPage() {
     fetchClubs();
   };
 
-  const handleEdit = (club: Club) => {
+  const handleEdit = (club: ClubData) => {
     setEditingClub(club);
     setFormData({
       name: club.name,
@@ -169,7 +169,7 @@ export default function BagPage() {
     }
   };
 
-  const toggleInBag = async (club: Club) => {
+  const toggleInBag = async (club: ClubData) => {
     const { error } = await supabase
       .from("clubs")
       .update({ in_bag: !club.in_bag })

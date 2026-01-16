@@ -157,3 +157,105 @@ export const createDefaultHoleData = (holeNumber: number, par: number = 4): Hole
 // Standard 18 holes with typical par configuration
 export const DEFAULT_COURSE_PARS = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5];
 
+
+// ============================================
+// CLUB / BAG MANAGEMENT
+// ============================================
+export type ClubType = 'driver' | 'wood' | 'hybrid' | 'iron' | 'wedge' | 'putter';
+export type ShaftMaterial = 'graphite' | 'steel';
+
+export interface ClubData {
+  id: string;
+  user_id: string;
+  name: string;
+  brand: string | null;
+  model: string | null;
+  loft: number | null;
+  shaft: string | null;
+  shaft_material: ShaftMaterial | null;
+  club_type: ClubType;
+  purchase_date: string | null;
+  in_bag: boolean;
+  avg_distance: number | null;
+  total_shots: number;
+  notes: string | null;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClubStats extends ClubData {
+  avg_quality: number | null;
+  greens_hit: number;
+  fairways_hit: number;
+}
+
+// ============================================
+// ACHIEVEMENTS / BADGES
+// ============================================
+export type AchievementCategory = 'scoring' | 'consistency' | 'improvement' | 'milestones' | 'social';
+export type AchievementTier = 'bronze' | 'silver' | 'gold' | 'platinum';
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: AchievementCategory;
+  points: number;
+  tier: AchievementTier;
+  requirement_type: 'single' | 'cumulative' | 'streak';
+  requirement_value: number;
+}
+
+export interface UserAchievement {
+  id: string;
+  user_id: string;
+  achievement_id: string;
+  unlocked_at: string;
+  round_id: string | null;
+  progress: number;
+  achievement?: Achievement;
+}
+
+// ============================================
+// SCORING FORMATS
+// ============================================
+export type ScoringFormat = 'stroke' | 'stableford' | 'match' | 'skins' | 'best_ball' | 'scramble';
+
+export const SCORING_FORMATS: { value: ScoringFormat; label: string; description: string }[] = [
+  { value: 'stroke', label: 'Stroke Play', description: 'Traditional scoring - lowest total strokes wins' },
+  { value: 'stableford', label: 'Stableford', description: 'Points-based system - highest points wins' },
+  { value: 'match', label: 'Match Play', description: 'Hole-by-hole competition - win more holes' },
+  { value: 'skins', label: 'Skins', description: 'Win the hole outright to take the skin' },
+  { value: 'best_ball', label: 'Best Ball', description: 'Team format - best score counts' },
+  { value: 'scramble', label: 'Scramble', description: 'Team format - everyone plays from best shot' },
+];
+
+// Stableford points calculator
+export const calculateStablefordPoints = (score: number, par: number, handicapStrokes: number = 0): number => {
+  const netScore = score - handicapStrokes;
+  const relative = netScore - par;
+  
+  if (relative <= -3) return 5; // Albatross or better
+  if (relative === -2) return 4; // Eagle
+  if (relative === -1) return 3; // Birdie
+  if (relative === 0) return 2;  // Par
+  if (relative === 1) return 1;  // Bogey
+  return 0; // Double bogey or worse
+};
+
+// ============================================
+// USER PREFERENCES
+// ============================================
+export type Theme = 'light' | 'dark';
+export type Units = 'yards' | 'meters';
+export type Tees = 'black' | 'blue' | 'white' | 'gold' | 'red';
+
+export interface UserPreferences {
+  theme: Theme;
+  units: Units;
+  default_tees: Tees;
+  notifications: boolean;
+  public_stats: boolean;
+}
