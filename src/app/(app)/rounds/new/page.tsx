@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent, Button, Input, Select } from "@/components/ui";
 import { cn, getScoreColor } from "@/lib/utils";
 import { calculateRoundStrokesGained } from "@/lib/strokes-gained";
-import { HoleEntryData, DEFAULT_COURSE_PARS, CLUBS, createDefaultHoleData } from "@/types/golf";
+import { HoleEntryData, DEFAULT_COURSE_PARS, CLUBS, createDefaultHoleData, SCORING_FORMATS, ScoringFormat, calculateStablefordPoints } from "@/types/golf";
 import { createClient } from "@/lib/supabase/client";
 import { CourseSearch } from "@/components/course-search";
 import {
@@ -35,6 +35,7 @@ export default function NewRoundPage() {
   const [courseRating, setCourseRating] = useState("");
   const [slopeRating, setSlopeRating] = useState("");
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().split("T")[0]);
+  const [scoringFormat, setScoringFormat] = useState<ScoringFormat>("stroke");
   
   // Hole data - initialize with default pars
   const [holes, setHoles] = useState<HoleEntryData[]>(
@@ -108,6 +109,7 @@ export default function NewRoundPage() {
           sg_approach: sg.sg_approach,
           sg_around_green: sg.sg_around_green,
           sg_putting: sg.sg_putting,
+          scoring_format: scoringFormat,
         })
         .select()
         .single();
@@ -128,6 +130,7 @@ export default function NewRoundPage() {
         penalties: hole.penalties,
         approach_distance: hole.approach_distance,
         first_putt_distance: hole.first_putt_distance,
+        stableford_points: scoringFormat === 'stableford' ? calculateStablefordPoints(hole.score, hole.par) : 0,
       }));
 
       const { error: holesError } = await supabase
@@ -194,6 +197,28 @@ export default function NewRoundPage() {
         value={playedAt}
         onChange={(e) => setPlayedAt(e.target.value)}
       />
+
+      <div>
+        <label className="block text-sm font-medium text-foreground-muted mb-2">Scoring Format</label>
+        <div className="grid grid-cols-2 gap-3">
+          {SCORING_FORMATS.slice(0, 4).map((format) => (
+            <button
+              key={format.value}
+              type="button"
+              onClick={() => setScoringFormat(format.value)}
+              className={cn(
+                "p-3 rounded-lg border text-left transition-all",
+                scoringFormat === format.value
+                  ? "border-accent-green bg-accent-green/10"
+                  : "border-card-border hover:border-foreground-muted"
+              )}
+            >
+              <div className="font-medium text-sm">{format.label}</div>
+              <div className="text-xs text-foreground-muted">{format.description}</div>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="pt-4">
         <Button

@@ -25,7 +25,7 @@ export default function Home() {
               <span className="gradient-text">Strokes Gained</span>
               <br />
               <span className="text-foreground">Analytics</span>
-            </h1>
+          </h1>
             
             <p className="text-lg md:text-xl text-foreground-muted max-w-2xl mx-auto">
               The same tour-level statistics used by PGA professionals, now available for every golfer. 

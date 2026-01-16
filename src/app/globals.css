@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+[data-theme="dark"] {
   /* Dark theme - Primary palette */
   --background: #0f172a;
   --background-secondary: #1e293b;
@@ -26,6 +27,34 @@
   --rough: #84cc16;
   --bunker: #fbbf24;
   --water: #0ea5e9;
+}
+
+[data-theme="light"] {
+  /* Light theme - Primary palette */
+  --background: #f8fafc;
+  --background-secondary: #f1f5f9;
+  --background-tertiary: #e2e8f0;
+  --foreground: #0f172a;
+  --foreground-muted: #64748b;
+  
+  /* Accent colors - same but slightly adjusted */
+  --accent-green: #059669;
+  --accent-green-light: #10b981;
+  --accent-red: #e11d48;
+  --accent-red-light: #f43f5e;
+  --accent-blue: #2563eb;
+  --accent-amber: #d97706;
+  
+  /* Card and borders */
+  --card-background: #ffffff;
+  --card-border: #e2e8f0;
+  --card-hover: #f1f5f9;
+  
+  /* Golf-specific colors */
+  --fairway: #16a34a;
+  --rough: #65a30d;
+  --bunker: #ca8a04;
+  --water: #0284c7;
 }
 
 @theme inline {

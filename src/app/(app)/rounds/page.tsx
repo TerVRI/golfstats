@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/components/ui";
 import { cn, formatSG, calculateScoreToPar, getScoreColor, formatDate } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { PlusCircle, Flag, Calendar, Target, Search, Filter, Loader2 } from "lucide-react";
+import { PlusCircle, Flag, Calendar, Target, Search, Filter, Loader2, Download } from "lucide-react";
+import { roundsToCSV, downloadCSV } from "@/lib/export";
 
 interface Round {
   id: string;
@@ -127,6 +128,19 @@ export default function RoundsPage() {
           <Filter className="w-4 h-4" />
           Filter
         </Button>
+        {rounds.length > 0 && (
+          <Button
+            variant="secondary"
+            className="flex items-center gap-2"
+            onClick={() => {
+              const csv = roundsToCSV(rounds as any);
+              downloadCSV(csv, `golfstats-rounds-${new Date().toISOString().split("T")[0]}.csv`);
+            }}
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </Button>
+        )}
       </div>
 
       {/* Stats Summary */}

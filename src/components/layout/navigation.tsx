@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   LayoutDashboard,
   PlusCircle,
@@ -17,6 +18,8 @@ import {
   Dumbbell,
   Trophy,
   Flag,
+  Briefcase,
+  Award,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,6 +43,16 @@ const navItems = [
     href: "/trends",
     label: "Trends",
     icon: TrendingUp,
+  },
+  {
+    href: "/bag",
+    label: "My Bag",
+    icon: Briefcase,
+  },
+  {
+    href: "/achievements",
+    label: "Achievements",
+    icon: Award,
   },
   {
     href: "/practice",
@@ -122,6 +135,7 @@ export function Navigation() {
                 <p className="text-sm font-medium text-foreground truncate">{userName}</p>
                 <p className="text-xs text-foreground-muted truncate">{userEmail}</p>
               </div>
+              <ThemeToggle />
             </div>
           )}
           <button
