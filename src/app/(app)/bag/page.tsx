@@ -276,13 +276,11 @@ export default function BagPage() {
                           club_type: e.target.value as ClubType,
                         })
                       }
-                    >
-                      {CLUB_TYPES.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.icon} {type.label}
-                        </option>
-                      ))}
-                    </Select>
+                      options={CLUB_TYPES.map((type) => ({
+                        value: type.value,
+                        label: `${type.icon} ${type.label}`,
+                      }))}
+                    />
                   </div>
 
                   <div>
@@ -357,11 +355,12 @@ export default function BagPage() {
                           shaft_material: e.target.value as "graphite" | "steel" | "",
                         })
                       }
-                    >
-                      <option value="">Select...</option>
-                      <option value="graphite">Graphite</option>
-                      <option value="steel">Steel</option>
-                    </Select>
+                      placeholder="Select..."
+                      options={[
+                        { value: "graphite", label: "Graphite" },
+                        { value: "steel", label: "Steel" },
+                      ]}
+                    />
                   </div>
 
                   <div>
