@@ -120,6 +120,12 @@
       "namedRegex": "^/login(?:/)?$"
     },
     {
+      "page": "/offline",
+      "regex": "^/offline(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/offline(?:/)?$"
+    },
+    {
       "page": "/practice",
       "regex": "^/practice(?:/)?$",
       "routeKeys": {},

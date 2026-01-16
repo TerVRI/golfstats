@@ -18,5 +18,6 @@
   "/auth/callback/route": "app/auth/callback/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/login/page": "app/login/page.js",
+  "/offline/page": "app/offline/page.js",
   "/page": "app/page.js"
 }
