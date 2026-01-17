@@ -43,6 +43,13 @@ struct CoursesView: View {
             .background(Color("Background"))
             .navigationTitle("Courses")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink(destination: ContributeCourseView()) {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                }
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showNearby.toggle()
@@ -185,20 +192,35 @@ struct CourseDetailView: View {
                         .padding()
                 }
                 
-                // Start Round Button
-                Button {
-                    roundManager.startRound(course: course)
-                } label: {
-                    HStack {
-                        Image(systemName: "play.fill")
-                        Text("Start Round at This Course")
+                // Action Buttons
+                VStack(spacing: 12) {
+                    Button {
+                        roundManager.startRound(course: course)
+                    } label: {
+                        HStack {
+                            Image(systemName: "play.fill")
+                            Text("Start Round at This Course")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.green)
+                        .cornerRadius(12)
                     }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.green)
-                    .cornerRadius(12)
+                    
+                    NavigationLink(destination: ConfirmCourseView(course: course)) {
+                        HStack {
+                            Image(systemName: "checkmark.circle")
+                            Text("Confirm Course Data")
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                    }
                 }
                 .padding(.horizontal)
             }

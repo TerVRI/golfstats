@@ -287,11 +287,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop trigger if exists before creating
+DROP TRIGGER IF EXISTS update_course_rating_on_review ON public.course_reviews;
 CREATE TRIGGER update_course_rating_on_review
     AFTER INSERT OR UPDATE OR DELETE ON public.course_reviews
     FOR EACH ROW EXECUTE FUNCTION refresh_course_rating();
 
 -- Update triggers for timestamps
+DROP TRIGGER IF EXISTS update_course_reviews_updated_at ON public.course_reviews;
 CREATE TRIGGER update_course_reviews_updated_at
     BEFORE UPDATE ON public.course_reviews
     FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();

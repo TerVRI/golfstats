@@ -28,12 +28,14 @@ class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         authorizationStatus = locationManager.authorizationStatus
         
         // SCREENSHOT_MODE: Set demo distances for App Store screenshots
-        #if DEBUG
-        let screenshotMode = false
-        if screenshotMode {
-            setupDemoDistances()
-        }
-        #endif
+        // Uncomment and set to true when capturing App Store screenshots
+        // #if DEBUG
+        // let screenshotMode = false
+        // if screenshotMode {
+        //     setupDemoDistances()
+        //     return
+        // }
+        // #endif
     }
     
     /// Set up demo distances for App Store screenshots

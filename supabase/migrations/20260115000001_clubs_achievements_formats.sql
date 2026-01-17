@@ -123,7 +123,16 @@ INSERT INTO public.achievement_definitions (id, name, description, icon, categor
   
   -- Social
   ('first_share', 'Social Golfer', 'Share your first round', '📤', 'social', 'bronze', 'single', 1, 5),
-  ('followers_10', 'Rising Star', 'Get 10 followers', '⭐', 'social', 'silver', 'cumulative', 10, 25)
+  ('followers_10', 'Rising Star', 'Get 10 followers', '⭐', 'social', 'silver', 'cumulative', 10, 25),
+  
+  -- Course Contributions
+  ('first_course_contribution', 'Course Mapper', 'Contribute your first course', '🗺️', 'social', 'bronze', 'single', 1, 25),
+  ('course_contributions_5', 'Course Builder', 'Contribute 5 courses', '🏗️', 'social', 'silver', 'cumulative', 5, 50),
+  ('course_contributions_10', 'Course Architect', 'Contribute 10 courses', '🏛️', 'social', 'gold', 'cumulative', 10, 100),
+  ('course_contributions_25', 'Master Cartographer', 'Contribute 25 courses', '📐', 'social', 'platinum', 'cumulative', 25, 250),
+  ('verified_course_contributor', 'Verified Contributor', 'Have a course you contributed verified', '✅', 'social', 'silver', 'single', 1, 75),
+  ('course_confirmation_5', 'Course Validator', 'Confirm 5 courses', '✓', 'social', 'bronze', 'cumulative', 5, 30),
+  ('course_confirmation_20', 'Course Inspector', 'Confirm 20 courses', '🔍', 'social', 'silver', 'cumulative', 20, 80)
 ON CONFLICT (id) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON public.user_achievements(user_id);

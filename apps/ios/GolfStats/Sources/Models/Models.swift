@@ -278,6 +278,28 @@ enum ClubCategory: String, CaseIterable {
     case putter = "Putter"
 }
 
+// MARK: - Contributor Stats
+
+struct ContributorStats: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let reputationScore: Double
+    let contributionsCount: Int
+    let verifiedContributionsCount: Int
+    let confirmationsReceived: Int
+    let isTrustedContributor: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case reputationScore = "reputation_score"
+        case contributionsCount = "contributions_count"
+        case verifiedContributionsCount = "verified_contributions_count"
+        case confirmationsReceived = "confirmations_received"
+        case isTrustedContributor = "is_trusted_contributor"
+    }
+}
+
 // MARK: - Golf Bag
 
 class GolfBag: ObservableObject {

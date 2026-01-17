@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
-import { Search, MapPin, Star, ThumbsUp, Clock, Loader2 } from "lucide-react";
+import { Search, MapPin, Star, ThumbsUp, Clock, Loader2, Plus, Trophy } from "lucide-react";
 import Link from "next/link";
 
 interface Course {
@@ -83,6 +83,20 @@ export default function CoursesPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Golf Courses</h1>
           <p className="text-foreground-muted">Discover and review courses</p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/courses/leaderboard">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Trophy className="w-4 h-4" />
+              Leaderboard
+            </Button>
+          </Link>
+          <Link href="/courses/contribute">
+            <Button className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Contribute Course
+            </Button>
+          </Link>
         </div>
       </div>
 

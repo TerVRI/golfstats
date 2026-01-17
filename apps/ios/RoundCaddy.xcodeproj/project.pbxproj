@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,6 +11,7 @@
 		052039F604D00970C519166F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFB1CB554C53E74F2CEEEE7D /* Assets.xcassets */; };
 		079AEA6B0514424ADC8123F1 /* GolfStatsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406FFF98C7A8C20661D8DF0C /* GolfStatsApp.swift */; };
 		13AF69A7B468F6D8A5A94AB3 /* GolfStatsWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 700EC730B457084B328F8B30 /* GolfStatsWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		13E8AEF42F1B1C1D0006B6D6 /* ContributorLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E8AEF32F1B1C1D0006B6D6 /* ContributorLeaderboardView.swift */; };
 		242F544EF19100C0BD8DA72D /* WatchSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7496A92B03CE42D1B6BDFA /* WatchSyncManager.swift */; };
 		3B81979C4E97C73AE97027EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 20C189726ECE51D93619A7C3 /* Assets.xcassets */; };
 		45D0AD5F6F00B3E78D331A58 /* LiveRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EB6BD118FFB988AACB025A /* LiveRoundView.swift */; };
@@ -64,6 +65,7 @@
 		0A37C57DD0EA01B1E1EC70D1 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		0D7496A92B03CE42D1B6BDFA /* WatchSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncManager.swift; sourceTree = "<group>"; };
 		107FD322B8F94218A4ADA0DA /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		13E8AEF32F1B1C1D0006B6D6 /* ContributorLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorLeaderboardView.swift; sourceTree = "<group>"; };
 		1986E0973B0A533FE93DB2CD /* GPSManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSManager.swift; sourceTree = "<group>"; };
 		1CB16BDEE11DACBC6A877D4F /* ShotTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotTrackerView.swift; sourceTree = "<group>"; };
 		20C189726ECE51D93619A7C3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 		CC97B181576273FD6688E429 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				13E8AEF32F1B1C1D0006B6D6 /* ContributorLeaderboardView.swift */,
 				07D1160C1AE391CDD6F5A2E5 /* CoursesView.swift */,
 				107FD322B8F94218A4ADA0DA /* DashboardView.swift */,
 				C7EB6BD118FFB988AACB025A /* LiveRoundView.swift */,
@@ -299,7 +302,6 @@
 			);
 			mainGroup = EAE168B7FFD69949B3B676C2;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -359,6 +361,7 @@
 				9695B86F5B30A7E6F7FC339C /* Models.swift in Sources */,
 				8063CAD05E0916B6B5D345C0 /* NewRoundView.swift in Sources */,
 				7012419AC2F918F47E00A389 /* ProfileView.swift in Sources */,
+				13E8AEF42F1B1C1D0006B6D6 /* ContributorLeaderboardView.swift in Sources */,
 				548C410D28FF0D6CCE09735E /* RoundManager.swift in Sources */,
 				E04A46039CFEC4F050055CFF /* RoundsListView.swift in Sources */,
 				242F544EF19100C0BD8DA72D /* WatchSyncManager.swift in Sources */,

@@ -28,11 +28,17 @@ struct MainTabView: View {
                         }
                         .tag(2)
                     
+                    ContributorLeaderboardView()
+                        .tabItem {
+                            Label("Leaderboard", systemImage: "trophy.fill")
+                        }
+                        .tag(3)
+                    
                     ProfileView()
                         .tabItem {
                             Label("Profile", systemImage: "person.fill")
                         }
-                        .tag(3)
+                        .tag(4)
                 }
                 .tint(.green)
             }

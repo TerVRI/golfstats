@@ -45,13 +45,9 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
         initializeHoles()
         
         // SCREENSHOT_MODE: Set to true only when capturing App Store screenshots
-        #if DEBUG
-        let screenshotMode = false  // Set to true to enable demo mode for screenshots
-        
-        if screenshotMode {
-            setupDemoRound()
-            return
-        }
+        #if DEBUG && SCREENSHOT_MODE
+        setupDemoRound()
+        return
         #endif
         
         restoreCachedRound()

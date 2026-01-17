@@ -258,6 +258,185 @@ actor DataService {
         
         return bestDiffs.reduce(0, +) / Double(bestDiffs.count) * 0.96
     }
+    
+    // MARK: - Course Confirmations
+    
+    func confirmCourse(
+        courseId: String,
+        userId: String,
+        authHeaders: [String: String],
+        dimensionsMatch: Bool = true,
+        teeLocationsMatch: Bool = true,
+        greenLocationsMatch: Bool = true,
+        hazardLocationsMatch: Bool = true,
+        confidenceLevel: Int = 3,
+        discrepancyNotes: String? = nil
+    ) async throws {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_confirmations")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let body: [String: Any] = [
+            "course_id": courseId,
+            "user_id": userId,
+            "dimensions_match": dimensionsMatch,
+            "tee_locations_match": teeLocationsMatch,
+            "green_locations_match": greenLocationsMatch,
+            "hazard_locations_match": hazardLocationsMatch,
+            "confidence_level": confidenceLevel,
+            "discrepancy_notes": discrepancyNotes as Any
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
+            throw DataError.saveFailed
+        }
+    }
+    
+    // MARK: - Leaderboard
+    
+    func fetchContributorLeaderboard(authHeaders: [String: String], limit: Int = 50) async throws -> [ContributorStats] {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/contributor_reputation")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "order", value: "reputation_score.desc"),
+            URLQueryItem(name: "limit", value: "\(limit)")
+        ]
+        
+        var request = URLRequest(url: urlComponents.url!)
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try decoder.decode([ContributorStats].self, from: data)
+    }
+    
+    // MARK: - Storage
+    
+    func uploadPhoto(
+        data: Data,
+        fileName: String,
+        authHeaders: [String: String],
+        bucket: String = "course-photos",
+        folder: String = "contributions"
+    ) async throws -> String {
+        let filePath = "\(folder)/\(fileName)"
+        let url = URL(string: "\(supabaseUrl)/storage/v1/object/\(bucket)/\(filePath)")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = data
+        
+        // Determine content type from file extension
+        let contentType: String
+        if fileName.lowercased().hasSuffix(".jpg") || fileName.lowercased().hasSuffix(".jpeg") {
+            contentType = "image/jpeg"
+        } else if fileName.lowercased().hasSuffix(".png") {
+            contentType = "image/png"
+        } else if fileName.lowercased().hasSuffix(".webp") {
+            contentType = "image/webp"
+        } else if fileName.lowercased().hasSuffix(".gif") {
+            contentType = "image/gif"
+        } else {
+            contentType = "image/jpeg"
+        }
+        
+        request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+        request.setValue("false", forHTTPHeaderField: "x-upsert")
+        
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+            throw DataError.saveFailed
+        }
+        
+        // Get public URL
+        let publicUrl = "\(supabaseUrl)/storage/v1/object/public/\(bucket)/\(filePath)"
+        return publicUrl
+    }
+    
+    // MARK: - Course Contributions
+    
+    func contributeCourse(
+        userId: String,
+        authHeaders: [String: String],
+        name: String,
+        city: String?,
+        state: String?,
+        country: String,
+        address: String?,
+        phone: String?,
+        website: String?,
+        courseRating: Double?,
+        slopeRating: Int?,
+        par: Int?,
+        holes: Int,
+        latitude: Double,
+        longitude: Double,
+        photoUrls: [String] = []
+    ) async throws {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_contributions")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        var body: [String: Any] = [
+            "contributor_id": userId,
+            "name": name,
+            "country": country,
+            "holes": holes,
+            "latitude": latitude,
+            "longitude": longitude,
+            "status": "pending"
+        ]
+        
+        if let city = city { body["city"] = city }
+        if let state = state { body["state"] = state }
+        if let address = address { body["address"] = address }
+        if let phone = phone { body["phone"] = phone }
+        if let website = website { body["website"] = website }
+        if let courseRating = courseRating { body["course_rating"] = courseRating }
+        if let slopeRating = slopeRating { body["slope_rating"] = slopeRating }
+        if let par = par { body["par"] = par }
+        if !photoUrls.isEmpty {
+            body["photo_urls"] = photoUrls
+            body["photos"] = photoUrls.map { ["url": $0, "uploaded_at": ISO8601DateFormatter().string(from: Date())] }
+        }
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
+            throw DataError.saveFailed
+        }
+    }
 }
 
 struct UserStats {

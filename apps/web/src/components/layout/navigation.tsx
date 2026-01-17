@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/notifications";
 import {
   LayoutDashboard,
   PlusCircle,
@@ -141,7 +142,10 @@ export function Navigation() {
                 <p className="text-sm font-medium text-foreground truncate">{userName}</p>
                 <p className="text-xs text-foreground-muted truncate">{userEmail}</p>
               </div>
-              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <ThemeToggle />
+              </div>
             </div>
           )}
           <button
@@ -164,12 +168,15 @@ export function Navigation() {
             <h1 className="text-lg font-bold text-foreground">RoundCaddy</h1>
           </div>
           
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-foreground-muted hover:text-foreground rounded-lg hover:bg-background-tertiary transition-colors"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {user && <NotificationBell />}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-foreground-muted hover:text-foreground rounded-lg hover:bg-background-tertiary transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}

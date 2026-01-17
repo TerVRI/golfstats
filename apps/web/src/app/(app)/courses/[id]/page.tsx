@@ -8,6 +8,7 @@ import { Select } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { fetchWeather, WeatherForecast } from "@roundcaddy/shared";
+import { CourseDiscussions } from "@/components/course-discussions";
 import {
   MapPin,
   Star,
@@ -21,6 +22,7 @@ import {
   ChevronLeft,
   Loader2,
   Send,
+  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -40,6 +42,9 @@ interface Course {
   phone: string | null;
   website: string | null;
   hole_data: any;
+  is_verified: boolean;
+  confirmation_count: number;
+  required_confirmations: number;
 }
 
 interface Review {
@@ -82,7 +87,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
   const fetchCourse = useCallback(async () => {
     try {
-      const { data, error } = await supabase.from("courses").select("*").eq("id", id).single();
+      const { data, error } = await supabase
+        .from("courses")
+        .select("*, confirmation_count, required_confirmations, is_verified")
+        .eq("id", id)
+        .single();
       if (error) throw error;
       setCourse(data);
 
@@ -249,6 +258,23 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               </a>
             )}
           </div>
+
+          {/* Confirm Course Button */}
+          {user && (
+            <div className="mt-6">
+              <Link href={`/courses/confirm/${course.id}`}>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {course.is_verified ? "Re-confirm Course" : "Confirm Course Data"}
+                </Button>
+              </Link>
+              {!course.is_verified && (
+                <p className="text-xs text-foreground-muted mt-2">
+                  Help verify this course by confirming the data matches your knowledge
+                </p>
+              )}
+            </div>
+          )}
         </Card>
 
         {/* Weather Card */}
@@ -401,6 +427,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             ))}
           </div>
         )}
+
+        {/* Course Discussions */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Discussions</h2>
+          <CourseDiscussions courseId={course.id} />
+        </div>
       </div>
     </div>
   );
