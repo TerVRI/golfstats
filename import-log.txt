@@ -1,0 +1,3175 @@
+✅ Loaded environment variables from .env.local
+============================================================
+OpenStreetMap Golf Course Import
+============================================================
+
+Querying OpenStreetMap for all golf courses...
+This will query by region to avoid timeouts...
+This may take 10-15 minutes...
+
+Querying North America...
+  ✅ Found 20296 courses in North America (Total so far: 20296)
+Querying Europe...
+  ✅ Found 9447 courses in Europe (Total so far: 29743)
+Querying Asia...
+  ⚠️  Timeout on attempt 1, retrying in 5 seconds...
+  ⚠️  Timeout on attempt 2, retrying in 5 seconds...
+  ✅ Found 6451 courses in Asia (Total so far: 36194)
+Querying South America...
+  ✅ Found 916 courses in South America (Total so far: 36985)
+Querying Africa...
+  ⚠️  Timeout on attempt 1, retrying in 5 seconds...
+  ⚠️  Timeout on attempt 2, retrying in 5 seconds...
+  ⚠️  Error querying Africa: OSM API timeout after 3 attempts
+  Continuing with other regions...
+Querying Oceania...
+  ⚠️  Timeout on attempt 1, retrying in 5 seconds...
+  ⚠️  Timeout on attempt 2, retrying in 5 seconds...
+  ✅ Found 2177 courses in Oceania (Total so far: 39077)
+
+✅ Total unique courses found: 39077
+Found 39077 golf courses in OpenStreetMap
+
+Converting to database format...
+Converted 39077 courses (0 filtered out)
+
+
+Importing 39077 courses into database...
+Processing batch 1/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 2/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 3/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 4/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 5/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 6/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 7/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 8/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 9/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 10/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 11/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 12/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 13/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 14/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 15/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 16/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 17/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 18/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 19/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 20/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 21/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 22/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 23/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 24/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 25/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 26/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 27/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 28/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 29/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 30/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 31/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 32/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 33/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 34/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 35/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 36/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 37/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 38/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 39/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 40/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 41/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 42/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 43/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 44/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 45/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 46/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 47/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 48/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 49/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 50/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 51/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 52/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 53/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 54/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 55/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 56/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 57/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 58/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 59/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 60/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 61/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 62/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 63/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 64/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 65/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 66/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 67/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 68/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 69/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 70/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 71/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 72/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 73/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 74/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 75/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 76/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 77/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 78/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 79/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 80/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 81/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 82/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 83/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 84/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 85/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 86/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 87/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 88/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 89/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 90/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 91/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 92/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 93/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 94/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 95/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 96/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 97/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 98/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 99/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 100/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 101/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 102/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 103/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 104/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 105/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 106/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 107/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 108/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 109/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 110/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 111/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 112/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 113/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 114/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 115/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 116/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 117/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 118/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 119/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 120/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 121/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 122/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 123/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 124/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 125/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 126/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 127/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 128/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 129/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 130/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 131/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 132/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 133/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 134/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 135/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 136/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 137/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 138/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 139/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 140/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 141/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 142/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 143/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 144/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 145/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 146/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 147/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 148/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 149/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 150/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 151/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 152/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 153/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 154/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 155/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 156/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 157/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 158/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 159/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 160/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 161/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 162/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 163/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 164/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 165/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 166/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 167/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 168/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 169/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 170/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 171/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 172/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 173/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 174/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 175/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 176/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 177/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 178/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 179/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 180/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 181/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 182/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 183/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 184/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 185/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 186/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 187/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 188/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 189/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 190/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 191/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 192/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 193/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 194/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 195/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 196/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 197/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 198/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 199/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 200/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 201/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 202/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 203/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 204/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 205/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 206/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 207/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 208/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 209/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 210/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 211/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 212/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 213/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 214/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 215/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 216/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 217/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 218/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 219/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 220/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 221/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 222/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 223/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 224/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 225/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 226/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 227/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 228/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 229/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 230/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 231/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 232/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 233/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 234/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 235/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 236/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 237/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 238/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 239/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 240/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 241/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 242/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 243/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 244/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 245/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 246/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 247/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 248/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 249/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 250/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 251/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 252/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 253/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 254/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 255/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 256/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 257/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 258/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 259/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 260/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 261/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 262/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 263/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 264/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 265/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 266/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 267/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 268/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 269/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 270/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 271/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 272/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 273/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 274/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 275/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 276/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 277/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 278/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 279/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 280/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 281/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 282/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 283/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 284/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 285/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 286/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 287/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 288/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 289/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 290/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 291/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 292/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 293/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 294/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 295/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 296/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 297/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 298/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 299/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 300/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 301/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 302/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 303/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 304/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 305/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 306/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 307/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 308/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 309/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 310/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 311/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 312/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 313/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 314/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 315/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 316/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 317/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 318/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 319/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 320/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 321/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 322/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 323/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 324/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 325/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 326/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 327/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 328/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 329/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 330/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 331/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 332/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 333/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 334/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 335/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 336/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 337/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 338/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 339/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 340/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 341/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 342/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 343/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 344/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 345/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 346/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 347/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 348/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 349/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 350/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 351/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 352/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 353/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 354/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 355/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 356/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 357/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 358/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 359/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 360/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 361/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 362/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 363/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 364/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 365/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 366/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 367/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 368/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 369/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 370/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 371/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 372/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 373/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 374/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 375/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 376/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 377/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 378/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 379/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 380/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 381/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 382/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 383/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 384/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 385/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 386/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 387/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 388/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 389/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 390/391...
+  100 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+Processing batch 391/391...
+  77 new courses, 0 already exist
+  Error inserting batch: {
+  code: '23503',
+  details: 'Key (contributor_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles".',
+  hint: null,
+  message: 'insert or update on table "course_contributions" violates foreign key constraint "course_contributions_contributor_id_fkey"'
+}
+
+============================================================
+Import Summary
+============================================================
+Total courses: 39077
+Imported: 0
+Skipped (already exist): 0
+Errors: 39077
+
+✅ Import complete!

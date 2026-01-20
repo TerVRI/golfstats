@@ -39,13 +39,13 @@ BEGIN
         RAISE EXCEPTION 'Demo user not found! Please create a user with email: demo@roundcaddy.app in the Supabase Dashboard first.';
     END IF;
     
-    -- Generate UUIDs for rounds
-    demo_round_1 := uuid_generate_v4();
-    demo_round_2 := uuid_generate_v4();
-    demo_round_3 := uuid_generate_v4();
-    demo_round_4 := uuid_generate_v4();
-    demo_round_5 := uuid_generate_v4();
-    demo_round_6 := uuid_generate_v4();
+    -- Generate UUIDs for rounds (using built-in gen_random_uuid)
+    demo_round_1 := gen_random_uuid();
+    demo_round_2 := gen_random_uuid();
+    demo_round_3 := gen_random_uuid();
+    demo_round_4 := gen_random_uuid();
+    demo_round_5 := gen_random_uuid();
+    demo_round_6 := gen_random_uuid();
     
     RAISE NOTICE 'Found demo user: %', demo_user_id;
     RAISE NOTICE 'Populating demo data...';
@@ -261,7 +261,7 @@ BEGIN
         (demo_round_1, 6, 5, 5, 2, true, true, 0, 'Driver', '4 Hybrid', 'green', NULL, 40, 0.1, 0.2, 0.0, -0.2),
         (demo_round_1, 7, 3, 4, 2, NULL, false, 0, NULL, '8 Iron', 'bunker', false, 15, 0.0, -0.5, -0.3, 0.2),
         (demo_round_1, 8, 4, 4, 2, true, true, 0, 'Driver', '7 Iron', 'green', NULL, 12, 0.2, 0.3, 0.0, 0.0),
-        (demo_round_1, 9, 4, 5, 2, false, false, 1, 'Driver', 'PW', 'rough', false, 30, -0.8, -0.2, -0.2, 0.0),
+        (demo_round_1, 9, 4, 5, 2, false, false, 1, 'Driver', 'PW', 'greenside_rough', false, 30, -0.8, -0.2, -0.2, 0.0),
         (demo_round_1, 10, 4, 4, 2, true, true, 0, 'Driver', '6 Iron', 'green', NULL, 20, 0.1, 0.2, 0.0, 0.0),
         (demo_round_1, 11, 4, 5, 2, false, false, 0, 'Driver', '8 Iron', 'fringe', true, 18, -0.2, -0.1, 0.3, -0.1),
         (demo_round_1, 12, 3, 3, 2, NULL, true, 0, NULL, '7 Iron', 'green', NULL, 15, 0.0, 0.3, 0.0, 0.1),
@@ -285,10 +285,10 @@ BEGIN
         (demo_round_2, 6, 4, 4, 2, true, true, 0, 'Driver', '7 Iron', 'green', NULL, 18, 0.2, 0.1, 0.0, 0.0),
         (demo_round_2, 7, 4, 5, 2, false, false, 0, 'Driver', '6 Iron', 'bunker', false, 15, -0.3, -0.3, -0.2, 0.1),
         (demo_round_2, 8, 3, 3, 2, NULL, true, 0, NULL, '6 Iron', 'green', NULL, 20, 0.0, 0.3, 0.0, 0.0),
-        (demo_round_2, 9, 5, 6, 3, true, false, 1, 'Driver', '4 Hybrid', 'rough', false, 35, 0.1, -0.2, -0.2, -0.3),
+        (demo_round_2, 9, 5, 6, 3, true, false, 1, 'Driver', '4 Hybrid', 'greenside_rough', false, 35, 0.1, -0.2, -0.2, -0.3),
         (demo_round_2, 10, 4, 4, 2, true, true, 0, 'Driver', '8 Iron', 'green', NULL, 12, 0.1, 0.2, 0.0, 0.1),
         (demo_round_2, 11, 3, 4, 2, NULL, false, 0, NULL, '7 Iron', 'left', false, 18, 0.0, -0.3, -0.2, 0.1),
-        (demo_round_2, 12, 5, 7, 3, false, false, 1, 'Driver', '5 Wood', 'rough', false, 40, -0.8, -0.4, -0.3, -0.2),
+        (demo_round_2, 12, 5, 7, 3, false, false, 1, 'Driver', '5 Wood', 'greenside_rough', false, 40, -0.8, -0.4, -0.3, -0.2),
         (demo_round_2, 13, 4, 5, 2, true, false, 0, '3 Wood', '6 Iron', 'short', false, 25, -0.1, -0.2, -0.2, 0.0),
         (demo_round_2, 14, 4, 4, 2, true, true, 0, 'Driver', '9 Iron', 'green', NULL, 8, 0.2, 0.4, 0.0, 0.2),
         (demo_round_2, 15, 4, 5, 2, false, false, 0, 'Driver', '7 Iron', 'fringe', false, 22, -0.2, -0.1, -0.1, 0.0),

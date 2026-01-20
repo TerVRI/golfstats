@@ -17,6 +17,7 @@ import {
   Award,
   Flag,
 } from "lucide-react";
+import Link from "next/link";
 
 interface Profile {
   id: string;
@@ -175,9 +176,17 @@ export default function ProfilePage() {
           </p>
         </div>
         {!editMode ? (
-          <Button onClick={() => setEditMode(true)}>
-            Edit Profile
-          </Button>
+          <div className="flex gap-2">
+            <Link href="/profile/badges">
+              <Button variant="outline">
+                <Award className="w-4 h-4 mr-2" />
+                View Badges
+              </Button>
+            </Link>
+            <Button onClick={() => setEditMode(true)}>
+              Edit Profile
+            </Button>
+          </div>
         ) : (
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => setEditMode(false)}>

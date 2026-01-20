@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { fetchWeather, WeatherForecast } from "@roundcaddy/shared";
 import { CourseDiscussions } from "@/components/course-discussions";
+import { CourseVisualizer } from "@/components/course-visualizer";
+import { CourseSVGVisualizer } from "@/components/course-svg-visualizer";
 import {
   MapPin,
   Star,
@@ -72,7 +74,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   const [reviews, setReviews] = useState<Review[]>([]);
   const [weather, setWeather] = useState<WeatherForecast | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [visualizationMode, setVisualizationMode] = useState<"map" | "schematic">("map");
 
   // Review form
   const [newReview, setNewReview] = useState({
@@ -87,12 +91,18 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
   const fetchCourse = useCallback(async () => {
     try {
+      setError(null);
       const { data, error } = await supabase
         .from("courses")
         .select("*, confirmation_count, required_confirmations, is_verified")
         .eq("id", id)
         .single();
       if (error) throw error;
+      if (!data) {
+        setError("Course not found");
+        setLoading(false);
+        return;
+      }
       setCourse(data);
 
       // Fetch weather if coordinates exist
@@ -102,6 +112,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       }
     } catch (err) {
       console.error("Error fetching course:", err);
+      setError(err instanceof Error ? err.message : "Failed to load course");
+      setLoading(false);
     }
   }, [supabase, id]);
 
@@ -188,10 +200,31 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
     );
   };
 
-  if (loading || !course) {
+  if (loading) {
     return (
       <div className="flex justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-accent-green" />
+      </div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="space-y-6">
+        <Link href="/courses" className="inline-flex items-center text-foreground-muted hover:text-foreground transition-colors">
+          <ChevronLeft className="w-4 h-4" />
+          Back to Courses
+        </Link>
+        <Card className="p-12 text-center">
+          <div className="text-foreground-muted">
+            <MapPin className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p className="text-lg font-semibold mb-2">{error || "Course not found"}</p>
+            <p className="text-sm mt-2">The course you're looking for doesn't exist or has been removed.</p>
+            <Link href="/courses">
+              <Button className="mt-4">Browse All Courses</Button>
+            </Link>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -316,6 +349,59 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
           </Card>
         )}
       </div>
+
+      {/* Course Visualization */}
+      <Card className="p-6">
+        {course.hole_data && Array.isArray(course.hole_data) && course.hole_data.length > 0 ? (
+          <>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-foreground">Course Layout</h2>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant={visualizationMode === "map" ? "default" : "outline"}
+                onClick={() => setVisualizationMode("map")}
+              >
+                Map View
+              </Button>
+              <Button
+                size="sm"
+                variant={visualizationMode === "schematic" ? "default" : "outline"}
+                onClick={() => setVisualizationMode("schematic")}
+              >
+                Schematic View
+              </Button>
+            </div>
+          </div>
+          {visualizationMode === "map" ? (
+            <CourseVisualizer
+              holeData={course.hole_data}
+              center={
+                course.latitude && course.longitude
+                  ? [course.latitude, course.longitude]
+                  : undefined
+              }
+              zoom={15}
+              showSatellite={false}
+              mode="view"
+            />
+          ) : (
+            <CourseSVGVisualizer
+              holeData={course.hole_data}
+              mode="hole"
+            />
+          )}
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🗺️</div>
+            <h3 className="text-xl font-semibold text-foreground mb-2">Visualization Not Available</h3>
+            <p className="text-foreground-muted">
+              This course doesn't have hole-by-hole layout data yet.
+            </p>
+          </div>
+        )}
+      </Card>
 
       {/* Write Review */}
       {user && (

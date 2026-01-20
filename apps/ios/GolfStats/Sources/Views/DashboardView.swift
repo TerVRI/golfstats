@@ -198,12 +198,10 @@ struct DashboardView: View {
                 .cornerRadius(12)
             }
             
-            Button {
-                roundManager.startRound()
-            } label: {
+            NavigationLink(destination: CoursesView()) {
                 HStack {
                     Image(systemName: "location.fill")
-                    Text("Live GPS")
+                    Text("Start Live Round")
                 }
                 .font(.headline)
                 .foregroundColor(.white)
@@ -457,7 +455,9 @@ struct DashboardView: View {
                     value: stats.puttsPerHole,
                     icon: "circle.fill",
                     color: .purple,
-                    isPercentage: false
+                    isPercentage: false,
+                    showProgressBar: true,
+                    maxValue: 3.0
                 )
             }
         }
@@ -783,6 +783,8 @@ struct PercentageCard: View {
     let icon: String
     let color: Color
     var isPercentage: Bool = true
+    var showProgressBar: Bool = false
+    var maxValue: Double = 100.0
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -808,7 +810,7 @@ struct PercentageCard: View {
                 }
             }
             
-            if isPercentage {
+            if isPercentage || showProgressBar {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Rectangle()
@@ -818,7 +820,7 @@ struct PercentageCard: View {
                         
                         Rectangle()
                             .fill(color)
-                            .frame(width: geo.size.width * (value / 100), height: 6)
+                            .frame(width: geo.size.width * (value / maxValue), height: 6)
                             .cornerRadius(3)
                     }
                 }

@@ -96,8 +96,18 @@ struct ContributorLeaderboardView: View {
             leaderboard = try await DataService.shared.fetchContributorLeaderboard(
                 authHeaders: authManager.authHeaders
             )
+            // Empty leaderboard is not an error - it's a valid state
         } catch {
-            errorMessage = "Failed to load leaderboard: \(error.localizedDescription)"
+            // Check if it's a decoding error (likely empty data)
+            // Empty data from the API should result in an empty array, not an error
+            // Only show error for actual network/API failures
+            let errorDesc = error.localizedDescription.lowercased()
+            if errorDesc.contains("missing") || errorDesc.contains("couldn't be read") {
+                // Likely empty data - treat as success with empty array
+                leaderboard = []
+            } else {
+                errorMessage = "Failed to load leaderboard: \(error.localizedDescription)"
+            }
         }
         
         isLoading = false

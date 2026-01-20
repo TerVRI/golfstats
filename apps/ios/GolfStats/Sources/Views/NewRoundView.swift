@@ -51,13 +51,19 @@ struct NewRoundView: View {
                 }
                 
                 // Score Section
-                Section("Score") {
+                Section {
                     TextField("Total Score", text: $totalScore)
                         .keyboardType(.numberPad)
                         .font(.title)
                     
                     TextField("Total Putts", text: $totalPutts)
                         .keyboardType(.numberPad)
+                } header: {
+                    Text("Score")
+                } footer: {
+                    Text("Quick entry mode: Enter your total round stats. For detailed hole-by-hole tracking, start a live round from the course page.")
+                        .font(.caption)
+                        .foregroundColor(.gray)
                 }
                 
                 // Stats Section

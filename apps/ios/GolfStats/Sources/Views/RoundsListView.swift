@@ -20,11 +20,35 @@ struct RoundsListView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if rounds.isEmpty {
-                    EmptyStateCard(
-                        icon: "list.bullet.rectangle",
-                        title: "No rounds yet",
-                        subtitle: "Start logging your rounds to track your progress"
-                    )
+                    VStack(spacing: 20) {
+                        EmptyStateCard(
+                            icon: "list.bullet.rectangle",
+                            title: "No rounds yet",
+                            subtitle: "Start logging your rounds to track your progress"
+                        )
+                        
+                        VStack(spacing: 12) {
+                            Text("💡 Tip: Use the Dashboard to start a Live GPS Round")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                            
+                            NavigationLink(destination: NewRoundView()) {
+                                HStack {
+                                    Image(systemName: "pencil")
+                                    Text("Add Manual Round")
+                                }
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .cornerRadius(12)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
                     .padding()
                 } else {
                     List {
@@ -41,6 +65,24 @@ struct RoundsListView: View {
             }
             .background(Color("Background"))
             .navigationTitle("Rounds")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        NavigationLink(destination: NewRoundView()) {
+                            Label("Manual Round", systemImage: "pencil")
+                        }
+                        Button {
+                            // Note: Live GPS rounds are started from Dashboard
+                        } label: {
+                            Label("Live GPS Round", systemImage: "location.fill")
+                        }
+                        .disabled(true)
+                    } label: {
+                        Image(systemName: "plus")
+                            .foregroundColor(.green)
+                    }
+                }
+            }
         }
         .task {
             await loadRounds()

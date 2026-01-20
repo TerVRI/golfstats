@@ -56,12 +56,17 @@ actor DataService {
     
     // MARK: - Courses
     
-    func fetchCourses(search: String? = nil, limit: Int = 50) async throws -> [Course] {
+    func fetchCourses(search: String? = nil, country: String? = nil, limit: Int = 50) async throws -> [Course] {
         var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/courses")!
         var queryItems = [
             URLQueryItem(name: "order", value: "review_count.desc"),
             URLQueryItem(name: "limit", value: "\(limit)")
         ]
+        
+        // Filter by country if provided (for performance)
+        if let country = country, !country.isEmpty {
+            queryItems.append(URLQueryItem(name: "country", value: "eq.\(country)"))
+        }
         
         if let search = search, !search.isEmpty {
             queryItems.append(URLQueryItem(name: "name", value: "ilike.*\(search)*"))
@@ -270,9 +275,10 @@ actor DataService {
         greenLocationsMatch: Bool = true,
         hazardLocationsMatch: Bool = true,
         confidenceLevel: Int = 3,
-        discrepancyNotes: String? = nil
+        discrepancyNotes: String? = nil,
+        holeConfirmations: [Int: [String: Any]]? = nil
     ) async throws {
-        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_confirmations")!
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_confirmations")!
         
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "POST"
@@ -281,16 +287,23 @@ actor DataService {
             request.setValue(value, forHTTPHeaderField: key)
         }
         
-        let body: [String: Any] = [
+        var body: [String: Any] = [
             "course_id": courseId,
             "user_id": userId,
             "dimensions_match": dimensionsMatch,
             "tee_locations_match": teeLocationsMatch,
             "green_locations_match": greenLocationsMatch,
             "hazard_locations_match": hazardLocationsMatch,
-            "confidence_level": confidenceLevel,
-            "discrepancy_notes": discrepancyNotes as Any
+            "confidence_level": confidenceLevel
         ]
+        
+        if let notes = discrepancyNotes {
+            body["discrepancy_notes"] = notes
+        }
+        
+        if let holeConfirmations = holeConfirmations {
+            body["hole_confirmations"] = Array(holeConfirmations.values)
+        }
         
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
@@ -376,6 +389,288 @@ actor DataService {
         return publicUrl
     }
     
+    // MARK: - Notifications
+    
+    func fetchNotifications(
+        userId: String,
+        authHeaders: [String: String],
+        limit: Int = 50
+    ) async throws -> [Notification] {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/notifications")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "user_id", value: "eq.\(userId)"),
+            URLQueryItem(name: "order", value: "created_at.desc"),
+            URLQueryItem(name: "limit", value: "\(limit)")
+        ]
+        
+        var request = URLRequest(url: urlComponents.url!)
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try decoder.decode([Notification].self, from: data)
+    }
+    
+    func markNotificationAsRead(
+        notificationId: String,
+        authHeaders: [String: String]
+    ) async throws {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/notifications")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "id", value: "eq.\(notificationId)")
+        ]
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let body: [String: Any] = [
+            "read": true,
+            "read_at": ISO8601DateFormatter().string(from: Date())
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
+            throw DataError.saveFailed
+        }
+    }
+    
+    func markAllNotificationsAsRead(
+        userId: String,
+        authHeaders: [String: String]
+    ) async throws {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/notifications")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "user_id", value: "eq.\(userId)"),
+            URLQueryItem(name: "read", value: "eq.false")
+        ]
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let body: [String: Any] = [
+            "read": true,
+            "read_at": ISO8601DateFormatter().string(from: Date())
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
+            throw DataError.saveFailed
+        }
+    }
+    
+    // MARK: - Course Discussions
+    
+    func fetchCourseDiscussions(
+        courseId: String,
+        authHeaders: [String: String]
+    ) async throws -> [CourseDiscussion] {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_discussions")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "course_id", value: "eq.\(courseId)"),
+            URLQueryItem(name: "order", value: "created_at.desc")
+        ]
+        
+        var request = URLRequest(url: urlComponents.url!)
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try decoder.decode([CourseDiscussion].self, from: data)
+    }
+    
+    func createCourseDiscussion(
+        courseId: String,
+        userId: String,
+        authHeaders: [String: String],
+        title: String,
+        content: String
+    ) async throws {
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_discussions")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("return=representation", forHTTPHeaderField: "Prefer")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let body: [String: Any] = [
+            "course_id": courseId,
+            "user_id": userId,
+            "title": title,
+            "content": content
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
+            let errorBody = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Discussion creation failed: \(errorBody)")
+            throw DataError.saveFailed
+        }
+        
+        print("Discussion created successfully")
+    }
+    
+    func fetchDiscussionReplies(
+        discussionId: String,
+        authHeaders: [String: String]
+    ) async throws -> [DiscussionReply] {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/discussion_replies")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "discussion_id", value: "eq.\(discussionId)"),
+            URLQueryItem(name: "order", value: "created_at.asc")
+        ]
+        
+        var request = URLRequest(url: urlComponents.url!)
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try decoder.decode([DiscussionReply].self, from: data)
+    }
+    
+    func replyToDiscussion(
+        discussionId: String,
+        userId: String,
+        authHeaders: [String: String],
+        content: String
+    ) async throws {
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/discussion_replies")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let body: [String: Any] = [
+            "discussion_id": discussionId,
+            "user_id": userId,
+            "content": content
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
+            throw DataError.saveFailed
+        }
+    }
+    
+    // MARK: - OSM Integration
+    
+    func searchOSMCourses(
+        latitude: Double,
+        longitude: Double,
+        radius: Double = 5000
+    ) async throws -> [OSMCourse] {
+        // Overpass API query
+        let query = """
+        [out:json][timeout:25];
+        (
+          way["leisure"="golf_course"](around:\(Int(radius)),\(latitude),\(longitude));
+          relation["leisure"="golf_course"](around:\(Int(radius)),\(latitude),\(longitude));
+          node["leisure"="golf_course"](around:\(Int(radius)),\(latitude),\(longitude));
+        );
+        out center meta;
+        """
+        
+        var request = URLRequest(url: URL(string: "https://overpass-api.de/api/interpreter")!)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.httpBody = "data=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")".data(using: .utf8)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+        
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let elements = json?["elements"] as? [[String: Any]] ?? []
+        
+        return elements.compactMap { element -> OSMCourse? in
+            guard let tags = element["tags"] as? [String: Any] else { return nil }
+            
+            let lat: Double
+            let lon: Double
+            
+            if let elementLat = element["lat"] as? Double, let elementLon = element["lon"] as? Double {
+                lat = elementLat
+                lon = elementLon
+            } else if let center = element["center"] as? [String: Any],
+                      let centerLat = center["lat"] as? Double,
+                      let centerLon = center["lon"] as? Double {
+                lat = centerLat
+                lon = centerLon
+            } else {
+                return nil
+            }
+            
+            return OSMCourse(
+                id: element["id"] as? Int ?? 0,
+                name: tags["name"] as? String ?? "Unnamed Golf Course",
+                latitude: lat,
+                longitude: lon,
+                city: tags["addr:city"] as? String,
+                state: tags["addr:state"] as? String,
+                country: tags["addr:country"] as? String,
+                address: [
+                    tags["addr:housenumber"] as? String,
+                    tags["addr:street"] as? String
+                ].compactMap { $0 }.joined(separator: " "),
+                phone: tags["phone"] as? String ?? tags["contact:phone"] as? String,
+                website: tags["website"] as? String ?? tags["contact:website"] as? String
+            )
+        }
+    }
+    
     // MARK: - Course Contributions
     
     func contributeCourse(
@@ -394,9 +689,10 @@ actor DataService {
         holes: Int,
         latitude: Double,
         longitude: Double,
-        photoUrls: [String] = []
+        photoUrls: [String] = [],
+        holeData: [[String: Any]]? = nil
     ) async throws {
-        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_contributions")!
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_contributions")!
         
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "POST"
@@ -426,6 +722,9 @@ actor DataService {
         if !photoUrls.isEmpty {
             body["photo_urls"] = photoUrls
             body["photos"] = photoUrls.map { ["url": $0, "uploaded_at": ISO8601DateFormatter().string(from: Date())] }
+        }
+        if let holeData = holeData {
+            body["hole_data"] = holeData
         }
         
         request.httpBody = try JSONSerialization.data(withJSONObject: body)

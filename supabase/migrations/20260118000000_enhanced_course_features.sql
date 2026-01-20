@@ -406,7 +406,13 @@ BEGIN
     IF v_contrib.phone IS NOT NULL THEN v_score := v_score + 5; END IF;
     IF v_contrib.website IS NOT NULL THEN v_score := v_score + 5; END IF;
     IF v_contrib.address IS NOT NULL THEN v_score := v_score + 5; END IF;
-    IF array_length(v_contrib.hole_data::jsonb->0->'yardages'::text, 1) > 0 THEN v_score := v_score + 5; END IF;
+    -- Check if yardages exist (yardages is a JSONB object, check if it has keys)
+    IF v_contrib.hole_data IS NOT NULL 
+       AND jsonb_array_length(v_contrib.hole_data) > 0 
+       AND (v_contrib.hole_data->0->'yardages') IS NOT NULL 
+       AND (v_contrib.hole_data->0->'yardages')::text != 'null'
+       AND (v_contrib.hole_data->0->'yardages')::text != '{}'
+    THEN v_score := v_score + 5; END IF;
     
     -- Update the contribution
     UPDATE public.course_contributions

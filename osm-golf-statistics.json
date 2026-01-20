@@ -1,0 +1,267 @@
+{
+  "total": 40491,
+  "byCountry": [
+    {
+      "country": "Unknown",
+      "count": 39095
+    },
+    {
+      "country": "US",
+      "count": 408
+    },
+    {
+      "country": "GB",
+      "count": 278
+    },
+    {
+      "country": "DE",
+      "count": 146
+    },
+    {
+      "country": "AT",
+      "count": 128
+    },
+    {
+      "country": "PT",
+      "count": 76
+    },
+    {
+      "country": "CZ",
+      "count": 65
+    },
+    {
+      "country": "CH",
+      "count": 62
+    },
+    {
+      "country": "IT",
+      "count": 51
+    },
+    {
+      "country": "TW",
+      "count": 19
+    },
+    {
+      "country": "SE",
+      "count": 14
+    },
+    {
+      "country": "SG",
+      "count": 14
+    },
+    {
+      "country": "AU",
+      "count": 13
+    },
+    {
+      "country": "FI",
+      "count": 12
+    },
+    {
+      "country": "SK",
+      "count": 10
+    },
+    {
+      "country": "SI",
+      "count": 9
+    },
+    {
+      "country": "CY",
+      "count": 8
+    },
+    {
+      "country": "HR",
+      "count": 8
+    },
+    {
+      "country": "NZ",
+      "count": 7
+    },
+    {
+      "country": "CA",
+      "count": 6
+    },
+    {
+      "country": "IM",
+      "count": 5
+    },
+    {
+      "country": "GR",
+      "count": 5
+    },
+    {
+      "country": "MY",
+      "count": 5
+    },
+    {
+      "country": "FR",
+      "count": 5
+    },
+    {
+      "country": "JP",
+      "count": 5
+    },
+    {
+      "country": "RO",
+      "count": 4
+    },
+    {
+      "country": "BG",
+      "count": 4
+    },
+    {
+      "country": "BE",
+      "count": 4
+    },
+    {
+      "country": "KY",
+      "count": 3
+    },
+    {
+      "country": "NL",
+      "count": 3
+    },
+    {
+      "country": "AR",
+      "count": 2
+    },
+    {
+      "country": "CL",
+      "count": 2
+    },
+    {
+      "country": "JE",
+      "count": 2
+    },
+    {
+      "country": "TZ",
+      "count": 1
+    },
+    {
+      "country": "MT",
+      "count": 1
+    },
+    {
+      "country": "GU",
+      "count": 1
+    },
+    {
+      "country": "BO",
+      "count": 1
+    },
+    {
+      "country": "HT",
+      "count": 1
+    },
+    {
+      "country": "RS",
+      "count": 1
+    },
+    {
+      "country": "CU",
+      "count": 1
+    },
+    {
+      "country": "NA",
+      "count": 1
+    },
+    {
+      "country": "BR",
+      "count": 1
+    },
+    {
+      "country": "Germany",
+      "count": 1
+    },
+    {
+      "country": "IS",
+      "count": 1
+    },
+    {
+      "country": "MX",
+      "count": 1
+    },
+    {
+      "country": "PH",
+      "count": 1
+    }
+  ],
+  "byCountryCode": {
+    "US": "0",
+    "GB": "0",
+    "CA": "0",
+    "DE": "0",
+    "ES": "0",
+    "PT": "0",
+    "NZ": "0",
+    "ZA": "0",
+    "CN": "0",
+    "PL": "0",
+    "CZ": "0",
+    "HU": "0",
+    "RO": "0",
+    "SI": "0",
+    "SK": "0",
+    "EE": "0",
+    "RU": "0",
+    "UA": "0",
+    "BD": "0",
+    "LK": "0",
+    "FJ": "0",
+    "PG": "0",
+    "NC": "0",
+    "PF": "0",
+    "NI": "0",
+    "SV": "0",
+    "DO": "0",
+    "CU": "0",
+    "BB": "0",
+    "DM": "0",
+    "KN": "0",
+    "VE": "0",
+    "SR": "0",
+    "GF": "0",
+    "GS": "0",
+    "MZ": "0",
+    "MW": "0",
+    "ZM": "0",
+    "TZ": "0",
+    "DJ": "0",
+    "TD": "0",
+    "ML": "0",
+    "SN": "0",
+    "GM": "0",
+    "LR": "0",
+    "CI": "0",
+    "CM": "0",
+    "GQ": "0",
+    "CD": "0",
+    "DZ": "0",
+    "TN": "0",
+    "LY": "0",
+    "EG": "0",
+    "MU": "0",
+    "KW": "0",
+    "IQ": "0",
+    "IR": "0",
+    "KZ": "0",
+    "KG": "0",
+    "MN": "0",
+    "HK": "0",
+    "MO": "0",
+    "PH": "0",
+    "VN": "0",
+    "MY": "0",
+    "CK": "0",
+    "NU": "0",
+    "TO": "0",
+    "WS": "0",
+    "AS": "0",
+    "PW": "0",
+    "MH": "0",
+    "TV": "0",
+    "CC": "0",
+    "AU": "0"
+  },
+  "timestamp": "2026-01-18T14:19:24.480Z"
+}

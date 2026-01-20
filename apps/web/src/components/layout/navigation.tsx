@@ -72,6 +72,11 @@ const navItems = [
     icon: MapPin,
   },
   {
+    href: "/courses/incomplete",
+    label: "Complete Courses",
+    icon: Target,
+  },
+  {
     href: "/leaderboard",
     label: "Leaderboard",
     icon: Trophy,

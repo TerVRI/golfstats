@@ -39,6 +39,22 @@ struct ProfileView: View {
                     }
                     .padding()
                     
+                    // Notifications Button
+                    NavigationLink(destination: NotificationsView()) {
+                        HStack {
+                            Image(systemName: "bell.fill")
+                            Text("Notifications")
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color("BackgroundSecondary"))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    
                     // Handicap Card
                     if let handicap = stats.handicapIndex {
                         VStack(spacing: 8) {

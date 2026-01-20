@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreLocation
 
 struct LiveRoundView: View {
     @EnvironmentObject var gpsManager: GPSManager
@@ -77,6 +78,10 @@ struct LiveRoundView: View {
         .onAppear {
             gpsManager.startTracking()
             setupWatchSync()
+            updateGreenLocationsForCurrentHole()
+        }
+        .onChange(of: roundManager.currentHole) { _, _ in
+            updateGreenLocationsForCurrentHole()
         }
         .onDisappear {
             gpsManager.stopTracking()
@@ -141,8 +146,24 @@ struct LiveRoundView: View {
             syncStateToWatch()
         }
         
+        // Send course data to watch if available
+        if let course = roundManager.selectedCourse {
+            watchSyncManager.sendCourseToWatch(course: course)
+        }
+        
         // Send initial state to watch
         syncStateToWatch()
+        
+        // Send round start to watch
+        if let course = roundManager.selectedCourse, let holeData = course.holeData {
+            let pars = holeData.sorted { $0.holeNumber < $1.holeNumber }.map { $0.par }
+            watchSyncManager.sendStartRoundToWatch(
+                courseName: course.name,
+                pars: pars
+            )
+        } else {
+            watchSyncManager.sendRoundStart()
+        }
         
         // Also send the golf bag to watch
         watchSyncManager.sendBagToWatch(clubs: GolfBag.shared.clubNames)
@@ -155,6 +176,21 @@ struct LiveRoundView: View {
             courseName: roundManager.selectedCourse?.name ?? "Unknown Course",
             holeScores: roundManager.holeScores
         )
+    }
+    
+    private func updateGreenLocationsForCurrentHole() {
+        guard let course = roundManager.selectedCourse,
+              let holeData = course.holeData,
+              let currentHoleData = holeData.first(where: { $0.holeNumber == roundManager.currentHole }) else {
+            gpsManager.clearGreenLocations()
+            return
+        }
+        
+        let front = currentHoleData.greenFront.map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lon) }
+        let center = currentHoleData.greenCenter.map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lon) }
+        let back = currentHoleData.greenBack.map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lon) }
+        
+        gpsManager.setGreenLocations(front: front, center: center, back: back)
     }
 }
 
@@ -275,7 +311,8 @@ struct DistanceTab: View {
                 .cornerRadius(12)
             }
             
-            // GPS Status
+            // GPS Status and Current Location
+            VStack(spacing: 8) {
             HStack {
                 Circle()
                     .fill(gpsManager.isTracking ? Color.green : Color.gray)
@@ -283,6 +320,24 @@ struct DistanceTab: View {
                 Text(gpsManager.isTracking ? "GPS Active" : "GPS Inactive")
                     .font(.caption)
                     .foregroundColor(.gray)
+                }
+                
+                if let location = gpsManager.currentLocation {
+                    Text("Lat: \(location.coordinate.latitude, specifier: "%.6f")")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                    Text("Lon: \(location.coordinate.longitude, specifier: "%.6f")")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                } else if gpsManager.isTracking {
+                    Text("Waiting for GPS signal...")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                } else {
+                    Text("GPS not started")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
             }
             
             Spacer()
@@ -497,7 +552,7 @@ struct ShotTrackerTab: View {
                         .font(.caption)
                         .foregroundColor(.gray)
                     
-                    ForEach(roundManager.shotsForCurrentHole().suffix(3)) { shot in
+                    ForEach(roundManager.shotsForCurrentHole()) { shot in
                         HStack {
                             Text("\(shot.shotNumber).")
                                 .foregroundColor(.gray)

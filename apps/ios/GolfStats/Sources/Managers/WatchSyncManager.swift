@@ -25,7 +25,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     // MARK: - Send Data to Watch
     
     func sendCourseToWatch(course: Course) {
-        guard let session = session, session.isReachable else { return }
+        guard let session = session, session.activationState == .activated, session.isReachable else { return }
         
         var message: [String: Any] = [
             "action": "setCourse",
@@ -55,7 +55,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     func sendRoundStart() {
-        guard let session = session, session.isReachable else { return }
+        guard let session = session, session.activationState == .activated, session.isReachable else { return }
         
         let message: [String: Any] = [
             "action": "startRound",
@@ -66,7 +66,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     func sendRoundEnd() {
-        guard let session = session, session.isReachable else { return }
+        guard let session = session, session.activationState == .activated else { return }
         
         let message: [String: Any] = [
             "action": "endRound",
@@ -77,7 +77,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     func sendScoreUpdate(hole: Int, score: Int) {
-        guard let session = session, session.isReachable else { return }
+        guard let session = session, session.activationState == .activated, session.isReachable else { return }
         
         let message: [String: Any] = [
             "action": "scoreUpdate",
@@ -89,7 +89,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     func sendBagToWatch(clubs: [String]) {
-        guard let session = session else { return }
+        guard let session = session, session.activationState == .activated else { return }
         
         let message: [String: Any] = [
             "action": "setBag",
@@ -102,9 +102,11 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
             session.sendMessage(message, replyHandler: nil) { error in
                 print("Error sending bag to watch: \(error.localizedDescription)")
                 // Fall back to transferUserInfo
+                if session.activationState == .activated {
                 session.transferUserInfo(message)
+                }
             }
-        } else {
+        } else if session.activationState == .activated {
             session.transferUserInfo(message)
         }
     }
@@ -197,7 +199,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     // MARK: - Send Round State to Watch
     
     func sendRoundStateToWatch(isActive: Bool, currentHole: Int, courseName: String, holeScores: [HoleScore]) {
-        guard let session = session, session.isReachable else { return }
+        guard let session = session, session.activationState == .activated, session.isReachable else { return }
         
         let message: [String: Any] = [
             "action": "roundStateUpdate",
@@ -223,7 +225,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     func sendEndRoundToWatch() {
-        guard let session = session else { return }
+        guard let session = session, session.activationState == .activated else { return }
         
         let message: [String: Any] = [
             "action": "endRound",
@@ -240,7 +242,7 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     func sendStartRoundToWatch(courseName: String, pars: [Int]) {
-        guard let session = session else { return }
+        guard let session = session, session.activationState == .activated else { return }
         
         let message: [String: Any] = [
             "action": "startRound",
@@ -258,11 +260,11 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
 }
 
 // Notification names for watch events
-extension Notification.Name {
-    static let watchRoundStarted = Notification.Name("watchRoundStarted")
-    static let watchRoundEnded = Notification.Name("watchRoundEnded")
-    static let watchRoundDiscarded = Notification.Name("watchRoundDiscarded")
-    static let watchRoundStateUpdate = Notification.Name("watchRoundStateUpdate")
-    static let watchScoreUpdate = Notification.Name("watchScoreUpdate")
-    static let watchShotAdded = Notification.Name("watchShotAdded")
+extension Foundation.Notification.Name {
+    static let watchRoundStarted = Foundation.Notification.Name("watchRoundStarted")
+    static let watchRoundEnded = Foundation.Notification.Name("watchRoundEnded")
+    static let watchRoundDiscarded = Foundation.Notification.Name("watchRoundDiscarded")
+    static let watchRoundStateUpdate = Foundation.Notification.Name("watchRoundStateUpdate")
+    static let watchScoreUpdate = Foundation.Notification.Name("watchScoreUpdate")
+    static let watchShotAdded = Foundation.Notification.Name("watchShotAdded")
 }

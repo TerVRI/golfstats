@@ -111,14 +111,6 @@ struct LoginView: View {
                 }
             }
         }
-        .onOpenURL { url in
-            // Handle Google OAuth callback
-            if url.scheme == "roundcaddy" && url.host == "auth" {
-                Task {
-                    await authManager.handleOAuthCallback(url: url)
-                }
-            }
-        }
     }
     
     // MARK: - Social Sign-In Section

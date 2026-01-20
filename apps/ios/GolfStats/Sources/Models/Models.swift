@@ -153,23 +153,31 @@ struct Course: Codable, Identifiable {
     let city: String?
     let state: String?
     let country: String?
+    let address: String?
+    let phone: String?
+    let website: String?
     let courseRating: Double?
     let slopeRating: Int?
     let par: Int?
+    let holes: Int?
     let latitude: Double?
     let longitude: Double?
     let avgRating: Double?
     let reviewCount: Int?
     let holeData: [HoleData]?
+    let updatedAt: Date?
+    let createdAt: Date?
     
     enum CodingKeys: String, CodingKey {
-        case id, name, city, state, country
+        case id, name, city, state, country, address, phone, website
         case courseRating = "course_rating"
         case slopeRating = "slope_rating"
-        case par, latitude, longitude
+        case par, holes, latitude, longitude
         case avgRating = "avg_rating"
         case reviewCount = "review_count"
         case holeData = "hole_data"
+        case updatedAt = "updated_at"
+        case createdAt = "created_at"
     }
     
     var location: String {
@@ -190,12 +198,122 @@ struct HoleData: Codable {
     let greenFront: Coordinate?
     let greenBack: Coordinate?
     
+    // Polygon data for visualization
+    let teeLocations: [TeeLocation]?
+    let fairway: [Coordinate]?
+    let green: [Coordinate]?
+    let rough: [Coordinate]?
+    let bunkers: [Bunker]?
+    let waterHazards: [WaterHazard]?
+    let trees: [TreeArea]?
+    let yardageMarkers: [YardageMarker]?
+    
     enum CodingKeys: String, CodingKey {
         case holeNumber = "hole_number"
         case par, yardages
         case greenCenter = "green_center"
         case greenFront = "green_front"
         case greenBack = "green_back"
+        case teeLocations = "tee_locations"
+        case fairway
+        case green
+        case rough
+        case bunkers
+        case waterHazards = "water_hazards"
+        case trees
+        case yardageMarkers = "yardage_markers"
+    }
+
+    init(
+        holeNumber: Int,
+        par: Int,
+        yardages: [String: Int]? = nil,
+        greenCenter: Coordinate? = nil,
+        greenFront: Coordinate? = nil,
+        greenBack: Coordinate? = nil,
+        teeLocations: [TeeLocation]? = nil,
+        fairway: [Coordinate]? = nil,
+        green: [Coordinate]? = nil,
+        rough: [Coordinate]? = nil,
+        bunkers: [Bunker]? = nil,
+        waterHazards: [WaterHazard]? = nil,
+        trees: [TreeArea]? = nil,
+        yardageMarkers: [YardageMarker]? = nil
+    ) {
+        self.holeNumber = holeNumber
+        self.par = par
+        self.yardages = yardages
+        self.greenCenter = greenCenter
+        self.greenFront = greenFront
+        self.greenBack = greenBack
+        self.teeLocations = teeLocations
+        self.fairway = fairway
+        self.green = green
+        self.rough = rough
+        self.bunkers = bunkers
+        self.waterHazards = waterHazards
+        self.trees = trees
+        self.yardageMarkers = yardageMarkers
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        do {
+            holeNumber = try container.decode(Int.self, forKey: .holeNumber)
+            par = try container.decode(Int.self, forKey: .par)
+            yardages = try container.decodeIfPresent([String: Int].self, forKey: .yardages)
+            greenCenter = try container.decodeIfPresent(Coordinate.self, forKey: .greenCenter)
+            greenFront = try container.decodeIfPresent(Coordinate.self, forKey: .greenFront)
+            greenBack = try container.decodeIfPresent(Coordinate.self, forKey: .greenBack)
+            teeLocations = try container.decodeIfPresent([TeeLocation].self, forKey: .teeLocations)
+            fairway = try container.decodeIfPresent([Coordinate].self, forKey: .fairway)
+            green = try container.decodeIfPresent([Coordinate].self, forKey: .green)
+            rough = try container.decodeIfPresent([Coordinate].self, forKey: .rough)
+            bunkers = try container.decodeIfPresent([Bunker].self, forKey: .bunkers)
+            waterHazards = try container.decodeIfPresent([WaterHazard].self, forKey: .waterHazards)
+            trees = try container.decodeIfPresent([TreeArea].self, forKey: .trees)
+            yardageMarkers = try container.decodeIfPresent([YardageMarker].self, forKey: .yardageMarkers)
+        } catch {
+            print("❌ HoleData decoding error: \(error)")
+            throw error
+        }
+    }
+}
+
+struct TeeLocation: Codable {
+    let tee: String  // "black", "blue", "white", "gold", "red"
+    let lat: Double
+    let lon: Double
+    
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+}
+
+struct Bunker: Codable {
+    let type: String
+    let polygon: [Coordinate]
+    let center: Coordinate?
+}
+
+struct WaterHazard: Codable {
+    let polygon: [Coordinate]
+    let center: Coordinate?
+}
+
+struct TreeArea: Codable {
+    let polygon: [Coordinate]
+    let center: Coordinate?
+}
+
+struct YardageMarker: Codable {
+    let distance: Int
+    let lat: Double
+    let lon: Double
+    
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
 }
 
@@ -205,6 +323,34 @@ struct Coordinate: Codable {
     
     var clLocation: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case lat
+        case lon
+    }
+
+    init(lat: Double, lon: Double) {
+        self.lat = lat
+        self.lon = lon
+    }
+
+    init(from decoder: Decoder) throws {
+        // Support both object { lat, lon } and array [lat, lon]
+        if let container = try? decoder.container(keyedBy: CodingKeys.self) {
+            lat = try container.decode(Double.self, forKey: .lat)
+            lon = try container.decode(Double.self, forKey: .lon)
+            return
+        }
+
+        do {
+            var unkeyed = try decoder.unkeyedContainer()
+            lat = try unkeyed.decode(Double.self)
+            lon = try unkeyed.decode(Double.self)
+        } catch {
+            print("❌ Coordinate decoding error: \(error)")
+            throw error
+        }
     }
 }
 
@@ -298,6 +444,93 @@ struct ContributorStats: Codable, Identifiable {
         case confirmationsReceived = "confirmations_received"
         case isTrustedContributor = "is_trusted_contributor"
     }
+}
+
+// MARK: - Notifications
+
+struct Notification: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let type: String
+    let title: String
+    let message: String
+    let courseId: String?
+    let contributionId: String?
+    let relatedUserId: String?
+    let isRead: Bool
+    let readAt: String?
+    let createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case type
+        case title
+        case message
+        case courseId = "course_id"
+        case contributionId = "contribution_id"
+        case relatedUserId = "related_user_id"
+        case isRead = "read"
+        case readAt = "read_at"
+        case createdAt = "created_at"
+    }
+}
+
+// MARK: - Course Discussions
+
+struct CourseDiscussion: Codable, Identifiable {
+    let id: String
+    let courseId: String
+    let userId: String
+    let title: String
+    let content: String
+    let createdAt: String
+    let replyCount: Int?
+    let authorName: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case courseId = "course_id"
+        case userId = "user_id"
+        case title
+        case content
+        case createdAt = "created_at"
+        case replyCount = "reply_count"
+        case authorName = "author_name"
+    }
+}
+
+struct DiscussionReply: Codable, Identifiable {
+    let id: String
+    let discussionId: String
+    let userId: String
+    let content: String
+    let createdAt: String
+    let authorName: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case discussionId = "discussion_id"
+        case userId = "user_id"
+        case content
+        case createdAt = "created_at"
+        case authorName = "author_name"
+    }
+}
+
+// MARK: - OSM Course Data
+
+struct OSMCourse: Codable, Identifiable {
+    let id: Int
+    let name: String
+    let latitude: Double
+    let longitude: Double
+    let city: String?
+    let state: String?
+    let country: String?
+    let address: String
+    let phone: String?
+    let website: String?
 }
 
 // MARK: - Golf Bag

@@ -30,6 +30,19 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [userCountry, setUserCountry] = useState<string | null>(null);
+  const [showAllCountries, setShowAllCountries] = useState(false);
+
+  // Detect user's country on mount
+  useEffect(() => {
+    import("@/lib/geolocation").then(({ getUserCountry }) => {
+      getUserCountry().then((location) => {
+        if (location) {
+          setUserCountry(location.country);
+        }
+      });
+    });
+  }, []);
 
   const fetchCourses = useCallback(async () => {
     setLoading(true);
@@ -39,6 +52,11 @@ export default function CoursesPage() {
         .select("id, name, city, state, country, par, course_rating, slope_rating, avg_rating, review_count, latitude, longitude")
         .order("review_count", { ascending: false })
         .limit(50);
+
+      // Filter by country by default (unless searching or showing all)
+      if (!search && !showAllCountries && userCountry) {
+        query = query.eq("country", userCountry);
+      }
 
       if (search) {
         query = query.ilike("name", `%${search}%`);
@@ -52,7 +70,7 @@ export default function CoursesPage() {
     } finally {
       setLoading(false);
     }
-  }, [supabase, search]);
+  }, [supabase, search, userCountry, showAllCountries]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -85,6 +103,12 @@ export default function CoursesPage() {
           <p className="text-foreground-muted">Discover and review courses</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/courses/osm-visualization">
+            <Button variant="outline" className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              OSM Map
+            </Button>
+          </Link>
           <Link href="/courses/leaderboard">
             <Button variant="outline" className="flex items-center gap-2">
               <Trophy className="w-4 h-4" />
@@ -100,8 +124,9 @@ export default function CoursesPage() {
         </div>
       </div>
 
-      {/* Search */}
+      {/* Search and Filters */}
       <Card className="p-4">
+        <div className="space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
           <Input
@@ -110,6 +135,22 @@ export default function CoursesPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
+          </div>
+          {userCountry && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-foreground-muted">
+                Showing courses in: <strong className="text-foreground">{userCountry}</strong>
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowAllCountries(!showAllCountries)}
+                className="h-auto py-1"
+              >
+                {showAllCountries ? "Show local only" : "Show all countries"}
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
 

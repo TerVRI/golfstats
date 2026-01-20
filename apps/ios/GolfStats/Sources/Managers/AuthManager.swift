@@ -35,9 +35,10 @@ class AuthManager: ObservableObject {
     init() {
         // SCREENSHOT_MODE: Set to true only when capturing App Store screenshots
         #if DEBUG
-        let screenshotMode = false  // Set to true to enable demo mode for screenshots
+        // To enable screenshot mode, change the return value below to `true`
+        func isScreenshotModeEnabled() -> Bool { false }
         
-        if screenshotMode {
+        if isScreenshotModeEnabled() {
             self.currentUser = User(
                 id: "demo-user-id",
                 email: "demo@roundcaddy.com",
@@ -258,33 +259,70 @@ class AuthManager: ObservableObject {
     
     func getGoogleSignInURL() -> URL? {
         var components = URLComponents(string: "\(supabaseUrl)/auth/v1/authorize")
+        // Use the custom URL scheme for redirect
+        let redirectURL = "roundcaddy://auth/callback"
         components?.queryItems = [
             URLQueryItem(name: "provider", value: "google"),
-            URLQueryItem(name: "redirect_to", value: "roundcaddy://auth/callback")
+            URLQueryItem(name: "redirect_to", value: redirectURL)
         ]
-        return components?.url
+        let url = components?.url
+        print("Google OAuth URL: \(url?.absoluteString ?? "nil")")
+        return url
     }
     
     func handleOAuthCallback(url: URL) async {
         isSigningIn = true
         error = nil
         
+        print("OAuth callback received: \(url.absoluteString)")
+        
+        // Add timeout protection
+        let timeoutTask = Task {
+            try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds
+            if isSigningIn {
+                await MainActor.run {
+                    self.error = "Request timed out. Please try again."
+                    self.isSigningIn = false
+                }
+            }
+        }
+        
+        defer {
+            timeoutTask.cancel()
+        }
+        
         // Parse the callback URL for tokens
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let fragment = components.fragment else {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
             self.error = "Invalid callback URL"
             isSigningIn = false
             return
         }
         
-        // Parse fragment (access_token=...&refresh_token=...&...)
+        // Try fragment first (Supabase typically uses #access_token=...)
         var params: [String: String] = [:]
+        
+        if let fragment = components.fragment {
+            // Parse fragment (access_token=...&refresh_token=...&...)
         for param in fragment.split(separator: "&") {
             let pair = param.split(separator: "=", maxSplits: 1)
             if pair.count == 2 {
-                params[String(pair[0])] = String(pair[1])
+                    let key = String(pair[0])
+                    let value = String(pair[1]).removingPercentEncoding ?? String(pair[1])
+                    params[key] = value
+                }
             }
         }
+        
+        // If no fragment, try query parameters
+        if params.isEmpty, let queryItems = components.queryItems {
+            for item in queryItems {
+                if let value = item.value {
+                    params[item.name] = value.removingPercentEncoding ?? value
+                }
+            }
+        }
+        
+        print("Parsed OAuth params: \(params.keys.joined(separator: ", "))")
         
         if let accessToken = params["access_token"],
            let refreshToken = params["refresh_token"] {
@@ -293,13 +331,22 @@ class AuthManager: ObservableObject {
             
             do {
                 self.currentUser = try await fetchUser(token: accessToken)
+                print("OAuth login successful")
             } catch {
+                print("Failed to fetch user: \(error.localizedDescription)")
                 self.error = "Failed to fetch user profile"
             }
         } else if let errorDescription = params["error_description"] {
-            self.error = errorDescription.removingPercentEncoding ?? errorDescription
+            let decoded = errorDescription.removingPercentEncoding ?? errorDescription
+            print("OAuth error: \(decoded)")
+            self.error = decoded
+        } else if let errorCode = params["error"] {
+            let decoded = errorCode.removingPercentEncoding ?? errorCode
+            print("OAuth error code: \(decoded)")
+            self.error = "Authentication failed: \(decoded)"
         } else {
-            self.error = "Authentication failed"
+            print("OAuth callback missing tokens. Available params: \(params.keys.joined(separator: ", "))")
+            self.error = "Authentication failed: No tokens received"
         }
         
         isSigningIn = false

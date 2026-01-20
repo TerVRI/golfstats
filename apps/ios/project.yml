@@ -40,6 +40,10 @@ targets:
         type: group
       - path: GolfStats/Resources
         type: group
+        buildPhase: resources
+        excludes:
+          - "**/Info.plist"
+          - "**/*.entitlements"
     settings:
       base:
         INFOPLIST_FILE: GolfStats/Resources/Info.plist
@@ -80,12 +84,31 @@ targets:
         INFOPLIST_FILE: ../watch/GolfStatsWatch WatchKit Extension/Resources/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.roundcaddy.ios.watchkitapp
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_OTHER_FLAGS: --enable-icon-stack-fallback-generation=disabled
         ENABLE_PREVIEWS: true
         SKIP_INSTALL: true
         WATCHOS_DEPLOYMENT_TARGET: "10.0"
         # Watch app embedding
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: true
         CODE_SIGN_ENTITLEMENTS: ../watch/GolfStatsWatch WatchKit Extension/Resources/GolfStatsWatch.entitlements
+
+  GolfStatsTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: GolfStatsTests
+        type: group
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.roundcaddy.ios.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/GolfStats.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/GolfStats"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - target: GolfStats
+        embed: false
 
 schemes:
   GolfStats:
@@ -97,6 +120,8 @@ schemes:
       config: Debug
     test:
       config: Debug
+      targets:
+        - GolfStatsTests
     profile:
       config: Release
     analyze:

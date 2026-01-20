@@ -24,7 +24,7 @@ describe('course-validation', () => {
 
     it('should validate course with matching par totals', () => {
       // Create 18 holes with pars that sum to 72
-      const holePars = [4, 5, 4, 4, 3, 4, 4, 3, 5, 4, 4, 4, 3, 5, 4, 4, 3, 4]; // Sum = 72
+      const holePars = [4, 5, 4, 4, 3, 4, 4, 3, 5, 4, 4, 4, 3, 5, 4, 4, 3, 5]; // Sum = 72 (changed last 4 to 5)
       const courseData: CourseData = {
         name: 'Test Course',
         par: 72,
@@ -34,16 +34,16 @@ describe('course-validation', () => {
         hole_data: holePars.map((par, i) => ({
           hole_number: i + 1,
           par: par,
-          yardages: { blue: 380 },
-          tee_locations: [{ lat: 36.5730, lon: -121.9490 }],
-          green_center: { lat: 36.5730, lon: -121.9490 }, // Same as tee (close)
+          yardages: { blue: par === 3 ? 180 : par === 4 ? 380 : 520 }, // Realistic yardages
+          tee_locations: [{ lat: 36.5730 + (i * 0.0001), lon: -121.9490 + (i * 0.0001) }], // Different locations
+          green_center: { lat: 36.5735 + (i * 0.0001), lon: -121.9495 + (i * 0.0001) }, // Different from tee
         })),
       };
 
       const result = validateCourseData(courseData);
-      // Should be valid - pars match
-      expect(result.isValid).toBe(true);
+      // Should be valid - pars match, no errors
       expect(result.errors.length).toBe(0);
+      expect(result.isValid).toBe(true);
     });
 
     it('should error when name is missing', () => {

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { CourseMapEditor } from "@/components/course-map-editor";
+import { PolygonDrawingTool, PolygonData } from "@/components/polygon-drawing-tool";
 import { PhotoUpload } from "@/components/photo-upload";
 import { OSMAutofill } from "@/components/osm-autofill";
 import { DataCompletenessIndicator } from "@/components/data-completeness-indicator";
@@ -21,6 +22,7 @@ import {
   Plus,
   Trash2,
   AlertTriangle,
+  Layers,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -34,6 +36,13 @@ interface HoleData {
   green_front: { lat: number; lon: number };
   green_back: { lat: number; lon: number };
   hazards: Array<{ type: string; lat?: number; lon?: number; polygon?: number[][] }>;
+  // Polygon data
+  fairway?: Array<[number, number]>;
+  green?: Array<[number, number]>;
+  rough?: Array<[number, number]>;
+  bunkers?: Array<{ type: string; polygon: Array<[number, number]> }>;
+  water_hazards?: Array<{ polygon: Array<[number, number]> }>;
+  trees?: Array<{ polygon: Array<[number, number]> }>;
 }
 
 export default function ContributeCoursePage() {
@@ -63,6 +72,8 @@ export default function ContributeCoursePage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [currentHole, setCurrentHole] = useState<number>(1);
   const [mapMarkers, setMapMarkers] = useState<any[]>([]);
+  const [polygons, setPolygons] = useState<PolygonData[]>([]);
+  const [showPolygonTool, setShowPolygonTool] = useState(false);
   const [validationResult, setValidationResult] = useState<any>(null);
   const [completenessScore, setCompletenessScore] = useState(0);
   const [missingFields, setMissingFields] = useState<string[]>([]);
@@ -87,9 +98,83 @@ export default function ContributeCoursePage() {
           green_front: { lat: 0, lon: 0 },
           green_back: { lat: 0, lon: 0 },
           hazards: [],
+          // Initialize polygon fields
+          fairway: undefined,
+          green: undefined,
+          rough: undefined,
+          bunkers: undefined,
+          water_hazards: undefined,
+          trees: undefined,
         }))
       );
     }
+    
+    // Load existing polygons from hole data (only once on mount)
+    useEffect(() => {
+      if (holeData.length > 0 && polygons.length === 0) {
+        const loadedPolygons: PolygonData[] = [];
+        holeData.forEach((hole) => {
+          if (hole.fairway) {
+            loadedPolygons.push({
+              id: `fairway-${hole.hole_number}`,
+              type: 'fairway',
+              coordinates: hole.fairway,
+              holeNumber: hole.hole_number,
+            });
+          }
+          if (hole.green) {
+            loadedPolygons.push({
+              id: `green-${hole.hole_number}`,
+              type: 'green',
+              coordinates: hole.green,
+              holeNumber: hole.hole_number,
+            });
+          }
+          if (hole.rough) {
+            loadedPolygons.push({
+              id: `rough-${hole.hole_number}`,
+              type: 'rough',
+              coordinates: hole.rough,
+              holeNumber: hole.hole_number,
+            });
+          }
+          if (hole.bunkers) {
+            hole.bunkers.forEach((bunker, idx) => {
+              loadedPolygons.push({
+                id: `bunker-${hole.hole_number}-${idx}`,
+                type: 'bunker',
+                coordinates: bunker.polygon,
+                holeNumber: hole.hole_number,
+              });
+            });
+          }
+          if (hole.water_hazards) {
+            hole.water_hazards.forEach((water, idx) => {
+              loadedPolygons.push({
+                id: `water-${hole.hole_number}-${idx}`,
+                type: 'water',
+                coordinates: water.polygon,
+                holeNumber: hole.hole_number,
+              });
+            });
+          }
+          if (hole.trees) {
+            hole.trees.forEach((tree, idx) => {
+              loadedPolygons.push({
+                id: `tree-${hole.hole_number}-${idx}`,
+                type: 'tree',
+                coordinates: tree.polygon,
+                holeNumber: hole.hole_number,
+              });
+            });
+          }
+        });
+        if (loadedPolygons.length > 0) {
+          setPolygons(loadedPolygons);
+        }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [holeData.length]);
   }, [user, router, formData.holes]);
 
   // Real-time validation
@@ -205,7 +290,32 @@ export default function ContributeCoursePage() {
         holes: formData.holes ? parseInt(formData.holes) : 18,
         latitude: formData.latitude ? parseFloat(formData.latitude) : null,
         longitude: formData.longitude ? parseFloat(formData.longitude) : null,
-        hole_data: holeData,
+        hole_data: holeData.map((hole, index) => {
+          // Merge polygon data from polygons state
+          const holePolygons = polygons.filter(p => p.holeNumber === hole.hole_number);
+          const updatedHole = { ...hole };
+          
+          holePolygons.forEach(poly => {
+            if (poly.type === 'fairway') {
+              updatedHole.fairway = poly.coordinates;
+            } else if (poly.type === 'green') {
+              updatedHole.green = poly.coordinates;
+            } else if (poly.type === 'rough') {
+              updatedHole.rough = poly.coordinates;
+            } else if (poly.type === 'bunker') {
+              if (!updatedHole.bunkers) updatedHole.bunkers = [];
+              updatedHole.bunkers.push({ type: 'bunker', polygon: poly.coordinates });
+            } else if (poly.type === 'water') {
+              if (!updatedHole.water_hazards) updatedHole.water_hazards = [];
+              updatedHole.water_hazards.push({ polygon: poly.coordinates });
+            } else if (poly.type === 'tree') {
+              if (!updatedHole.trees) updatedHole.trees = [];
+              updatedHole.trees.push({ polygon: poly.coordinates });
+            }
+          });
+          
+          return updatedHole;
+        }),
         photo_urls: photos,
         photos: photos.map(url => ({ url, uploaded_at: new Date().toISOString() })),
         status: "pending",
@@ -614,10 +724,23 @@ export default function ContributeCoursePage() {
             </div>
           </div>
           {formData.latitude && formData.longitude && (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Map Editor - Select marker type and click to place
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-foreground">
+                  Map Editor - Points & Polygons
               </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={showPolygonTool ? "default" : "outline"}
+                  onClick={() => setShowPolygonTool(!showPolygonTool)}
+                >
+                  <Layers className="w-4 h-4 mr-2" />
+                  {showPolygonTool ? "Hide Polygon Tool" : "Show Polygon Tool"}
+                </Button>
+              </div>
+              
+              {!showPolygonTool ? (
               <CourseMapEditor
                 initialLat={parseFloat(formData.latitude)}
                 initialLon={parseFloat(formData.longitude)}
@@ -650,6 +773,101 @@ export default function ContributeCoursePage() {
                 currentHole={currentHole}
                 mode="edit"
               />
+              ) : (
+                <PolygonDrawingTool
+                  initialLat={parseFloat(formData.latitude)}
+                  initialLon={parseFloat(formData.longitude)}
+                  polygons={polygons.filter(p => p.holeNumber === currentHole)}
+                  currentHole={currentHole}
+                  mode="draw"
+                  onPolygonAdd={(polygon) => {
+                    setPolygons([...polygons, polygon]);
+                    // Update hole data with polygon
+                    const holeIndex = currentHole - 1;
+                    const currentHoleData = holeData[holeIndex];
+                    
+                    if (polygon.type === 'fairway') {
+                      updateHoleData(holeIndex, {
+                        fairway: polygon.coordinates
+                      });
+                    } else if (polygon.type === 'green') {
+                      updateHoleData(holeIndex, {
+                        green: polygon.coordinates
+                      });
+                    } else if (polygon.type === 'rough') {
+                      updateHoleData(holeIndex, {
+                        rough: polygon.coordinates
+                      });
+                    } else if (polygon.type === 'bunker') {
+                      updateHoleData(holeIndex, {
+                        bunkers: [
+                          ...(currentHoleData.bunkers || []),
+                          { type: 'bunker', polygon: polygon.coordinates }
+                        ]
+                      });
+                    } else if (polygon.type === 'water') {
+                      updateHoleData(holeIndex, {
+                        water_hazards: [
+                          ...(currentHoleData.water_hazards || []),
+                          { polygon: polygon.coordinates }
+                        ]
+                      });
+                    } else if (polygon.type === 'tree') {
+                      updateHoleData(holeIndex, {
+                        trees: [
+                          ...(currentHoleData.trees || []),
+                          { polygon: polygon.coordinates }
+                        ]
+                      });
+                    }
+                  }}
+                  onPolygonUpdate={(id, coordinates) => {
+                    setPolygons(polygons.map(p => 
+                      p.id === id ? { ...p, coordinates } : p
+                    ));
+                    // Update hole data
+                    const polygon = polygons.find(p => p.id === id);
+                    if (polygon) {
+                      const holeIndex = (polygon.holeNumber || currentHole) - 1;
+                      const currentHoleData = holeData[holeIndex];
+                      
+                      if (polygon.type === 'fairway') {
+                        updateHoleData(holeIndex, { fairway: coordinates });
+                      } else if (polygon.type === 'green') {
+                        updateHoleData(holeIndex, { green: coordinates });
+                      } else if (polygon.type === 'rough') {
+                        updateHoleData(holeIndex, { rough: coordinates });
+                      } else if (polygon.type === 'bunker') {
+                        const bunkerIndex = currentHoleData.bunkers?.findIndex((_, i) => 
+                          polygons.filter(p => p.holeNumber === polygon.holeNumber && p.type === 'bunker')[i]?.id === id
+                        );
+                        if (bunkerIndex !== undefined && bunkerIndex >= 0) {
+                          const updatedBunkers = [...(currentHoleData.bunkers || [])];
+                          updatedBunkers[bunkerIndex] = { type: 'bunker', polygon: coordinates };
+                          updateHoleData(holeIndex, { bunkers: updatedBunkers });
+                        }
+                      }
+                    }
+                  }}
+                  onPolygonDelete={(id) => {
+                    setPolygons(polygons.filter(p => p.id !== id));
+                    // Remove from hole data
+                    const polygon = polygons.find(p => p.id === id);
+                    if (polygon) {
+                      const holeIndex = (polygon.holeNumber || currentHole) - 1;
+                      const currentHoleData = holeData[holeIndex];
+                      
+                      if (polygon.type === 'fairway') {
+                        updateHoleData(holeIndex, { fairway: undefined });
+                      } else if (polygon.type === 'green') {
+                        updateHoleData(holeIndex, { green: undefined });
+                      } else if (polygon.type === 'rough') {
+                        updateHoleData(holeIndex, { rough: undefined });
+                      }
+                    }
+                  }}
+                />
+              )}
             </div>
           )}
         </Card>
