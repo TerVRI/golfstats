@@ -796,7 +796,11 @@ struct SGBarRow: View {
                 .frame(width: 90, alignment: .leading)
             
             GeometryReader { geo in
-                ZStack(alignment: value >= 0 ? .leading : .trailing) {
+                let centerX = geo.size.width / 2
+                let maxValue = 3.0
+                let barWidth = min(abs(value) / maxValue, 1.0) * centerX
+                
+                ZStack {
                     // Background
                     Rectangle()
                         .fill(Color.gray.opacity(0.2))
@@ -807,17 +811,18 @@ struct SGBarRow: View {
                     Rectangle()
                         .fill(Color.gray.opacity(0.5))
                         .frame(width: 1, height: 24)
-                        .position(x: geo.size.width / 2, y: 12)
                     
-                    // Value bar
-                    let maxValue = 3.0
-                    let barWidth = min(abs(value) / maxValue, 1.0) * (geo.size.width / 2)
-                    
+                    // Value bar - positioned using .position() to center the bar correctly
+                    // For positive values: bar center is at centerX + barWidth/2
+                    // For negative values: bar center is at centerX - barWidth/2
                     Rectangle()
                         .fill(value >= 0 ? Color.green : Color.red)
                         .frame(width: barWidth, height: 24)
                         .cornerRadius(4)
-                        .offset(x: value >= 0 ? geo.size.width / 2 : geo.size.width / 2 - barWidth)
+                        .position(
+                            x: value >= 0 ? centerX + barWidth / 2 : centerX - barWidth / 2,
+                            y: 12
+                        )
                 }
             }
             .frame(height: 24)
