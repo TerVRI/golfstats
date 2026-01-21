@@ -32,7 +32,7 @@ settings:
       SWIFT_COMPILATION_MODE: wholemodule
 
 targets:
-  GolfStats:
+  RoundCaddy:
     type: application
     platform: iOS
     sources:
@@ -64,16 +64,16 @@ targets:
     preBuildScripts: []
     postBuildScripts: []
     dependencies:
-      - target: GolfStatsWatch
+      - target: RoundCaddyWatch
         embed: true
 
-  GolfStatsWatch:
+  RoundCaddyWatch:
     type: application
     platform: watchOS
     sources:
-      - path: ../watch/GolfStatsWatch WatchKit Extension/Sources
+      - path: ../watch/RoundCaddyWatch WatchKit Extension/Sources
         type: group
-      - path: ../watch/GolfStatsWatch WatchKit Extension/Resources
+      - path: ../watch/RoundCaddyWatch WatchKit Extension/Resources
         type: group
         buildPhase: resources
         excludes:
@@ -81,7 +81,7 @@ targets:
           - "*.entitlements"
     settings:
       base:
-        INFOPLIST_FILE: ../watch/GolfStatsWatch WatchKit Extension/Resources/Info.plist
+        INFOPLIST_FILE: ../watch/RoundCaddyWatch WatchKit Extension/Resources/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.roundcaddy.ios.watchkitapp
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_OTHER_FLAGS: --enable-icon-stack-fallback-generation=disabled
@@ -90,9 +90,9 @@ targets:
         WATCHOS_DEPLOYMENT_TARGET: "10.0"
         # Watch app embedding
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: true
-        CODE_SIGN_ENTITLEMENTS: ../watch/GolfStatsWatch WatchKit Extension/Resources/GolfStatsWatch.entitlements
+        CODE_SIGN_ENTITLEMENTS: ../watch/RoundCaddyWatch WatchKit Extension/Resources/RoundCaddyWatch.entitlements
 
-  GolfStatsTests:
+  RoundCaddyTests:
     type: bundle.unit-test
     platform: iOS
     sources:
@@ -101,27 +101,27 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.roundcaddy.ios.tests
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/GolfStats.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/GolfStats"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/RoundCaddy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RoundCaddy"
         BUNDLE_LOADER: "$(TEST_HOST)"
         SWIFT_VERSION: "5.9"
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_STYLE: Automatic
     dependencies:
-      - target: GolfStats
+      - target: RoundCaddy
         embed: false
 
 schemes:
-  GolfStats:
+  RoundCaddy:
     build:
       targets:
-        GolfStats: all
-        GolfStatsWatch: all
+        RoundCaddy: all
+        RoundCaddyWatch: all
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - GolfStatsTests
+        - RoundCaddyTests
     profile:
       config: Release
     analyze:
@@ -129,10 +129,10 @@ schemes:
     archive:
       config: Release
 
-  GolfStatsWatch:
+  RoundCaddyWatch:
     build:
       targets:
-        GolfStatsWatch: all
+        RoundCaddyWatch: all
     run:
       config: Debug
     test:

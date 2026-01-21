@@ -1,7 +1,7 @@
 import XCTest
 import SwiftUI
 import CoreLocation
-@testable import GolfStats
+@testable import RoundCaddy
 
 final class CourseConfirmationTests: XCTestCase {
     

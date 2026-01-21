@@ -5,6 +5,7 @@ struct DashboardView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var roundManager: RoundManager
     @EnvironmentObject var gpsManager: GPSManager
+    @EnvironmentObject var watchSyncManager: WatchSyncManager
     
     @State private var stats: UserStats = .empty
     @State private var recentRounds: [Round] = []
@@ -40,6 +41,9 @@ struct DashboardView: View {
                     
                     // Action Buttons
                     actionButtonsSection
+                    
+                    // Watch Swing Analytics
+                    swingAnalyticsSection
                     
                     // Score Trend Chart
                     if recentRounds.count >= 2 {
@@ -215,6 +219,112 @@ struct DashboardView: View {
                 )
             }
         }
+        .padding(.horizontal)
+    }
+    
+    // MARK: - Swing Analytics Section
+    
+    private var swingAnalyticsSection: some View {
+        VStack(spacing: 16) {
+            // Watch Connection Header
+            HStack(spacing: 12) {
+                Image(systemName: watchSyncManager.isWatchConnected ? "applewatch.radiowaves.left.and.right" : "applewatch")
+                    .font(.title2)
+                    .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Apple Watch")
+                        .font(.headline)
+                    Text(watchSyncManager.isWatchConnected ? "Connected" : "Not connected")
+                        .font(.caption)
+                        .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                }
+                
+                Spacer()
+                
+                if watchSyncManager.watchRoundActive {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 8, height: 8)
+                        Text("LIVE")
+                            .font(.caption.bold())
+                            .foregroundColor(.red)
+                    }
+                }
+            }
+            
+            Divider()
+            
+            // Quick Stats from Watch
+            if !watchSyncManager.clubDistances.isEmpty || !watchSyncManager.recentSwings.isEmpty {
+                HStack(spacing: 16) {
+                    VStack(spacing: 4) {
+                        Text("\(watchSyncManager.recentSwings.count)")
+                            .font(.title2.bold())
+                            .foregroundColor(.green)
+                        Text("Swings")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    VStack(spacing: 4) {
+                        Text("\(watchSyncManager.clubDistances.count)")
+                            .font(.title2.bold())
+                            .foregroundColor(.blue)
+                        Text("Clubs")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    VStack(spacing: 4) {
+                        Text("\(watchSyncManager.coachingTips.count)")
+                            .font(.title2.bold())
+                            .foregroundColor(.orange)
+                        Text("Tips")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                
+                Divider()
+            }
+            
+            // Navigation Links
+            HStack(spacing: 12) {
+                NavigationLink(destination: SwingAnalyticsView()) {
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                        Text("Swing Analytics")
+                    }
+                    .font(.subheadline.bold())
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+                }
+                
+                NavigationLink(destination: CoachingInsightsView()) {
+                    HStack {
+                        Image(systemName: "lightbulb.fill")
+                        Text("Coaching")
+                    }
+                    .font(.subheadline.bold())
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.orange)
+                    .cornerRadius(10)
+                }
+            }
+        }
+        .padding()
+        .background(Color("BackgroundSecondary"))
+        .cornerRadius(12)
         .padding(.horizontal)
     }
     

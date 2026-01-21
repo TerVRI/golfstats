@@ -105,15 +105,106 @@ actor DataService {
         return courses.first
     }
     
-    func fetchNearbyCourses(latitude: Double, longitude: Double, radiusMiles: Double = 50) async throws -> [Course] {
-        // For now, fetch all courses and filter client-side
-        // TODO: Implement PostGIS distance query
+    func fetchNearbyCourses(latitude: Double, longitude: Double, radiusMiles: Double = 50, limit: Int = 50) async throws -> [Course] {
+        // Use PostGIS function for efficient distance-based queries
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/rpc/get_nearby_courses")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseKey, forHTTPHeaderField: "apikey")
+        
+        let body: [String: Any] = [
+            "p_latitude": latitude,
+            "p_longitude": longitude,
+            "p_radius_miles": radiusMiles,
+            "p_limit": limit
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw DataError.fetchFailed
+        }
+        
+        // If PostGIS function not available, fall back to client-side filtering
+        if httpResponse.statusCode == 404 {
+            print("⚠️ PostGIS function not found, falling back to client-side filtering")
+            return try await fetchNearbyCoursesFallback(latitude: latitude, longitude: longitude, radiusMiles: radiusMiles)
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+        
+        // Decode the response - includes distance_miles field
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        struct NearbyCoursesResponse: Decodable {
+            let id: String
+            let name: String
+            let city: String?
+            let state: String?
+            let country: String?
+            let courseRating: Double?
+            let slopeRating: Int?
+            let par: Int?
+            let holes: Int?
+            let latitude: Double?
+            let longitude: Double?
+            let address: String?
+            let phone: String?
+            let website: String?
+            let holeData: [HoleData]?
+            let avgRating: Double?
+            let reviewCount: Int?
+            let distanceMiles: Double?
+        }
+        
+        let nearbyCourses = try decoder.decode([NearbyCoursesResponse].self, from: data)
+        
+        return nearbyCourses.map { course in
+            Course(
+                id: course.id,
+                name: course.name,
+                city: course.city,
+                state: course.state,
+                country: course.country,
+                address: course.address,
+                phone: course.phone,
+                website: course.website,
+                courseRating: course.courseRating,
+                slopeRating: course.slopeRating,
+                par: course.par,
+                holes: course.holes,
+                latitude: course.latitude,
+                longitude: course.longitude,
+                avgRating: course.avgRating,
+                reviewCount: course.reviewCount,
+                holeData: course.holeData,
+                updatedAt: nil,
+                createdAt: nil
+            )
+        }
+    }
+    
+    /// Fallback to client-side filtering if PostGIS function not available
+    private func fetchNearbyCoursesFallback(latitude: Double, longitude: Double, radiusMiles: Double) async throws -> [Course] {
         let allCourses = try await fetchCourses(limit: 200)
         
         return allCourses.filter { course in
             guard let courseLat = course.latitude, let courseLon = course.longitude else { return false }
             let distance = haversineDistance(lat1: latitude, lon1: longitude, lat2: courseLat, lon2: courseLon)
             return distance <= radiusMiles
+        }.sorted { course1, course2 in
+            guard let lat1 = course1.latitude, let lon1 = course1.longitude,
+                  let lat2 = course2.latitude, let lon2 = course2.longitude else { return false }
+            let dist1 = haversineDistance(lat1: latitude, lon1: longitude, lat2: lat1, lon2: lon1)
+            let dist2 = haversineDistance(lat1: latitude, lon1: longitude, lat2: lat2, lon2: lon2)
+            return dist1 < dist2
         }
     }
     

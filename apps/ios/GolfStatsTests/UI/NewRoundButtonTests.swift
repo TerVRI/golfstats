@@ -1,5 +1,5 @@
 import XCTest
-@testable import GolfStats
+@testable import RoundCaddy
 
 @MainActor
 final class NewRoundButtonTests: XCTestCase {

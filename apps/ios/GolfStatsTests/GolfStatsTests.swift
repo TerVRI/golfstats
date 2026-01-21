@@ -1,6 +1,6 @@
 import XCTest
 import CoreLocation
-@testable import GolfStats
+@testable import RoundCaddy
 
 @MainActor
 final class GolfStatsTests: XCTestCase {
@@ -177,14 +177,20 @@ final class GolfStatsTests: XCTestCase {
             city: "Test City",
             state: "CA",
             country: "USA",
+            address: "123 Test St",
+            phone: "555-1234",
+            website: "https://test.com",
             courseRating: 75.5,
             slopeRating: 145,
             par: 72,
+            holes: 18,
             latitude: 36.5725,
             longitude: -121.9486,
             avgRating: 4.5,
             reviewCount: 10,
-            holeData: nil
+            holeData: nil,
+            updatedAt: nil,
+            createdAt: nil
         )
         
         watchSyncManager.sendCourseToWatch(course: course)

@@ -1,4 +1,5 @@
 import XCTest
+@testable import RoundCaddy
 
 @MainActor
 final class CourseBundleLoaderTests: XCTestCase {

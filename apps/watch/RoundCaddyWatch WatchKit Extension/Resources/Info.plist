@@ -24,6 +24,12 @@
 	<string>RoundCaddy needs background location to track your round continuously.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>RoundCaddy needs location to calculate distances to greens and track shots.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>RoundCaddy uses motion data to automatically detect your golf swings and log shots.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>RoundCaddy can read your workout history to provide better stats and insights.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>RoundCaddy can save your golf rounds as workouts to track calories burned and activity.</string>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>

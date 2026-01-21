@@ -1,5 +1,5 @@
 import XCTest
-@testable import GolfStats
+@testable import RoundCaddy
 
 final class DiscussionsTests: XCTestCase {
     

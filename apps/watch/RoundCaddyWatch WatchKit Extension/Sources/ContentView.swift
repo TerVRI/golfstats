@@ -2,74 +2,234 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var roundManager: RoundManager
+    @EnvironmentObject var motionManager: MotionManager
+    @EnvironmentObject var gpsManager: GPSManager
+    @EnvironmentObject var workoutManager: WorkoutManager
     
     var body: some View {
-        if roundManager.isRoundActive {
-            ActiveRoundView()
-        } else {
-            HomeView()
+        ZStack {
+            if roundManager.isRoundActive {
+                ActiveRoundView()
+            } else {
+                HomeView()
+            }
+            
+            // Shot confirmation overlay
+            if motionManager.swingConfirmationPending {
+                ShotConfirmationView()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.3), value: motionManager.swingConfirmationPending)
+        .onAppear {
+            // Link GPS manager to motion manager for practice swing filtering
+            motionManager.gpsManager = gpsManager
+        }
+        .onChange(of: roundManager.isRoundActive) { _, isActive in
+            if isActive {
+                // Start motion detection when round begins
+                motionManager.startDetecting()
+                
+                // Start workout session for background activity
+                Task {
+                    do {
+                        try await workoutManager.startWorkout()
+                    } catch {
+                        print("Failed to start workout: \(error)")
+                    }
+                }
+                
+                // Configure callback for confirmed shots
+                motionManager.onShotConfirmed = { lat, lon in
+                    // Shot was confirmed - GPS tracking is handled in ShotConfirmationView
+                    print("✅ Shot confirmed via motion detection")
+                }
+            } else {
+                // Stop motion detection when round ends
+                motionManager.stopDetecting()
+                
+                // End workout session
+                Task {
+                    do {
+                        try await workoutManager.endWorkout()
+                    } catch {
+                        print("Failed to end workout: \(error)")
+                    }
+                }
+            }
         }
     }
 }
 
 struct HomeView: View {
     @EnvironmentObject var roundManager: RoundManager
+    @EnvironmentObject var motionManager: MotionManager
+    @State private var showPracticeMode = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "flag.fill")
-                .font(.largeTitle)
-                .foregroundColor(.green)
-            
-            Text("RoundCaddy")
-                .font(.headline)
-            
-            Button(action: {
-                roundManager.startRound()
-            }) {
-                HStack {
-                    Image(systemName: "play.fill")
-                    Text("Start Round")
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Logo
+                    Image(systemName: "flag.fill")
+                        .font(.largeTitle)
+                        .foregroundColor(.green)
+                    
+                    Text("RoundCaddy")
+                        .font(.headline)
+                    
+                    // Start Round Button
+                    Button(action: {
+                        roundManager.startRound()
+                    }) {
+                        HStack {
+                            Image(systemName: "play.fill")
+                            Text("Start Round")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                    
+                    // Practice Mode Button - navigates to dedicated view
+                    NavigationLink(destination: PracticeModeView()) {
+                        HStack {
+                            Image(systemName: "figure.golf")
+                            Text("Practice Mode")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.blue)
+                    
+                    Divider()
+                    
+                    // Quick Links
+                    VStack(spacing: 8) {
+                        NavigationLink(destination: ClubDistancesView(tracker: motionManager.clubDistanceTracker)) {
+                            QuickLinkRow(icon: "ruler", title: "My Distances", color: .blue)
+                        }
+                        .buttonStyle(.plain)
+                        
+                        NavigationLink(destination: CoachingTipsView(coachingEngine: motionManager.coachingEngine)) {
+                            QuickLinkRow(icon: "lightbulb.fill", title: "Coaching Tips", color: .yellow)
+                        }
+                        .buttonStyle(.plain)
+                        
+                        NavigationLink(destination: SettingsView()) {
+                            QuickLinkRow(icon: "gearshape.fill", title: "Settings", color: .gray)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
+                .padding()
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.green)
         }
-        .padding()
+    }
+}
+
+struct QuickLinkRow: View {
+    let icon: String
+    let title: String
+    let color: Color
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(color)
+                .frame(width: 24)
+            
+            Text(title)
+                .font(.caption)
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(8)
     }
 }
 
 struct ActiveRoundView: View {
     @EnvironmentObject var gpsManager: GPSManager
     @EnvironmentObject var roundManager: RoundManager
+    @EnvironmentObject var motionManager: MotionManager
     
     var body: some View {
-        TabView {
-            // Distance View
-            DistanceView()
-                .tabItem {
-                    Image(systemName: "location.fill")
-                }
+        ZStack {
+            TabView {
+                // Distance View
+                DistanceView()
+                    .tabItem {
+                        Image(systemName: "location.fill")
+                    }
+                
+                // Live Shot Distance View (walk to ball)
+                LiveShotDistanceView()
+                    .tabItem {
+                        Image(systemName: "figure.walk")
+                    }
+                
+                // Scorecard View
+                ScorecardView()
+                    .tabItem {
+                        Image(systemName: "list.number")
+                    }
+                
+                // Shot Tracker View
+                ShotTrackerView()
+                    .tabItem {
+                        Image(systemName: "target")
+                    }
+                
+                // Swing Metrics View
+                SwingMetricsView(swingDetector: motionManager.swingDetector)
+                    .tabItem {
+                        Image(systemName: "waveform.path.ecg")
+                    }
+                
+                // Strokes Gained View
+                StrokesGainedView(calculator: motionManager.strokesGainedCalculator)
+                    .tabItem {
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                    }
+                
+                // Round Summary / End Round View
+                RoundSummaryView()
+                    .tabItem {
+                        Image(systemName: "flag.checkered")
+                    }
+            }
+            .tabViewStyle(.page)
             
-            // Scorecard View
-            ScorecardView()
-                .tabItem {
-                    Image(systemName: "list.number")
+            // Putting mode indicator at top
+            if motionManager.isPuttingMode {
+                VStack {
+                    PuttCountBadge()
+                        .padding(.top, 4)
+                    Spacer()
                 }
+            }
             
-            // Shot Tracker View
-            ShotTrackerView()
-                .tabItem {
-                    Image(systemName: "target")
+            // Coaching tip banner (if available)
+            if let tip = motionManager.coachingEngine.latestTips.first {
+                VStack {
+                    Spacer()
+                    QuickTipBanner(tip: tip)
+                        .padding(.horizontal, 8)
+                        .padding(.bottom, 4)
                 }
-            
-            // Round Summary / End Round View
-            RoundSummaryView()
-                .tabItem {
-                    Image(systemName: "flag.checkered")
-                }
+            }
         }
-        .tabViewStyle(.page)
+        .onChange(of: roundManager.currentHole) { _, _ in
+            // Reset putt count when moving to a new hole
+            motionManager.resetPuttCount()
+        }
     }
 }
 
@@ -216,4 +376,6 @@ struct RoundSummaryView: View {
     ContentView()
         .environmentObject(GPSManager())
         .environmentObject(RoundManager())
+        .environmentObject(MotionManager())
+        .environmentObject(WorkoutManager())
 }

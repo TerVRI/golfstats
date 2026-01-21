@@ -2,10 +2,17 @@ import SwiftUI
 
 struct ScorecardView: View {
     @EnvironmentObject var roundManager: RoundManager
+    @EnvironmentObject var motionManager: MotionManager
     @State private var editingHole: Int?
     
     var currentHoleScore: HoleScore? {
         roundManager.holeScores.first { $0.holeNumber == roundManager.currentHole }
+    }
+    
+    /// Whether the auto-detected putt count differs from saved putts
+    var hasUnsyncedPutts: Bool {
+        motionManager.puttCount > 0 &&
+        motionManager.puttCount != (currentHoleScore?.putts ?? 0)
     }
     
     var body: some View {
@@ -72,12 +79,31 @@ struct ScorecardView: View {
                 }
                 .buttonStyle(.plain)
                 
-                // Putts stepper
-                VStack {
-                    Text("\(currentHoleScore?.putts ?? 0)")
-                        .font(.headline)
+                // Putts display with auto-detect indicator
+                VStack(spacing: 2) {
+                    HStack(spacing: 4) {
+                        Text("\(currentHoleScore?.putts ?? 0)")
+                            .font(.headline)
+                        
+                        // Show auto-detected count if different
+                        if hasUnsyncedPutts {
+                            Text("(\(motionManager.puttCount))")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
+                    }
                     Text("Putts")
                         .font(.caption2)
+                    
+                    // Sync button when auto-detected putts differ
+                    if hasUnsyncedPutts {
+                        Button(action: syncPuttCount) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.caption2)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundColor(.orange)
+                    }
                 }
                 .onTapGesture {
                     incrementPutts()
@@ -116,6 +142,12 @@ struct ScorecardView: View {
         roundManager.updatePutts(for: roundManager.currentHole, putts: (current + 1) % 6)
     }
     
+    private func syncPuttCount() {
+        // Sync auto-detected putt count to scorecard
+        roundManager.updatePutts(for: roundManager.currentHole, putts: motionManager.puttCount)
+        motionManager.playHaptic(.success)
+    }
+    
     private func toggleFairway() {
         let current = currentHoleScore?.fairwayHit ?? false
         roundManager.updateFairway(for: roundManager.currentHole, hit: !current)
@@ -150,4 +182,5 @@ struct ScorecardView: View {
 #Preview {
     ScorecardView()
         .environmentObject(RoundManager())
+        .environmentObject(MotionManager())
 }

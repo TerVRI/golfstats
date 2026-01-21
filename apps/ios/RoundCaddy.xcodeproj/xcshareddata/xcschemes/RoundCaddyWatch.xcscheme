@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
+               BlueprintIdentifier = "B2A311FF14CF53523FA18BAB"
                BuildableName = "RoundCaddyWatch.app"
                BlueprintName = "RoundCaddyWatch"
                ReferencedContainer = "container:RoundCaddy.xcodeproj">
@@ -30,7 +30,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
+            BlueprintIdentifier = "B2A311FF14CF53523FA18BAB"
             BuildableName = "RoundCaddyWatch.app"
             BlueprintName = "RoundCaddyWatch"
             ReferencedContainer = "container:RoundCaddy.xcodeproj">
@@ -53,7 +53,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
+            BlueprintIdentifier = "B2A311FF14CF53523FA18BAB"
             BuildableName = "RoundCaddyWatch.app"
             BlueprintName = "RoundCaddyWatch"
             ReferencedContainer = "container:RoundCaddy.xcodeproj">
@@ -70,7 +70,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6BD6B9B5E6A94B145F6E4091"
+            BlueprintIdentifier = "B2A311FF14CF53523FA18BAB"
             BuildableName = "RoundCaddyWatch.app"
             BlueprintName = "RoundCaddyWatch"
             ReferencedContainer = "container:RoundCaddy.xcodeproj">

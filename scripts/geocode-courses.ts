@@ -79,6 +79,7 @@ interface Course {
   website: string | null;
   osm_id: string | null;
   source: string | null;
+  geocoded?: boolean | null;
 }
 
 /**
@@ -153,14 +154,16 @@ async function getCoursesNeedingGeocoding(limit: number = 10000): Promise<Course
   let hasMore = true;
 
   // Fetch from course_contributions
+  // Get ALL courses with coordinates, then filter for those needing geocoding
   while (hasMore && allCourses.length < limit) {
     const { data: courses, error } = await supabase
       .from('course_contributions')
-      .select('id, name, latitude, longitude, country, city, state, address, phone, website, osm_id, source')
+      .select('id, name, latitude, longitude, country, city, state, address, phone, website, osm_id, source, geocoded')
       .not('latitude', 'is', null)
       .not('longitude', 'is', null)
-      .or('country.is.null,country.eq.Unknown,city.is.null')
       .eq('source', 'osm')
+      // Resume support: don't refetch rows we've already processed
+      .or('geocoded.is.null,geocoded.eq.false')
       .range(offset, offset + pageSize - 1);
 
     if (error) {
@@ -168,10 +171,20 @@ async function getCoursesNeedingGeocoding(limit: number = 10000): Promise<Course
     }
 
     if (courses && courses.length > 0) {
-      allCourses = allCourses.concat(courses.map(c => ({ ...c, osm_id: c.osm_id, source: c.source || 'osm' })));
+      // Filter to only courses that need geocoding
+      const needsGeocoding = courses.filter(c => {
+        // Extra safety: if a row is already marked geocoded, skip it.
+        if ((c as any).geocoded === true) return false;
+        const country = c.country?.trim();
+        const city = c.city?.trim();
+        // Need geocoding if: no country, country is "Unknown", or no city
+        return !country || country === 'Unknown' || !city;
+      });
+      
+      allCourses = allCourses.concat(needsGeocoding.map(c => ({ ...c, osm_id: c.osm_id, source: c.source || 'osm' })));
       offset += courses.length;
       hasMore = courses.length === pageSize;
-      console.log(`  📥 Fetched ${allCourses.length} courses from course_contributions...`);
+      console.log(`  📥 Fetched ${allCourses.length} courses needing geocoding from course_contributions...`);
     } else {
       hasMore = false;
     }
@@ -188,7 +201,6 @@ async function getCoursesNeedingGeocoding(limit: number = 10000): Promise<Course
       .select('id, name, latitude, longitude, country, city, state, address, phone, website')
       .not('latitude', 'is', null)
       .not('longitude', 'is', null)
-      .or('country.is.null,country.eq.Unknown,city.is.null')
       .range(offset, offset + pageSize - 1);
 
     if (coursesError) {
@@ -198,15 +210,21 @@ async function getCoursesNeedingGeocoding(limit: number = 10000): Promise<Course
     }
 
     if (coursesData && coursesData.length > 0) {
-      // Only add courses not already in our list
-      const newCourses = coursesData
-        .filter(c => !existingIds.has(c.id))
-        .map(c => ({ ...c, osm_id: null, source: null }));
+      // Filter to only courses that need geocoding and not already in our list
+      const needsGeocoding = coursesData.filter(c => {
+        if (existingIds.has(c.id)) return false;
+        const country = c.country?.trim();
+        const city = c.city?.trim();
+        // Need geocoding if: no country, country is "Unknown", or no city
+        return !country || country === 'Unknown' || !city;
+      });
+      
+      const newCourses = needsGeocoding.map(c => ({ ...c, osm_id: null, source: null }));
       
       allCourses = allCourses.concat(newCourses);
       offset += coursesData.length;
       hasMore = coursesData.length === pageSize;
-      console.log(`  📥 Fetched ${newCourses.length} new courses from courses table (total: ${allCourses.length})...`);
+      console.log(`  📥 Fetched ${newCourses.length} new courses needing geocoding from courses table (total: ${allCourses.length})...`);
     } else {
       hasMore = false;
     }
@@ -275,23 +293,31 @@ async function geocodeCourses() {
     return;
   }
 
-  console.log(`📊 Found ${courses.length} courses needing geocoding\n`);
+  // Remove duplicates by ID (in case we have same course from both tables)
+  const uniqueCourses = Array.from(
+    new Map(courses.map(c => [c.id, c])).values()
+  );
+  
+  console.log(`📊 Found ${courses.length} courses needing geocoding`);
+  console.log(`📊 After deduplication: ${uniqueCourses.length} unique courses\n`);
 
   let successCount = 0;
   let errorCount = 0;
   let skippedCount = 0;
 
-  for (let i = 0; i < courses.length; i++) {
-    const course = courses[i];
-    const progress = `[${i + 1}/${courses.length}]`;
+  for (let i = 0; i < uniqueCourses.length; i++) {
+    const course = uniqueCourses[i];
+    const progress = `[${i + 1}/${uniqueCourses.length}]`;
 
     console.log(`${progress} Processing: ${course.name}`);
 
     // Check if we already have complete location data
-    if (course.country && 
-        course.country !== 'Unknown' && 
-        course.city) {
-      console.log(`  ⏭️  Skipping - already has location data`);
+    const currentCountry = course.country?.trim();
+    const currentCity = course.city?.trim();
+    if (currentCountry && 
+        currentCountry !== 'Unknown' && 
+        currentCity) {
+      console.log(`  ⏭️  Skipping - already has location data (${currentCountry}, ${currentCity})`);
       skippedCount++;
       continue;
     }
@@ -311,7 +337,7 @@ async function geocodeCourses() {
       continue;
     }
 
-    const { country, city, state } = extractLocationData(geocodeResult);
+    const { country: geocodedCountry, city: geocodedCity, state: geocodedState } = extractLocationData(geocodeResult);
 
     // Prepare updates
     const updates: any = {
@@ -320,14 +346,14 @@ async function geocodeCourses() {
     };
 
     // Only update if we got better data
-    if (country && (!course.country || course.country === 'Unknown')) {
-      updates.country = country;
+    if (geocodedCountry && (!currentCountry || currentCountry === 'Unknown')) {
+      updates.country = geocodedCountry;
     }
-    if (city && !course.city) {
-      updates.city = city;
+    if (geocodedCity && !currentCity) {
+      updates.city = geocodedCity;
     }
-    if (state && !course.state) {
-      updates.state = state;
+    if (geocodedState && !course.state?.trim()) {
+      updates.state = geocodedState;
     }
 
     // Determine which table to update
@@ -340,9 +366,9 @@ async function geocodeCourses() {
       const updatesList = Object.keys(updates).filter(k => k !== 'geocoded' && k !== 'geocoded_at');
       if (updatesList.length > 0) {
         console.log(`  ✅ Updated: ${updatesList.join(', ')}`);
-        if (country) console.log(`     Country: ${country}`);
-        if (city) console.log(`     City: ${city}`);
-        if (state) console.log(`     State: ${state}`);
+        if (geocodedCountry) console.log(`     Country: ${geocodedCountry}`);
+        if (geocodedCity) console.log(`     City: ${geocodedCity}`);
+        if (geocodedState) console.log(`     State: ${geocodedState}`);
       } else {
         console.log(`  ℹ️  No new data to update`);
       }
@@ -360,7 +386,7 @@ async function geocodeCourses() {
   console.log('\n' + '='.repeat(60));
   console.log('📊 GEOCODING SUMMARY');
   console.log('='.repeat(60));
-  console.log(`Total processed: ${courses.length}`);
+  console.log(`Total processed: ${uniqueCourses.length}`);
   console.log(`✅ Successfully updated: ${successCount}`);
   console.log(`❌ Errors: ${errorCount}`);
   console.log(`⏭️  Skipped: ${skippedCount}`);
