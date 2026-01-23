@@ -12,6 +12,8 @@ struct LiveRoundView: View {
     @State private var showClubPicker = false
     @State private var selectedClub: ClubType = .sevenIron
     @State private var isSaving = false
+    @State private var showFreeLimitAlert = false
+    @State private var freeLimitMessage = ""
     
     var body: some View {
         VStack(spacing: 0) {
@@ -37,16 +39,24 @@ struct LiveRoundView: View {
                 
                 // Watch status with sync indicator
                 VStack(spacing: 2) {
-                    if watchSyncManager.isWatchConnected {
-                        Image(systemName: "applewatch")
-                            .foregroundColor(.green)
-                        if watchSyncManager.lastWatchUpdate != nil {
-                            Text("Synced")
-                                .font(.caption2)
+                    if authManager.hasProAccess {
+                        if watchSyncManager.isWatchConnected {
+                            Image(systemName: "applewatch")
                                 .foregroundColor(.green)
+                            if watchSyncManager.lastWatchUpdate != nil {
+                                Text("Synced")
+                                    .font(.caption2)
+                                    .foregroundColor(.green)
+                            }
+                        } else {
+                            Image(systemName: "applewatch.slash")
+                                .foregroundColor(.gray)
                         }
                     } else {
-                        Image(systemName: "applewatch.slash")
+                        Image(systemName: "lock.fill")
+                            .foregroundColor(.gray)
+                        Text("Watch Pro")
+                            .font(.caption2)
                             .foregroundColor(.gray)
                     }
                 }
@@ -77,7 +87,9 @@ struct LiveRoundView: View {
         .background(Color("Background"))
         .onAppear {
             gpsManager.startTracking()
-            setupWatchSync()
+            if authManager.hasProAccess {
+                setupWatchSync()
+            }
             updateGreenLocationsForCurrentHole()
         }
         .onChange(of: roundManager.currentHole) { _, _ in
@@ -88,11 +100,13 @@ struct LiveRoundView: View {
             roundManager.onStateChanged = nil
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchRoundStateUpdate)) { notification in
+            guard authManager.hasProAccess else { return }
             if let userInfo = notification.userInfo as? [String: Any] {
                 roundManager.applyWatchUpdate(userInfo)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchRoundEnded)) { _ in
+            guard authManager.hasProAccess else { return }
             // Watch ended the round - save it if we can
             Task {
                 await saveAndEndRound()
@@ -111,6 +125,11 @@ struct LiveRoundView: View {
         } message: {
             Text("Would you like to save this round or discard it?")
         }
+        .alert("Free Plan Limit", isPresented: $showFreeLimitAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(freeLimitMessage)
+        }
         .sheet(isPresented: $showClubPicker) {
             ClubPickerSheet(selectedClub: $selectedClub) {
                 markShot()
@@ -123,8 +142,24 @@ struct LiveRoundView: View {
         isSaving = true
         
         do {
+            if !authManager.hasProAccess {
+                let roundCount = try await DataService.shared.fetchRoundCount(
+                    userId: user.id,
+                    authHeaders: authManager.authHeaders,
+                    limit: SubscriptionConfig.freeRoundLimit
+                )
+                if roundCount >= SubscriptionConfig.freeRoundLimit {
+                    freeLimitMessage = "Free plan limit reached (\(SubscriptionConfig.freeRoundLimit) rounds). Delete a round or upgrade to Pro to save more."
+                    showFreeLimitAlert = true
+                    isSaving = false
+                    return
+                }
+            }
+
             try await roundManager.saveRound(userId: user.id, authHeaders: authManager.authHeaders)
-            watchSyncManager.sendEndRoundToWatch()
+            if authManager.hasProAccess {
+                watchSyncManager.sendEndRoundToWatch()
+            }
         } catch {
             print("Error saving round: \(error)")
         }

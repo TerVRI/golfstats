@@ -153,6 +153,19 @@ struct NewRoundView: View {
         }
         
         do {
+            if !authManager.hasProAccess {
+                let roundCount = try await DataService.shared.fetchRoundCount(
+                    userId: user.id,
+                    authHeaders: authManager.authHeaders,
+                    limit: SubscriptionConfig.freeRoundLimit
+                )
+                if roundCount >= SubscriptionConfig.freeRoundLimit {
+                    error = "Free plan limit reached (\(SubscriptionConfig.freeRoundLimit) rounds). Delete a round or upgrade to Pro to save more."
+                    isSaving = false
+                    return
+                }
+            }
+
             let roundData: [String: Any] = [
                 "user_id": user.id,
                 "course_name": finalCourseName,

@@ -12,6 +12,7 @@ struct DashboardView: View {
     @State private var isLoading = true
     @State private var showNewRound = false
     @State private var selectedTimeRange: TimeRange = .last10
+    @State private var showPaywall = false
     
     enum TimeRange: String, CaseIterable {
         case last5 = "Last 5"
@@ -85,6 +86,9 @@ struct DashboardView: View {
             .sheet(isPresented: $showNewRound) {
                 NewRoundView()
             }
+            .sheet(isPresented: $showPaywall) {
+                ProPaywallView()
+            }
         }
         .task {
             await loadData()
@@ -133,19 +137,19 @@ struct DashboardView: View {
                 GridItem(.flexible()),
                 GridItem(.flexible())
             ], spacing: 12) {
-                StatCard(title: "Rounds", value: "\(stats.roundsPlayed)", icon: "flag.fill")
-                StatCard(
+                DashboardStatCard(title: "Rounds", value: "\(stats.roundsPlayed)", icon: "flag.fill")
+                DashboardStatCard(
                     title: "Avg Score",
                     value: stats.roundsPlayed > 0 ? String(format: "%.0f", stats.averageScore) : "-",
                     icon: "chart.bar.fill"
                 )
-                StatCard(
+                DashboardStatCard(
                     title: "Best",
                     value: stats.bestScore > 0 ? "\(stats.bestScore)" : "-",
                     icon: "trophy.fill",
                     color: .yellow
                 )
-                StatCard(
+                DashboardStatCard(
                     title: "Avg SG",
                     value: formatSG(stats.averageSG),
                     icon: "arrow.up.right",
@@ -156,7 +160,7 @@ struct DashboardView: View {
             // Bottom row - Improvement + Handicap
             HStack(spacing: 12) {
                 let improvement = calculateImprovement()
-                StatCard(
+                DashboardStatCard(
                     title: "Trend",
                     value: improvement != 0 ? formatSG(improvement) : "-",
                     icon: improvement >= 0 ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill",
@@ -164,7 +168,7 @@ struct DashboardView: View {
                 )
                 
                 if let handicap = stats.handicapIndex {
-                    StatCard(
+                    DashboardStatCard(
                         title: "Handicap",
                         value: String(format: "%.1f", handicap),
                         icon: "number.circle.fill",
@@ -186,37 +190,83 @@ struct DashboardView: View {
     // MARK: - Action Buttons
     
     private var actionButtonsSection: some View {
-        HStack(spacing: 12) {
-            Button {
-                showNewRound = true
-            } label: {
-                HStack {
-                    Image(systemName: "plus.circle.fill")
-                    Text("New Round")
+        VStack(spacing: 12) {
+            // Primary actions row
+            HStack(spacing: 12) {
+                Button {
+                    showNewRound = true
+                } label: {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("New Round")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.green)
+                    .cornerRadius(12)
                 }
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.green)
-                .cornerRadius(12)
+                
+                NavigationLink(destination: CoursesView()) {
+                    HStack {
+                        Image(systemName: "location.fill")
+                        Text("Start Live")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color("BackgroundTertiary"))
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.green.opacity(0.5), lineWidth: 1)
+                    )
+                }
             }
             
-            NavigationLink(destination: CoursesView()) {
-                HStack {
-                    Image(systemName: "location.fill")
-                    Text("Start Live Round")
+            // Feature quick access row
+            HStack(spacing: 12) {
+                // Range Mode
+                NavigationLink(destination: RangeModeView()) {
+                    FeatureButton(
+                        icon: "camera.viewfinder",
+                        title: "Range",
+                        subtitle: "Swing Analysis",
+                        color: .orange
+                    )
                 }
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color("BackgroundTertiary"))
-                .cornerRadius(12)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.green.opacity(0.5), lineWidth: 1)
-                )
+                
+                // AI Caddie / Coaching
+                NavigationLink(destination: CoachingInsightsView()) {
+                    FeatureButton(
+                        icon: "brain",
+                        title: "AI Coach",
+                        subtitle: "Insights",
+                        color: .purple
+                    )
+                }
+                
+                // Swing Analytics
+                NavigationLink(destination: SwingAnalyticsView()) {
+                    FeatureButton(
+                        icon: "waveform.path.ecg",
+                        title: "Swing",
+                        subtitle: "Analytics",
+                        color: .blue
+                    )
+                }
+                
+                // Club Distances
+                NavigationLink(destination: ClubDistancesIOSView()) {
+                    FeatureButton(
+                        icon: "ruler",
+                        title: "Clubs",
+                        subtitle: "Distances",
+                        color: .green
+                    )
+                }
             }
         }
         .padding(.horizontal)
@@ -228,21 +278,31 @@ struct DashboardView: View {
         VStack(spacing: 16) {
             // Watch Connection Header
             HStack(spacing: 12) {
-                Image(systemName: watchSyncManager.isWatchConnected ? "applewatch.radiowaves.left.and.right" : "applewatch")
+                Image(systemName: authManager.hasProAccess
+                      ? (watchSyncManager.isWatchConnected ? "applewatch.radiowaves.left.and.right" : "applewatch")
+                      : "lock.fill")
                     .font(.title2)
-                    .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                    .foregroundColor(authManager.hasProAccess
+                                     ? (watchSyncManager.isWatchConnected ? .green : .gray)
+                                     : .gray)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Apple Watch")
                         .font(.headline)
-                    Text(watchSyncManager.isWatchConnected ? "Connected" : "Not connected")
-                        .font(.caption)
-                        .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                    if authManager.hasProAccess {
+                        Text(watchSyncManager.isWatchConnected ? "Connected" : "Not connected")
+                            .font(.caption)
+                            .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                    } else {
+                        Text("Pro required")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
                 }
                 
                 Spacer()
                 
-                if watchSyncManager.watchRoundActive {
+                if authManager.hasProAccess, watchSyncManager.watchRoundActive {
                     HStack(spacing: 4) {
                         Circle()
                             .fill(Color.red)
@@ -257,7 +317,8 @@ struct DashboardView: View {
             Divider()
             
             // Quick Stats from Watch
-            if !watchSyncManager.clubDistances.isEmpty || !watchSyncManager.recentSwings.isEmpty {
+            if authManager.hasProAccess,
+               (!watchSyncManager.clubDistances.isEmpty || !watchSyncManager.recentSwings.isEmpty) {
                 HStack(spacing: 16) {
                     VStack(spacing: 4) {
                         Text("\(watchSyncManager.recentSwings.count)")
@@ -297,27 +358,46 @@ struct DashboardView: View {
             HStack(spacing: 12) {
                 NavigationLink(destination: SwingAnalyticsView()) {
                     HStack {
-                        Image(systemName: "waveform.path.ecg")
-                        Text("Swing Analytics")
+                        Image(systemName: authManager.hasProAccess ? "waveform.path.ecg" : "lock.fill")
+                        Text(authManager.hasProAccess ? "Swing Analytics" : "Swing Analytics Pro")
                     }
                     .font(.subheadline.bold())
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(Color.blue)
+                    .background(authManager.hasProAccess ? Color.blue : Color.gray.opacity(0.4))
                     .cornerRadius(10)
                 }
+                .disabled(!authManager.hasProAccess)
                 
                 NavigationLink(destination: CoachingInsightsView()) {
                     HStack {
-                        Image(systemName: "lightbulb.fill")
-                        Text("Coaching")
+                        Image(systemName: authManager.hasProAccess ? "lightbulb.fill" : "lock.fill")
+                        Text(authManager.hasProAccess ? "Coaching" : "Coaching Pro")
                     }
                     .font(.subheadline.bold())
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(Color.orange)
+                    .background(authManager.hasProAccess ? Color.orange : Color.gray.opacity(0.4))
+                    .cornerRadius(10)
+                }
+                .disabled(!authManager.hasProAccess)
+            }
+
+            if !authManager.hasProAccess {
+                Button {
+                    showPaywall = true
+                } label: {
+                    HStack {
+                        Image(systemName: "star.fill")
+                        Text("Start Pro Free Trial")
+                    }
+                    .font(.subheadline.bold())
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.green)
                     .cornerRadius(10)
                 }
             }
@@ -748,9 +828,37 @@ struct DashboardView: View {
     }
 }
 
+// MARK: - Feature Button Component
+
+struct FeatureButton: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(color)
+            Text(title)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+            Text(subtitle)
+                .font(.caption2)
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(Color("BackgroundSecondary"))
+        .cornerRadius(12)
+    }
+}
+
 // MARK: - Supporting Views
 
-struct StatCard: View {
+struct DashboardStatCard: View {
     let title: String
     let value: String
     var icon: String = ""

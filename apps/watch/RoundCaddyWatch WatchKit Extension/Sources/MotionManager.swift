@@ -37,6 +37,9 @@ class MotionManager: NSObject, ObservableObject {
     // Practice mode
     @Published var isPracticeMode = false
     
+    // Swing metrics view flag (to enable analytics outside practice mode)
+    @Published var isLiveMetricsEnabled = false
+    
     // MARK: - Sub-systems
     
     let swingDetector = SwingDetector()
@@ -196,8 +199,8 @@ class MotionManager: NSObject, ObservableObject {
             
             self.processMotionData(motion)
             
-            // Also feed to advanced swing detector (for practice mode or detailed analysis)
-            if self.isPracticeMode {
+            // Also feed to advanced swing detector (practice or live metrics view)
+            if self.isPracticeMode || self.isLiveMetricsEnabled {
                 self.swingDetector.processMotion(motion)
             }
         }
@@ -253,7 +256,7 @@ class MotionManager: NSObject, ObservableObject {
     
     /// Confirm the pending shot (user tapped confirm)
     func confirmShot() {
-        guard swingConfirmationPending, let location = pendingSwingLocation else { return }
+        guard swingConfirmationPending else { return }
         
         swingConfirmationPending = false
         confirmationTimer?.invalidate()
@@ -261,6 +264,8 @@ class MotionManager: NSObject, ObservableObject {
         
         // Trigger haptic for confirmation
         playHaptic(.success)
+        
+        let location = pendingSwingLocation ?? (latitude: 0, longitude: 0)
         
         // Notify callback
         onShotConfirmed?(location.latitude, location.longitude)

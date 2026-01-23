@@ -17,12 +17,16 @@ struct Shot: Identifiable, Codable {
     let holeNumber: Int
     let shotNumber: Int
     let club: String?
-    let latitude: Double
-    let longitude: Double
+    var latitude: Double
+    var longitude: Double
+    var locationIsEstimated: Bool?
     let timestamp: Date
 }
 
 class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
+    // Singleton for shared access
+    static let shared = RoundManager()
+    
     @Published var isRoundActive = false
     @Published var currentHole = 1
     @Published var holeScores: [HoleScore] = []
@@ -133,6 +137,7 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
                     "club": shot.club ?? "",
                     "latitude": shot.latitude,
                     "longitude": shot.longitude,
+                    "locationIsEstimated": shot.locationIsEstimated ?? false,
                     "timestamp": shot.timestamp.timeIntervalSince1970
                 ]
             },
@@ -208,6 +213,7 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
                     club: shotData["club"] as? String,
                     latitude: lat,
                     longitude: lon,
+                    locationIsEstimated: shotData["locationIsEstimated"] as? Bool,
                     timestamp: Date(timeIntervalSince1970: timestamp)
                 )
             }
@@ -292,7 +298,8 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
                     "shotNumber": shot.shotNumber,
                     "club": shot.club ?? "",
                     "latitude": shot.latitude,
-                    "longitude": shot.longitude
+                    "longitude": shot.longitude,
+                    "locationIsEstimated": shot.locationIsEstimated ?? false
                 ]
             },
             "timestamp": Date().timeIntervalSince1970
@@ -365,6 +372,7 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
             club: club,
             latitude: latitude,
             longitude: longitude,
+            locationIsEstimated: false,
             timestamp: Date()
         )
         shots.append(shot)
@@ -379,7 +387,8 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
             "shot": shotNumber,
             "club": club ?? "",
             "lat": latitude,
-            "lon": longitude
+            "lon": longitude,
+            "locationIsEstimated": false
         ])
     }
     
@@ -411,14 +420,15 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
             "totalScore": totalScore,
             "roundStartTime": roundStartTime?.timeIntervalSince1970 ?? Date().timeIntervalSince1970,
             "scores": holeScores.map { hole -> [String: Any] in
-                [
+                var dict: [String: Any] = [
                     "holeNumber": hole.holeNumber,
-                    "par": hole.par,
-                    "score": hole.score as Any,
-                    "putts": hole.putts as Any,
-                    "fairwayHit": hole.fairwayHit as Any,
-                    "gir": hole.gir as Any
+                    "par": hole.par
                 ]
+                if let score = hole.score { dict["score"] = score }
+                if let putts = hole.putts { dict["putts"] = putts }
+                if let fairwayHit = hole.fairwayHit { dict["fairwayHit"] = fairwayHit }
+                if let gir = hole.gir { dict["gir"] = gir }
+                return dict
             },
             "shots": shots.map { shot in
                 [
@@ -426,7 +436,8 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
                     "shotNumber": shot.shotNumber,
                     "club": shot.club ?? "",
                     "latitude": shot.latitude,
-                    "longitude": shot.longitude
+                    "longitude": shot.longitude,
+                    "locationIsEstimated": shot.locationIsEstimated ?? false
                 ]
             },
             "timestamp": Date().timeIntervalSince1970
@@ -552,9 +563,38 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
             case "roundStateUpdate":
                 // iPhone sent a state update - apply it
                 self.applyStateFromPhone(message)
+            case "phoneLocationUpdate":
+                if let lat = message["lat"] as? Double,
+                   let lon = message["lon"] as? Double,
+                   let timestamp = message["timestamp"] as? TimeInterval {
+                    backfillNoGPSShots(latitude: lat, longitude: lon, timestamp: timestamp)
+                }
             default:
                 break
             }
+        }
+    }
+
+    private func backfillNoGPSShots(latitude: Double, longitude: Double, timestamp: TimeInterval) {
+        guard isRoundActive else { return }
+        let locationTime = Date(timeIntervalSince1970: timestamp)
+        let cutoff = locationTime.addingTimeInterval(-10 * 60)
+        var didUpdate = false
+        
+        for index in shots.indices {
+            if shots[index].latitude == 0,
+               shots[index].longitude == 0,
+               shots[index].timestamp >= cutoff {
+                shots[index].latitude = latitude
+                shots[index].longitude = longitude
+                shots[index].locationIsEstimated = true
+                didUpdate = true
+            }
+        }
+        
+        if didUpdate {
+            sendRoundStateToPhone()
+            print("📍 Backfilled GPS for recent no-location shots")
         }
     }
     

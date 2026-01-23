@@ -19,6 +19,8 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     @Published var watchStrokesGained: WatchStrokesGained?
     
     private var session: WCSession?
+    weak var gpsManager: GPSManager?
+    private var lastLocationSentAt: Date?
     
     // Persistence keys
     private let clubDistancesKey = "watchClubDistances"
@@ -35,6 +37,10 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
             session?.delegate = self
             session?.activate()
         }
+    }
+
+    func attachGPSManager(_ manager: GPSManager) {
+        gpsManager = manager
     }
     
     // MARK: - Persistence
@@ -161,6 +167,9 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
         DispatchQueue.main.async {
             self.isWatchConnected = activationState == .activated
             self.isWatchAppInstalled = session.isWatchAppInstalled
+            if activationState == .activated && session.isReachable {
+                self.sendPhoneLocationUpdate(reason: "activation")
+            }
         }
     }
     
@@ -178,7 +187,35 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     func sessionReachabilityDidChange(_ session: WCSession) {
         DispatchQueue.main.async {
             self.isWatchConnected = session.isReachable
+            if session.isReachable {
+                self.sendPhoneLocationUpdate(reason: "reachability")
+            }
         }
+    }
+
+    private func sendPhoneLocationUpdate(reason: String) {
+        guard let session = session,
+              session.activationState == .activated,
+              session.isReachable,
+              let location = gpsManager?.currentLocation else {
+            return
+        }
+        
+        if let lastSent = lastLocationSentAt,
+           Date().timeIntervalSince(lastSent) < 15 {
+            return
+        }
+        lastLocationSentAt = Date()
+        
+        let message: [String: Any] = [
+            "action": "phoneLocationUpdate",
+            "lat": location.coordinate.latitude,
+            "lon": location.coordinate.longitude,
+            "timestamp": Date().timeIntervalSince1970,
+            "reason": reason
+        ]
+        
+        session.sendMessage(message, replyHandler: nil, errorHandler: nil)
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
@@ -479,6 +516,7 @@ extension Foundation.Notification.Name {
     static let watchRoundStateUpdate = Foundation.Notification.Name("watchRoundStateUpdate")
     static let watchScoreUpdate = Foundation.Notification.Name("watchScoreUpdate")
     static let watchShotAdded = Foundation.Notification.Name("watchShotAdded")
+    static let roundsUpdated = Foundation.Notification.Name("roundsUpdated")
     
     // Swing Analytics Notifications
     static let watchSwingDetected = Foundation.Notification.Name("watchSwingDetected")

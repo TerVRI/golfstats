@@ -3,6 +3,9 @@ import CoreLocation
 import Combine
 
 class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    // Singleton for shared access
+    static let shared = GPSManager()
+    
     private let locationManager = CLLocationManager()
     
     @Published var currentLocation: CLLocation?
@@ -108,6 +111,11 @@ class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        if let clError = error as? CLError, clError.code == .denied {
+            // Stop spamming logs if user denied location
+            locationManager.stopUpdatingLocation()
+            isTracking = false
+        }
         print("Location error: \(error.localizedDescription)")
     }
     

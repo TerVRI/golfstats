@@ -3,11 +3,14 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var watchSyncManager: WatchSyncManager
+    @Environment(\.openURL) private var openURL
     @StateObject private var golfBag = GolfBag.shared
     @State private var stats: UserStats = .empty
     @State private var isLoading = true
     @State private var showSignOutAlert = false
     @State private var showBagEditor = false
+    @State private var showPaywall = false
+    @State private var showDeleteAlert = false
     
     var body: some View {
         NavigationStack {
@@ -38,6 +41,24 @@ struct ProfileView: View {
                         }
                     }
                     .padding()
+
+                    if !authManager.hasProAccess {
+                        Button {
+                            showPaywall = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "star.fill")
+                                Text("Start Pro Free Trial")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green)
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+                    }
                     
                     // Notifications Button
                     NavigationLink(destination: NotificationsView()) {
@@ -129,21 +150,27 @@ struct ProfileView: View {
                             .foregroundColor(.white)
                         
                         HStack {
-                            Image(systemName: "applewatch")
+                            Image(systemName: authManager.hasProAccess ? "applewatch" : "lock.fill")
                                 .font(.title2)
-                                .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                                .foregroundColor(authManager.hasProAccess ? (watchSyncManager.isWatchConnected ? .green : .gray) : .gray)
                             
                             VStack(alignment: .leading) {
                                 Text("Apple Watch")
                                     .foregroundColor(.white)
-                                Text(watchSyncManager.isWatchConnected ? "Connected" : "Not Connected")
-                                    .font(.caption)
-                                    .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                                if authManager.hasProAccess {
+                                    Text(watchSyncManager.isWatchConnected ? "Connected" : "Not Connected")
+                                        .font(.caption)
+                                        .foregroundColor(watchSyncManager.isWatchConnected ? .green : .gray)
+                                } else {
+                                    Text("Pro required")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
                             }
                             
                             Spacer()
                             
-                            if watchSyncManager.isWatchConnected {
+                            if authManager.hasProAccess, watchSyncManager.isWatchConnected {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.green)
                             }
@@ -161,6 +188,22 @@ struct ProfileView: View {
                         HStack {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
                             Text("Sign Out")
+                        }
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color("BackgroundSecondary"))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+
+                    // Delete Account
+                    Button {
+                        showDeleteAlert = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete Account")
                         }
                         .foregroundColor(.red)
                         .frame(maxWidth: .infinity)
@@ -196,8 +239,24 @@ struct ProfileView: View {
         } message: {
             Text("Are you sure you want to sign out?")
         }
+        .alert("Delete Account?", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete Account", role: .destructive) {
+                if let url = AccountConfig.deleteAccountURL {
+                    openURL(url)
+                }
+                Task {
+                    await authManager.signOut()
+                }
+            }
+        } message: {
+            Text("This will take you to the account deletion page to permanently delete your account.")
+        }
         .sheet(isPresented: $showBagEditor) {
             BagEditorView(golfBag: golfBag, watchSyncManager: watchSyncManager)
+        }
+        .sheet(isPresented: $showPaywall) {
+            ProPaywallView()
         }
         .task {
             await loadStats()

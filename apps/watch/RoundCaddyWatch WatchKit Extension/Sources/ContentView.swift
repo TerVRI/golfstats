@@ -30,6 +30,9 @@ struct ContentView: View {
                 // Start motion detection when round begins
                 motionManager.startDetecting()
                 
+                // Start GPS tracking for distances
+                gpsManager.startTracking()
+                
                 // Start workout session for background activity
                 Task {
                     do {
@@ -47,6 +50,9 @@ struct ContentView: View {
             } else {
                 // Stop motion detection when round ends
                 motionManager.stopDetecting()
+                
+                // Stop GPS tracking when round ends
+                gpsManager.stopTracking()
                 
                 // End workout session
                 Task {

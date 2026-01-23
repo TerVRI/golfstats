@@ -219,6 +219,18 @@ struct ShotTrackerView: View {
                     }
                 }
                 .padding(.vertical, 4)
+            } else if let lastShot = currentHoleShots.last,
+                      lastShot.locationIsEstimated == true ||
+                      (lastShot.latitude == 0 && lastShot.longitude == 0) {
+                HStack(spacing: 6) {
+                    Image(systemName: "location.slash")
+                        .foregroundColor(.orange)
+                    Text(lastShot.locationIsEstimated == true ? "Last shot logged (estimated location)" : "Last shot logged (no GPS)")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                    Spacer()
+                }
+                .padding(.vertical, 4)
             }
         }
     }
@@ -251,6 +263,16 @@ struct ShotTrackerView: View {
                                 .foregroundColor(.green)
                             
                             Spacer()
+                            
+                            if shot.locationIsEstimated == true {
+                                Text("Est")
+                                    .font(.caption2)
+                                    .foregroundColor(.orange)
+                            } else if shot.latitude == 0 && shot.longitude == 0 {
+                                Text("No GPS")
+                                    .font(.caption2)
+                                    .foregroundColor(.orange)
+                            }
                         }
                     }
                 }

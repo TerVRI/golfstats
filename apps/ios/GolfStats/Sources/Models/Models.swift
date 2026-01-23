@@ -295,6 +295,32 @@ struct Bunker: Codable {
     let type: String
     let polygon: [Coordinate]
     let center: Coordinate?
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case polygon
+        case center
+    }
+
+    init(type: String = "bunker", polygon: [Coordinate], center: Coordinate?) {
+        self.type = type
+        self.polygon = polygon
+        self.center = center
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        type = try container.decodeIfPresent(String.self, forKey: .type) ?? "bunker"
+        polygon = try container.decode([Coordinate].self, forKey: .polygon)
+        center = try container.decodeIfPresent(Coordinate.self, forKey: .center)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(type, forKey: .type)
+        try container.encode(polygon, forKey: .polygon)
+        try container.encodeIfPresent(center, forKey: .center)
+    }
 }
 
 struct WaterHazard: Codable {
@@ -345,8 +371,16 @@ struct Coordinate: Codable {
 
         do {
             var unkeyed = try decoder.unkeyedContainer()
-            lat = try unkeyed.decode(Double.self)
-            lon = try unkeyed.decode(Double.self)
+            let first = try unkeyed.decode(Double.self)
+            let second = try unkeyed.decode(Double.self)
+            // Support GeoJSON [lon, lat] as well as [lat, lon]
+            if abs(first) > 90, abs(second) <= 90 {
+                lat = second
+                lon = first
+            } else {
+                lat = first
+                lon = second
+            }
         } catch {
             print("❌ Coordinate decoding error: \(error)")
             throw error

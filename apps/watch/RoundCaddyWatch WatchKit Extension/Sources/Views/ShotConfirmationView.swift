@@ -34,8 +34,12 @@ struct ShotConfirmationView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 12) {
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 12) {
                 // Header with swing icon
                 HStack {
                     Image(systemName: "figure.golf")
@@ -59,6 +63,18 @@ struct ShotConfirmationView: View {
                             .font(.caption2)
                             .foregroundColor(.orange)
                     }
+                }
+                
+                if gpsManager.currentLocation == nil {
+                    HStack(spacing: 6) {
+                        Image(systemName: "location.slash")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                        Text("No GPS • Shot will log without location")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                    }
+                    .padding(.vertical, 4)
                 }
                 
                 Divider()
@@ -129,9 +145,9 @@ struct ShotConfirmationView: View {
                 }
                 .padding(.top, 4)
             }
-            .padding(.horizontal)
+                .padding(.horizontal)
+            }
         }
-        .applyShotConfirmationBackground()
         .sheet(isPresented: $showingClubPicker) {
             ClubPickerSheet(selectedClub: $selectedClub, clubs: roundManager.clubBag)
         }
@@ -156,7 +172,7 @@ struct ShotConfirmationView: View {
         
         let club = selectedClub.isEmpty ? suggestedClub : selectedClub
         
-        // Add the shot to round manager
+        // Add the shot to round manager (allow no-GPS shots)
         if let location = gpsManager.currentLocation {
             roundManager.addShot(
                 holeNumber: roundManager.currentHole,
@@ -167,6 +183,13 @@ struct ShotConfirmationView: View {
             
             // Mark shot location in GPS manager for distance tracking
             gpsManager.markShot()
+        } else {
+            roundManager.addShot(
+                holeNumber: roundManager.currentHole,
+                club: club,
+                latitude: 0,
+                longitude: 0
+            )
         }
         
         // Confirm with motion manager (triggers haptic)
@@ -186,17 +209,6 @@ struct ShotConfirmationView: View {
         }
     }
     
-}
-
-private extension View {
-    @ViewBuilder
-    func applyShotConfirmationBackground() -> some View {
-        if #available(watchOS 10.0, *) {
-            self.containerBackground(Color.black, for: .navigation)
-        } else {
-            self.background(Color.black.ignoresSafeArea())
-        }
-    }
 }
 
 // MARK: - Club Picker Sheet

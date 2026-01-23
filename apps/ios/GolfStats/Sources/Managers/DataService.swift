@@ -32,6 +32,55 @@ actor DataService {
         let decoder = JSONDecoder()
         return try decoder.decode([Round].self, from: data)
     }
+
+    func fetchRoundCount(userId: String, authHeaders: [String: String], limit: Int) async throws -> Int {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/rounds")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "user_id", value: "eq.\(userId)"),
+            URLQueryItem(name: "select", value: "id"),
+            URLQueryItem(name: "limit", value: "\(limit)")
+        ]
+
+        var request = URLRequest(url: urlComponents.url!)
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+
+        if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+            return jsonArray.count
+        }
+
+        return 0
+    }
+
+    func updateRound(id: String, authHeaders: [String: String], payload: [String: Any]) async throws {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/rounds")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "id", value: "eq.\(id)")
+        ]
+
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("return=representation", forHTTPHeaderField: "Prefer")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+    }
     
     func fetchRound(id: String, authHeaders: [String: String]) async throws -> Round? {
         var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/rounds")!

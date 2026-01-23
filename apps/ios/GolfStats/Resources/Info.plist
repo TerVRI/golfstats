@@ -59,6 +59,16 @@
     <string>RoundCaddy needs background location access to continuously track your round, even when the app is in the background.</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>RoundCaddy uses background location for continuous GPS tracking during your golf rounds.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>RoundCaddy uses the camera for swing analysis in Range Mode and AR course visualization.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>RoundCaddy may use the microphone for video recording during swing analysis.</string>
+    <key>NSHealthShareUsageDescription</key>
+    <string>RoundCaddy reads your workout data to track your golf fitness and activity.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>RoundCaddy saves your golf rounds as workouts to Apple Health.</string>
+    <key>NSMotionUsageDescription</key>
+    <string>RoundCaddy uses motion data to analyze your golf swing and detect shots.</string>
     <key>UIBackgroundModes</key>
     <array>
         <string>location</string>

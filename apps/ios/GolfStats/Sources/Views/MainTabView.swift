@@ -2,17 +2,24 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var roundManager: RoundManager
+    @EnvironmentObject var authManager: AuthManager
     @State private var selectedTab = 0
+    @State private var useFullScreenRound = true // Default to full-screen map experience
     
     var body: some View {
         Group {
             if roundManager.isRoundActive {
-                LiveRoundView()
+                // Full-screen immersive round experience
+                if useFullScreenRound {
+                    FullScreenRoundView()
+                } else {
+                    LiveRoundView()
+                }
             } else {
                 TabView(selection: $selectedTab) {
                     DashboardView()
                         .tabItem {
-                            Label("Dashboard", systemImage: "house.fill")
+                            Label("Home", systemImage: "house.fill")
                         }
                         .tag(0)
                     
@@ -22,15 +29,17 @@ struct MainTabView: View {
                         }
                         .tag(1)
                     
-                    CoursesView()
+                    // Range Mode - Camera swing analysis with Watch integration
+                    RangeModeView()
                         .tabItem {
-                            Label("Courses", systemImage: "map.fill")
+                            Label("Range", systemImage: "camera.viewfinder")
                         }
                         .tag(2)
                     
-                    ContributorLeaderboardView()
+                    // Map-first course discovery
+                    CoursesMapView()
                         .tabItem {
-                            Label("Leaderboard", systemImage: "trophy.fill")
+                            Label("Courses", systemImage: "map.fill")
                         }
                         .tag(3)
                     
@@ -52,5 +61,6 @@ struct MainTabView: View {
         .environmentObject(GPSManager())
         .environmentObject(RoundManager())
         .environmentObject(WatchSyncManager())
+        .environmentObject(SubscriptionManager())
         .preferredColorScheme(.dark)
 }

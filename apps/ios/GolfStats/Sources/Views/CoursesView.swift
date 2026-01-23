@@ -11,6 +11,9 @@ struct CoursesView: View {
     @State private var showNearby = false
     @State private var selectedCountry: String? = nil
     @State private var showCountryPicker = false
+    @State private var showLocationAlert = false
+    @State private var showNearbyRadiusPicker = false
+    @AppStorage("nearbyRadiusMiles") private var nearbyRadiusMiles = 50.0
     
     private let bundleLoader = CourseBundleLoader.shared
     
@@ -159,6 +162,12 @@ struct CoursesView: View {
                     .padding()
                 } else {
                     List {
+                        if showNearby {
+                            Text("Showing courses within \(Int(nearbyRadiusMiles)) miles of you")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .listRowBackground(Color("Background"))
+                        }
                         ForEach(filteredCourses) { course in
                             NavigationLink(destination: CourseDetailView(course: course)) {
                                 CourseRow(course: course)
@@ -219,12 +228,10 @@ struct CoursesView: View {
                     }
                     
                     Button {
-                        showNearby.toggle()
-                        if showNearby {
-                            Task { await loadCourses() }
+                        if gpsManager.currentLocation == nil {
+                            showLocationAlert = true
                         } else {
-                            // When turning off nearby, reload from bundle to show all courses
-                            Task { await loadCoursesWithBundle() }
+                            showNearbyRadiusPicker = true
                         }
                     } label: {
                         Image(systemName: showNearby ? "location.fill" : "location")
@@ -256,6 +263,25 @@ struct CoursesView: View {
             await syncUpdatesIfNeeded()
             // Reload from bundle/cache after sync
             await loadCoursesWithBundle()
+        }
+        .alert("Location Unavailable", isPresented: $showLocationAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Enable location access to show nearby courses within \(Int(nearbyRadiusMiles)) miles.")
+        }
+        .confirmationDialog("Nearby Search Radius", isPresented: $showNearbyRadiusPicker) {
+            Button("10 miles") { enableNearby(radius: 10) }
+            Button("25 miles") { enableNearby(radius: 25) }
+            Button("50 miles") { enableNearby(radius: 50) }
+            Button("100 miles") { enableNearby(radius: 100) }
+            if showNearby {
+                Button("Show all courses", role: .destructive) {
+                    disableNearby()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Choose how far to search from your current location.")
         }
     }
     
@@ -368,7 +394,8 @@ struct CoursesView: View {
             do {
                 let serverCourses = try await DataService.shared.fetchNearbyCourses(
                     latitude: location.coordinate.latitude,
-                    longitude: location.coordinate.longitude
+                    longitude: location.coordinate.longitude,
+                    radiusMiles: nearbyRadiusMiles
                 )
                 courses = serverCourses
                 print("📍 Loaded \(serverCourses.count) nearby courses from server")
@@ -382,6 +409,19 @@ struct CoursesView: View {
         // For regular search, we use bundled courses and filter locally
         // Don't replace bundled courses with server data - we want all 23k+ courses from bundle
         print("ℹ️ Using bundled courses for search/filter (not fetching from server)")
+    }
+
+    @MainActor
+    private func enableNearby(radius: Double) {
+        nearbyRadiusMiles = radius
+        showNearby = true
+        Task { await loadCourses() }
+    }
+
+    @MainActor
+    private func disableNearby() {
+        showNearby = false
+        Task { await loadCoursesWithBundle() }
     }
     
     /// Sync course updates in the background

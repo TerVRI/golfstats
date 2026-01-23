@@ -4,6 +4,9 @@ import Combine
 /// Tracks and learns personalized club distances over time
 class ClubDistanceTracker: ObservableObject {
     
+    // Singleton for shared access
+    static let shared = ClubDistanceTracker()
+    
     // MARK: - Published Properties
     
     @Published var clubStats: [String: ClubStatistics] = [:]

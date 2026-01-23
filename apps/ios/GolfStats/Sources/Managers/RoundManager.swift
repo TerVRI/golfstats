@@ -36,6 +36,14 @@ class RoundManager: ObservableObject {
         holeScores.first { $0.holeNumber == currentHole }
     }
     
+    var currentHoleShots: [Shot] {
+        shots.filter { $0.holeNumber == currentHole }
+    }
+    
+    var totalPar: Int {
+        holeScores.map { $0.par }.reduce(0, +)
+    }
+    
     private let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
     private let supabaseKey = "sb_publishable_JftEdMATFsi78Ba8rIFObg_tpOeIS2J"
     

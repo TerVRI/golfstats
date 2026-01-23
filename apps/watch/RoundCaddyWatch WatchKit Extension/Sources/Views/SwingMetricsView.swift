@@ -54,6 +54,12 @@ struct SwingMetricsView: View {
             }
             .padding(.horizontal)
         }
+        .onAppear {
+            motionManager.isLiveMetricsEnabled = true
+        }
+        .onDisappear {
+            motionManager.isLiveMetricsEnabled = false
+        }
     }
 }
 

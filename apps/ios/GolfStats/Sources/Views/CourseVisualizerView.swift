@@ -190,26 +190,27 @@ struct CourseVisualizerView: View {
     @MapContentBuilder
     private var overlayContent: some MapContent {
         if let hole = currentHole {
+            let reference = referenceCoordinate(for: hole)
             // Fairway polygon
             if showLayers.fairway, let fairway = hole.fairway, fairway.count >= 3 {
-                let coordinates = fairway.map { $0.clLocation } + [fairway[0].clLocation]
-                MapPolygon(coordinates: coordinates)
+                let coordinates = normalizedPolygon(fairway, reference: reference)
+                MapPolygon(coordinates: coordinates + [coordinates[0]])
                     .foregroundStyle(.green.opacity(0.3))
                     .stroke(.green, lineWidth: 2)
             }
             
             // Green polygon
             if showLayers.green, let green = hole.green, green.count >= 3 {
-                let coordinates = green.map { $0.clLocation } + [green[0].clLocation]
-                MapPolygon(coordinates: coordinates)
+                let coordinates = normalizedPolygon(green, reference: reference)
+                MapPolygon(coordinates: coordinates + [coordinates[0]])
                     .foregroundStyle(.green.opacity(0.5))
                     .stroke(.green, lineWidth: 2)
             }
             
             // Rough polygon
             if showLayers.rough, let rough = hole.rough, rough.count >= 3 {
-                let coordinates = rough.map { $0.clLocation } + [rough[0].clLocation]
-                MapPolygon(coordinates: coordinates)
+                let coordinates = normalizedPolygon(rough, reference: reference)
+                MapPolygon(coordinates: coordinates + [coordinates[0]])
                     .foregroundStyle(Color(red: 0.52, green: 0.80, blue: 0.09).opacity(0.2))
                     .stroke(Color(red: 0.52, green: 0.80, blue: 0.09), lineWidth: 1)
             }
@@ -218,8 +219,8 @@ struct CourseVisualizerView: View {
             if showLayers.bunkers, let bunkers = hole.bunkers {
                 ForEach(Array(bunkers.enumerated()), id: \.offset) { index, bunker in
                     if bunker.polygon.count >= 3 {
-                        let coordinates = bunker.polygon.map { $0.clLocation } + [bunker.polygon[0].clLocation]
-                        MapPolygon(coordinates: coordinates)
+                        let coordinates = normalizedPolygon(bunker.polygon, reference: reference)
+                        MapPolygon(coordinates: coordinates + [coordinates[0]])
                             .foregroundStyle(.yellow.opacity(0.4))
                             .stroke(.yellow, lineWidth: 2)
                     }
@@ -230,8 +231,8 @@ struct CourseVisualizerView: View {
             if showLayers.water, let water = hole.waterHazards {
                 ForEach(Array(water.enumerated()), id: \.offset) { index, hazard in
                     if hazard.polygon.count >= 3 {
-                        let coordinates = hazard.polygon.map { $0.clLocation } + [hazard.polygon[0].clLocation]
-                        MapPolygon(coordinates: coordinates)
+                        let coordinates = normalizedPolygon(hazard.polygon, reference: reference)
+                        MapPolygon(coordinates: coordinates + [coordinates[0]])
                             .foregroundStyle(.blue.opacity(0.5))
                             .stroke(.blue, lineWidth: 2)
                     }
@@ -242,8 +243,8 @@ struct CourseVisualizerView: View {
             if showLayers.trees, let trees = hole.trees {
                 ForEach(Array(trees.enumerated()), id: \.offset) { index, tree in
                     if tree.polygon.count >= 3 {
-                        let coordinates = tree.polygon.map { $0.clLocation } + [tree.polygon[0].clLocation]
-                        MapPolygon(coordinates: coordinates)
+                        let coordinates = normalizedPolygon(tree.polygon, reference: reference)
+                        MapPolygon(coordinates: coordinates + [coordinates[0]])
                             .foregroundStyle(Color(red: 0.09, green: 0.64, blue: 0.29).opacity(0.3))
                             .stroke(Color(red: 0.09, green: 0.64, blue: 0.29), lineWidth: 1)
                     }
@@ -277,6 +278,45 @@ struct CourseVisualizerView: View {
         case "red": return .red
         default: return .blue
         }
+    }
+
+    private func referenceCoordinate(for hole: HoleData) -> CLLocationCoordinate2D? {
+        if let greenCenter = hole.greenCenter?.clLocation {
+            return greenCenter
+        }
+        if let tee = hole.teeLocations?.first?.coordinate {
+            return tee
+        }
+        return nil
+    }
+
+    private func normalizedPolygon(_ polygon: [Coordinate], reference: CLLocationCoordinate2D?) -> [CLLocationCoordinate2D] {
+        let original = polygon.map { $0.clLocation }
+        guard let reference else {
+            return original
+        }
+
+        let swapped = polygon.map { CLLocationCoordinate2D(latitude: $0.lon, longitude: $0.lat) }
+        let swappedValid = swapped.allSatisfy { isValidCoordinate($0) }
+
+        let originalDistance = averageDistance(original, reference: reference)
+        let swappedDistance = swappedValid ? averageDistance(swapped, reference: reference) : originalDistance
+
+        return swappedValid && swappedDistance < originalDistance ? swapped : original
+    }
+
+    private func isValidCoordinate(_ coordinate: CLLocationCoordinate2D) -> Bool {
+        abs(coordinate.latitude) <= 90 && abs(coordinate.longitude) <= 180
+    }
+
+    private func averageDistance(_ coordinates: [CLLocationCoordinate2D], reference: CLLocationCoordinate2D) -> CLLocationDistance {
+        guard !coordinates.isEmpty else { return 0 }
+        let referenceLocation = CLLocation(latitude: reference.latitude, longitude: reference.longitude)
+        let total = coordinates.reduce(0.0) { partial, coordinate in
+            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            return partial + referenceLocation.distance(from: location)
+        }
+        return total / Double(coordinates.count)
     }
 }
 

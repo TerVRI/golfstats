@@ -120,7 +120,7 @@ struct LoginView: View {
             // Sign in with Apple - wrapped to fix constraint conflicts
             SignInWithAppleButton(
                 onRequest: { request in
-                    request.requestedScopes = [.fullName, .email]
+                    authManager.prepareAppleSignIn(request: request)
                 },
                 onCompletion: { result in
                     switch result {

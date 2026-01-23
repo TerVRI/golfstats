@@ -16,6 +16,8 @@ struct RoundCaddyApp: App {
     @StateObject private var gpsManager = GPSManager()
     @StateObject private var roundManager = RoundManager()
     @StateObject private var watchSyncManager = WatchSyncManager()
+    @StateObject private var subscriptionManager = SubscriptionManager()
+    @Environment(\.scenePhase) private var scenePhase
     
     var body: some Scene {
         WindowGroup {
@@ -24,6 +26,7 @@ struct RoundCaddyApp: App {
                 .environmentObject(gpsManager)
                 .environmentObject(roundManager)
                 .environmentObject(watchSyncManager)
+                .environmentObject(subscriptionManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
                     // Lock to portrait during loading
@@ -37,12 +40,22 @@ struct RoundCaddyApp: App {
                         AppDelegate.orientationLock = .all
                     }
                 }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active {
+                        Task {
+                            await subscriptionManager.refreshEntitlements()
+                        }
+                    }
+                }
         }
     }
 }
 
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthManager
+    @EnvironmentObject var gpsManager: GPSManager
+    @EnvironmentObject var watchSyncManager: WatchSyncManager
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     
     var body: some View {
         Group {
@@ -55,6 +68,15 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut, value: authManager.isAuthenticated)
+        .onAppear {
+            watchSyncManager.attachGPSManager(gpsManager)
+            // Note: hasProAccess is now computed from GracePeriodManager
+            // which handles developer accounts, subscriptions, trials, and grace periods
+        }
+        .onChange(of: subscriptionManager.hasProAccess) { _, hasProAccess in
+            // Update GracePeriodManager with subscription status
+            GracePeriodManager.shared.setProSubscriptionActive(hasProAccess)
+        }
         .onOpenURL { url in
             // Handle OAuth callback from Google/other providers
             if url.scheme == "roundcaddy" {

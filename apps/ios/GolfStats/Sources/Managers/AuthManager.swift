@@ -10,10 +10,22 @@ enum AuthProvider: String {
 
 @MainActor
 class AuthManager: ObservableObject {
-    @Published var currentUser: User?
+    @Published var currentUser: User? {
+        didSet {
+            // Update GracePeriodManager with current user email for developer account check
+            GracePeriodManager.shared.currentUserEmail = currentUser?.email
+        }
+    }
     @Published var isLoading = true
     @Published var error: String?
     @Published var isSigningIn = false
+    
+    /// Check if user has Pro access via GracePeriodManager
+    /// This includes: developer accounts, active subscriptions, active trials, or grace period
+    var hasProAccess: Bool {
+        let access = GracePeriodManager.shared.currentAccessLevel
+        return access == .pro || access == .trial || access == .gracePeriod
+    }
     
     var isAuthenticated: Bool {
         currentUser != nil
@@ -21,6 +33,7 @@ class AuthManager: ObservableObject {
     
     private let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
     private let supabaseKey = "sb_publishable_JftEdMATFsi78Ba8rIFObg_tpOeIS2J"
+    private var currentAppleNonce: String?
     
     private var accessToken: String? {
         get { UserDefaults.standard.string(forKey: "access_token") }
@@ -212,15 +225,28 @@ class AuthManager: ObservableObject {
     }
     
     // MARK: - Sign In with Apple
-    
+
+    func prepareAppleSignIn(request: ASAuthorizationAppleIDRequest) {
+        request.requestedScopes = [.fullName, .email]
+        let nonce = randomNonceString()
+        currentAppleNonce = nonce
+        request.nonce = sha256(nonce)
+    }
+
     func signInWithApple(authorization: ASAuthorization) async {
         isSigningIn = true
         error = nil
-        
+
         guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
               let identityToken = credential.identityToken,
               let tokenString = String(data: identityToken, encoding: .utf8) else {
             self.error = "Failed to get Apple ID credential"
+            isSigningIn = false
+            return
+        }
+
+        guard let nonce = currentAppleNonce else {
+            self.error = "Missing sign in nonce. Please try again."
             isSigningIn = false
             return
         }
@@ -233,7 +259,8 @@ class AuthManager: ObservableObject {
             
             let body: [String: Any] = [
                 "provider": "apple",
-                "id_token": tokenString
+                "id_token": tokenString,
+                "nonce": nonce
             ]
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
             
@@ -253,6 +280,40 @@ class AuthManager: ObservableObject {
         }
         
         isSigningIn = false
+    }
+
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+
+        while remainingLength > 0 {
+            var randomBytes = [UInt8](repeating: 0, count: 16)
+            let status = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+            if status != errSecSuccess {
+                fatalError("Unable to generate nonce. SecRandomCopyBytes failed.")
+            }
+
+            randomBytes.forEach { byte in
+                if remainingLength == 0 {
+                    return
+                }
+
+                if byte < charset.count {
+                    result.append(charset[Int(byte)])
+                    remainingLength -= 1
+                }
+            }
+        }
+
+        return result
+    }
+
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
     
     // MARK: - Sign In with Google (OAuth)

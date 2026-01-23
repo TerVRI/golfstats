@@ -221,8 +221,8 @@ class SwingDetector: ObservableObject {
             currentSwingData?.transitionTime = timestamp
         }
         
-        // Very brief transition phase
-        if let top = topOfSwingTime, timestamp.timeIntervalSince(top) > 0.5 {
+        // Transition window between top and downswing
+        if let top = topOfSwingTime, timestamp.timeIntervalSince(top) > 1.0 {
             // Took too long to start downswing - might not be a real swing
             cancelSwing(reason: "Transition too slow")
         }

@@ -54,9 +54,10 @@ async function queryGolfCourseFeatures(
   courseName: string,
   lat: number,
   lon: number,
-  radius: number = 1000
+  radius: number = 1000,
+  overpassUrl: string = OVERPASS_API
 ): Promise<OSMElement[]> {
-  console.log(`🔍 Querying OSM for ${courseName}...\n`);
+  console.log(`🔍 Querying OSM for ${courseName} on ${new URL(overpassUrl).hostname}...\n`);
 
   // Query for golf course features within radius
   const query = `
@@ -93,21 +94,42 @@ async function queryGolfCourseFeatures(
   `;
 
   try {
-    const response = await fetch(OVERPASS_API, {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
+
+    const response = await fetch(overpassUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: `data=${encodeURIComponent(query)}`,
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      if (text.includes("Too Many Requests") || text.includes("rate limit")) {
+        throw new Error("HTTP 429: Too Many Requests (Non-JSON response)");
+      }
+      if (text.includes("Gateway Timeout")) {
+        throw new Error("HTTP 504: Gateway Timeout (Non-JSON response)");
+      }
+      throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+    }
+
     const data = await response.json();
     return data.elements || [];
   } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.error(`❌ OSM Request timed out after 45s on ${overpassUrl}`);
+      throw new Error(`Timeout: Request took too long on ${new URL(overpassUrl).hostname}`);
+    }
     console.error(`❌ Error querying OSM:`, error.message);
     throw error;
   }
@@ -244,16 +266,18 @@ function processOSMData(elements: OSMElement[]): HoleData[] {
 async function fetchCourseHoleData(
   courseName: string,
   lat: number,
-  lon: number
+  lon: number,
+  overpassUrl: string = OVERPASS_API
 ): Promise<HoleData[]> {
   console.log(`\n${"=".repeat(60)}`);
   console.log(`🏌️  FETCHING HOLE DATA FOR: ${courseName}`);
   console.log(`📍 Location: ${lat}, ${lon}`);
+  console.log(`🛰️  Server: ${new URL(overpassUrl).hostname}`);
   console.log("=".repeat(60) + "\n");
 
   try {
     // Query OSM
-    const elements = await queryGolfCourseFeatures(courseName, lat, lon, 2000);
+    const elements = await queryGolfCourseFeatures(courseName, lat, lon, 2000, overpassUrl);
 
     console.log(`✅ Found ${elements.length} OSM elements\n`);
 

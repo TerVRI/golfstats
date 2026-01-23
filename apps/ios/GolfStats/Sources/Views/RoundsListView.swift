@@ -87,6 +87,9 @@ struct RoundsListView: View {
         .task {
             await loadRounds()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .roundsUpdated)) { _ in
+            Task { await loadRounds() }
+        }
         .refreshable {
             await loadRounds()
         }
@@ -146,7 +149,9 @@ struct RoundListRow: View {
 }
 
 struct RoundDetailView: View {
+    @EnvironmentObject var authManager: AuthManager
     let round: Round
+    @State private var showEdit = false
     
     var body: some View {
         ScrollView {
@@ -263,6 +268,14 @@ struct RoundDetailView: View {
         }
         .background(Color("Background"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            Button("Edit") {
+                showEdit = true
+            }
+        }
+        .sheet(isPresented: $showEdit) {
+            EditRoundView(round: round)
+        }
     }
     
     private var scoreColor: Color {

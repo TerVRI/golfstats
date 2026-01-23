@@ -7,6 +7,7 @@ Tour-level strokes gained analytics for every golfer. Track your rounds, analyze
 - **Web** (`apps/web`) - Next.js web application with dashboard, round tracking, and analytics
 - **iOS** (`apps/ios`) - Native SwiftUI iPhone app with GPS tracking and Sign in with Apple
 - **Watch** (`apps/watch`) - Native SwiftUI Apple Watch app with distance tracking and score entry
+- **Android** (`apps/android`) - Native Kotlin + Compose app with GPS tracking and analytics
 
 ## Packages
 
@@ -38,5 +39,6 @@ npm run build
 
 - **Web**: Next.js 16, React 19, Tailwind CSS, Recharts
 - **iOS/Watch**: SwiftUI, CoreLocation, WatchConnectivity
+- **Android**: Kotlin, Jetpack Compose, Play Services Location
 - **Backend**: Supabase (PostgreSQL, Auth, Realtime)
 - **Monorepo**: Turborepo
