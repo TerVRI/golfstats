@@ -42,10 +42,10 @@ struct RoundCaddyApp: App {
                         AppDelegate.orientationLock = .all
                     }
                 }
-                .onChange(of: scenePhase) { _, phase in
-                    if phase == .active {
+                .onChange(of: scenePhase) { newPhase in
+                    if newPhase == .active {
                         Task {
-                            await subscriptionManager.refreshEntitlements()
+                            await subscriptionManager.refreshAllEntitlements()
                         }
                     }
                 }
