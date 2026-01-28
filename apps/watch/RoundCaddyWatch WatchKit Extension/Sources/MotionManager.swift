@@ -40,6 +40,10 @@ class MotionManager: NSObject, ObservableObject {
     // Swing metrics view flag (to enable analytics outside practice mode)
     @Published var isLiveMetricsEnabled = false
     
+    // Error handling
+    @Published var motionError: String?
+    @Published var showMotionError = false
+    
     // MARK: - Sub-systems
     
     let swingDetector = SwingDetector()
@@ -180,6 +184,8 @@ class MotionManager: NSObject, ObservableObject {
     func startDetecting() {
         guard !isDetecting else { return }
         guard motionManager.isDeviceMotionAvailable else {
+            motionError = "Motion sensors unavailable on this device."
+            showMotionError = true
             print("⚠️ Cannot start detection - device motion unavailable")
             return
         }
@@ -189,13 +195,35 @@ class MotionManager: NSObject, ObservableObject {
         rotationBuffer.removeAll()
         swingDetector.reset()
         
+        // Clear any previous errors
+        motionError = nil
+        showMotionError = false
+        
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
-            guard let self = self, let motion = motion else {
-                if let error = error {
-                    print("Motion error: \(error.localizedDescription)")
+            guard let self = self else { return }
+            
+            if let error = error {
+                // Only show persistent errors, not transient ones
+                let nsError = error as NSError
+                if nsError.domain == CMErrorDomain && nsError.code == Int(CMErrorDeviceRequiresMovement.rawValue) {
+                    // This is normal - device needs movement to calibrate
+                    return
                 }
+                
+                DispatchQueue.main.async {
+                    self.motionError = "Swing detection error. Try restarting the app."
+                    self.showMotionError = true
+                    
+                    // Auto-dismiss after 5 seconds
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                        self.showMotionError = false
+                    }
+                }
+                print("Motion error: \(error.localizedDescription)")
                 return
             }
+            
+            guard let motion = motion else { return }
             
             self.processMotionData(motion)
             

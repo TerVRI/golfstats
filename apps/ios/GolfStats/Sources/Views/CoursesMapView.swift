@@ -84,18 +84,33 @@ struct CoursesMapView: View {
             mapControls
         }
         .task {
+            // Start location updates first
+            gpsManager.startTracking()
+            
+            // Load courses
             await loadCourses()
+            
+            // Center on user location once we have it
             centerOnUserLocation()
         }
+        .onAppear {
+            // Ensure location updates are running
+            gpsManager.startTracking()
+        }
         .onChange(of: gpsManager.currentLocation) { _, newLocation in
+            // Only auto-center if we haven't manually moved the map
             if cameraPosition == .automatic, let location = newLocation {
-                withAnimation {
+                withAnimation(.easeInOut(duration: 0.5)) {
                     cameraPosition = .region(MKCoordinateRegion(
                         center: location.coordinate,
                         span: MKCoordinateSpan(latitudeDelta: 0.3, longitudeDelta: 0.3)
                     ))
                 }
             }
+        }
+        .onChange(of: courses.count) { _, _ in
+            // Trigger UI refresh when courses are loaded
+            // This ensures "courses nearby" count updates
         }
         .sheet(isPresented: $showListView) {
             CoursesListSheet(
@@ -206,11 +221,28 @@ struct CoursesMapView: View {
     
     private func coursePreviewCard(_ course: Course) -> some View {
         VStack(spacing: 0) {
-            // Drag handle
-            RoundedRectangle(cornerRadius: 2.5)
-                .fill(Color.gray.opacity(0.5))
-                .frame(width: 40, height: 5)
-                .padding(.top, 8)
+            // Header with close button
+            HStack {
+                // Drag handle
+                RoundedRectangle(cornerRadius: 2.5)
+                    .fill(Color.gray.opacity(0.5))
+                    .frame(width: 40, height: 5)
+                
+                Spacer()
+                
+                // Close button (X)
+                Button {
+                    withAnimation(.spring(response: 0.3)) {
+                        selectedCourse = nil
+                    }
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
             
             VStack(spacing: 12) {
                 HStack(alignment: .top) {
@@ -308,18 +340,6 @@ struct CoursesMapView: View {
                         .cornerRadius(10)
                     }
                 }
-                
-                // Dismiss button
-                Button {
-                    withAnimation(.spring(response: 0.3)) {
-                        selectedCourse = nil
-                    }
-                } label: {
-                    Text("Close")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-                .padding(.top, 4)
             }
             .padding()
         }
@@ -414,15 +434,34 @@ struct CoursesMapView: View {
             }
         }
         .padding(.trailing, 16)
-        .padding(.bottom, 120)
+        // Move controls higher when course preview card is shown to avoid overlap
+        .padding(.bottom, selectedCourse != nil ? 280 : 120)
         .frame(maxWidth: .infinity, alignment: .trailing)
+        .animation(.spring(response: 0.3), value: selectedCourse != nil)
     }
     
     // MARK: - Helper Functions
     
     private func centerOnUserLocation() {
+        // Request location update if we don't have one
+        if gpsManager.currentLocation == nil {
+            gpsManager.startTracking()
+            // Set a timer to try again once location is available
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                if let location = gpsManager.currentLocation {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        cameraPosition = .region(MKCoordinateRegion(
+                            center: location.coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
+                        ))
+                    }
+                }
+            }
+            return
+        }
+        
         if let location = gpsManager.currentLocation {
-            withAnimation {
+            withAnimation(.easeInOut(duration: 0.5)) {
                 cameraPosition = .region(MKCoordinateRegion(
                     center: location.coordinate,
                     span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
@@ -432,16 +471,21 @@ struct CoursesMapView: View {
     }
     
     private func selectCourse(_ course: Course) {
+        // Always update selection with animation
         withAnimation(.spring(response: 0.3)) {
             selectedCourse = course
         }
         
+        // Always zoom to course location - use a slight delay to ensure animation happens
         if let lat = course.latitude, let lon = course.longitude {
-            withAnimation {
-                cameraPosition = .region(MKCoordinateRegion(
-                    center: CLLocationCoordinate2D(latitude: lat, longitude: lon),
-                    span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-                ))
+            // First set to a slightly different position to force update
+            let targetRegion = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+            )
+            
+            withAnimation(.easeInOut(duration: 0.5)) {
+                cameraPosition = .region(targetRegion)
             }
         }
     }

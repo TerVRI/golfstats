@@ -137,9 +137,20 @@ async function queryGolfCourseFeatures(
 
 /**
  * Process OSM elements into structured hole data
+ * 
+ * STRICT MODE: Only assign greens/fairways/tees to holes that are explicitly tagged.
+ * COURSE-WIDE HAZARDS: ALL bunkers and water are stored in hole_number=0 and shown on every hole.
  */
 function processOSMData(elements: OSMElement[]): HoleData[] {
   const holes: Map<number, HoleData> = new Map();
+  
+  // Create hole 0 for course-wide hazards (bunkers + water shown on ALL holes)
+  holes.set(0, {
+    hole_number: 0,
+    tee_locations: [],
+    bunkers: [],
+    water_hazards: [],
+  });
 
   // First pass: find all holes and their basic info
   elements.forEach((element) => {
@@ -149,7 +160,7 @@ function processOSMData(elements: OSMElement[]): HoleData[] {
 
       if (holeNum && tags["golf"] === "hole") {
         const num = parseInt(holeNum);
-        if (!isNaN(num) && !holes.has(num)) {
+        if (!isNaN(num) && num > 0 && !holes.has(num)) {
           holes.set(num, {
             hole_number: num,
             par: tags["par"] ? parseInt(tags["par"]) : undefined,
@@ -162,101 +173,89 @@ function processOSMData(elements: OSMElement[]): HoleData[] {
     }
   });
 
-  // Second pass: collect features for each hole
+  // Second pass: collect features
+  // - Greens/Fairways/Tees: ONLY if explicitly tagged with hole number (STRICT)
+  // - Bunkers/Water: ALL go to hole 0 (course-wide, shown on every hole)
   elements.forEach((element) => {
     const tags = element.tags || {};
     const holeNum = tags["golf:hole"] || tags["hole"] || tags["ref"];
     const num = holeNum ? parseInt(holeNum) : null;
 
+    // Tee boxes - only if explicitly tagged with hole number
     if (element.type === "node" && tags["golf"] === "tee") {
-      // Tee box node
       const node = element as OSMNode;
-      const teeColor = tags["golf:tee"] || tags["tee"] || "blue";
-      const targetHole = num || 1; // Default to hole 1 if not specified
-
-      if (!holes.has(targetHole)) {
-        holes.set(targetHole, {
-          hole_number: targetHole,
-          tee_locations: [],
-          bunkers: [],
-          water_hazards: [],
+      if (!node || typeof node.lat !== 'number' || typeof node.lon !== 'number') return;
+      
+      // STRICT: Only assign if hole number is specified
+      if (num && num > 0) {
+        const teeColor = tags["golf:tee"] || tags["tee"] || "blue";
+        
+        if (!holes.has(num)) {
+          holes.set(num, { hole_number: num, tee_locations: [], bunkers: [], water_hazards: [] });
+        }
+        
+        holes.get(num)!.tee_locations.push({
+          tee: teeColor,
+          lat: node.lat,
+          lon: node.lon,
         });
       }
-
-      holes.get(targetHole)!.tee_locations.push({
-        tee: teeColor,
-        lat: node.lat,
-        lon: node.lon,
-      });
     } else if (element.type === "way" && "geometry" in element) {
       const way = element as OSMWay;
       const geometry = way.geometry || [];
-
       if (geometry.length === 0) return;
 
-      // Convert geometry to polygon coordinates
-      const polygon: Array<[number, number]> = geometry.map((g) => [g.lat, g.lon]);
+      const polygon: Array<[number, number]> = geometry
+        .filter(g => g && typeof g.lat === 'number' && typeof g.lon === 'number')
+        .map((g) => [g.lat, g.lon]);
 
+      if (polygon.length < 3) return; // Skip malformed polygons
+
+      // Greens - STRICT: only if explicitly tagged with hole number
       if (tags["golf"] === "green") {
-        // Green polygon
-        const targetHole = num || 1;
-        if (!holes.has(targetHole)) {
-          holes.set(targetHole, {
-            hole_number: targetHole,
-            tee_locations: [],
-            bunkers: [],
-            water_hazards: [],
-          });
+        if (num && num > 0) {
+          if (!holes.has(num)) {
+            holes.set(num, { hole_number: num, tee_locations: [], bunkers: [], water_hazards: [] });
+          }
+          const hole = holes.get(num)!;
+          hole.green = polygon;
+          const centerLat = polygon.reduce((sum, [lat]) => sum + lat, 0) / polygon.length;
+          const centerLon = polygon.reduce((sum, [, lon]) => sum + lon, 0) / polygon.length;
+          hole.green_center = { lat: centerLat, lon: centerLon };
         }
-        const hole = holes.get(targetHole)!;
-        hole.green = polygon;
-
-        // Calculate green center
-        const centerLat = polygon.reduce((sum, [lat]) => sum + lat, 0) / polygon.length;
-        const centerLon = polygon.reduce((sum, [, lon]) => sum + lon, 0) / polygon.length;
-        hole.green_center = { lat: centerLat, lon: centerLon };
-      } else if (tags["golf"] === "fairway") {
-        // Fairway polygon
-        const targetHole = num || 1;
-        if (!holes.has(targetHole)) {
-          holes.set(targetHole, {
-            hole_number: targetHole,
-            tee_locations: [],
-            bunkers: [],
-            water_hazards: [],
-          });
+        // If no hole number, discard (don't guess)
+      }
+      
+      // Fairways - STRICT: only if explicitly tagged with hole number
+      else if (tags["golf"] === "fairway") {
+        if (num && num > 0) {
+          if (!holes.has(num)) {
+            holes.set(num, { hole_number: num, tee_locations: [], bunkers: [], water_hazards: [] });
+          }
+          holes.get(num)!.fairway = polygon;
         }
-        holes.get(targetHole)!.fairway = polygon;
-      } else if (tags["golf"] === "bunker" || tags["golf"] === "sand_trap") {
-        // Bunker polygon
-        const targetHole = num || 1;
-        if (!holes.has(targetHole)) {
-          holes.set(targetHole, {
-            hole_number: targetHole,
-            tee_locations: [],
-            bunkers: [],
-            water_hazards: [],
-          });
-        }
-        holes.get(targetHole)!.bunkers.push({ polygon });
-      } else if (tags["natural"] === "water" || tags["waterway"]) {
-        // Water hazard - assign to nearest hole (simplified)
-        // In a real implementation, you'd calculate which hole it's closest to
-        const targetHole = num || 1;
-        if (!holes.has(targetHole)) {
-          holes.set(targetHole, {
-            hole_number: targetHole,
-            tee_locations: [],
-            bunkers: [],
-            water_hazards: [],
-          });
-        }
-        holes.get(targetHole)!.water_hazards.push({ polygon });
+        // If no hole number, discard (don't guess)
+      }
+      
+      // Bunkers - ALL go to hole 0 (course-wide hazards)
+      else if (tags["golf"] === "bunker" || tags["golf"] === "sand_trap") {
+        holes.get(0)!.bunkers.push({ polygon });
+      }
+      
+      // Water - ALL go to hole 0 (course-wide hazards)
+      else if (tags["natural"] === "water" || tags["waterway"]) {
+        holes.get(0)!.water_hazards.push({ polygon });
       }
     }
   });
 
-  // Sort by hole number
+  // Remove hole 0 if it has no hazards
+  const courseHazards = holes.get(0)!;
+  if (courseHazards.bunkers.length === 0 && courseHazards.water_hazards.length === 0) {
+    holes.delete(0);
+  }
+
+  // Sort by hole number (0 will be first if it exists)
   return Array.from(holes.values()).sort((a, b) => a.hole_number - b.hole_number);
 }
 

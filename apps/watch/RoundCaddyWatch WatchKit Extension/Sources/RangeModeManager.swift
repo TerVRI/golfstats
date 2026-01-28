@@ -29,6 +29,11 @@ class RangeModeManager: NSObject, ObservableObject {
     @Published var averageClubSpeed: Double?
     @Published var sessionSwings: [RangeModeSwing] = []
     
+    // Error handling
+    @Published var errorMessage: String?
+    @Published var showError = false
+    @Published var requiresPhoneConnection = true
+    
     // MARK: - Private Properties
     
     private let motionManager = CMMotionManager()
@@ -325,12 +330,47 @@ class RangeModeManager: NSObject, ObservableObject {
     }
     
     private func sendToPhone(action: String, data: [String: Any]) {
-        guard let session = wcSession, session.isReachable else { return }
+        guard let session = wcSession, session.isReachable else {
+            // For non-critical data, silently fail
+            // For important actions like session summary, queue for later
+            if action == "rangeSessionSummary" {
+                DispatchQueue.main.async {
+                    self.errorMessage = "iPhone not connected. Session data saved locally."
+                    self.showError = true
+                    
+                    // Auto-dismiss after 3 seconds
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                        self.showError = false
+                    }
+                }
+                // Queue via transferUserInfo for later delivery
+                var message = data
+                message["action"] = action
+                wcSession?.transferUserInfo(message)
+            }
+            return
+        }
         
         var message = data
         message["action"] = action
         
-        session.sendMessage(message, replyHandler: nil) { error in
+        session.sendMessage(message, replyHandler: nil) { [weak self] error in
+            // For swing data, don't show errors (high volume, some loss is ok)
+            // For session summaries, show error
+            if action == "rangeSessionSummary" {
+                DispatchQueue.main.async {
+                    self?.errorMessage = "Failed to sync session. Data saved for later."
+                    self?.showError = true
+                    
+                    // Queue for background transfer
+                    self?.wcSession?.transferUserInfo(message)
+                    
+                    // Auto-dismiss after 3 seconds
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                        self?.showError = false
+                    }
+                }
+            }
             print("⚠️ Error sending to phone: \(error.localizedDescription)")
         }
     }

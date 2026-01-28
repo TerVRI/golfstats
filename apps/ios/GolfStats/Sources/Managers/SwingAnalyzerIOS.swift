@@ -2,6 +2,7 @@ import Foundation
 import AVFoundation
 import Combine
 import UIKit
+import ARKit
 
 /// Analyzes golf swings using camera pose detection and optional Watch motion data
 class SwingAnalyzerIOS: ObservableObject {
@@ -24,9 +25,31 @@ class SwingAnalyzerIOS: ObservableObject {
     // Session data
     @Published var currentSession: RangeSession?
     
+    // Tracking mode
+    @Published var trackingMode: BodyTrackingMode = .vision2D {
+        didSet {
+            if oldValue != trackingMode {
+                switchTrackingMode()
+            }
+        }
+    }
+    @Published var isARKitAvailable: Bool = false
+    
     // MARK: - Components
     
-    let poseDetector = PoseDetector()
+    /// 2D pose detector (Vision framework) - always available
+    let poseDetector = PoseDetector(targetFrameRate: 30)
+    
+    /// 3D body tracker (ARKit/LiDAR) - only on supported devices
+    private(set) var arBodyTracker: ARBodyTracker?
+    
+    /// Current active pose provider
+    var activePoseProvider: BodyPoseProvider {
+        if trackingMode == .arkit3D, let arTracker = arBodyTracker {
+            return arTracker
+        }
+        return poseDetector
+    }
     
     // MARK: - Configuration
     
@@ -65,42 +88,120 @@ class SwingAnalyzerIOS: ObservableObject {
     // MARK: - Initialization
     
     init() {
-        setupPoseDetector()
+        checkARKitAvailability()
+        setupPoseProviders()
     }
     
-    private func setupPoseDetector() {
-        // Subscribe to pose updates
+    private func checkARKitAvailability() {
+        if #available(iOS 14.0, *) {
+            isARKitAvailable = ARBodyTracker.isAvailable()
+            if isARKitAvailable {
+                arBodyTracker = ARBodyTracker()
+                print("✅ ARKit body tracking available (LiDAR device)")
+            } else {
+                print("ℹ️ ARKit body tracking not available (no LiDAR)")
+            }
+        } else {
+            isARKitAvailable = false
+        }
+    }
+    
+    private func setupPoseProviders() {
+        // Subscribe to 2D pose detector
         poseDetector.$currentPose
             .compactMap { $0 }
             .sink { [weak self] pose in
+                guard self?.trackingMode == .vision2D else { return }
                 self?.processPose(pose)
             }
             .store(in: &cancellables)
         
         poseDetector.onPoseDetected = { [weak self] pose in
+            guard self?.trackingMode == .vision2D else { return }
             self?.processPose(pose)
+        }
+        
+        // Subscribe to 3D body tracker if available
+        if #available(iOS 14.0, *), let arTracker = arBodyTracker {
+            arTracker.$currentPose
+                .compactMap { $0 }
+                .sink { [weak self] pose in
+                    guard self?.trackingMode == .arkit3D else { return }
+                    self?.processPose(pose)
+                }
+                .store(in: &cancellables)
+        }
+    }
+    
+    private func switchTrackingMode() {
+        let wasDetecting = poseDetector.isDetecting || (arBodyTracker?.isDetecting ?? false)
+        
+        // Stop current provider
+        poseDetector.stopDetecting()
+        arBodyTracker?.stopDetecting()
+        
+        print("🔄 Switching tracking mode to: \(trackingMode.rawValue)")
+        
+        // Start new provider if we were detecting
+        if wasDetecting {
+            startPreview()
         }
     }
     
     // MARK: - Session Management
     
+    /// Start pose detection for preview (before session starts)
+    func startPreview() {
+        switch trackingMode {
+        case .vision2D:
+            guard !poseDetector.isDetecting else { return }
+            poseDetector.startDetecting()
+            print("🎥 2D pose preview started")
+            
+        case .arkit3D:
+            guard let arTracker = arBodyTracker, !arTracker.isDetecting else { return }
+            arTracker.startDetecting()
+            print("🎥 3D AR body tracking preview started")
+        }
+    }
+    
+    /// Stop pose detection preview
+    func stopPreview() {
+        guard !isAnalyzing else { return } // Don't stop if session is active
+        poseDetector.stopDetecting()
+        arBodyTracker?.stopDetecting()
+        print("🎥 Pose preview stopped")
+    }
+    
     /// Start a new range session
     func startSession() {
         currentSession = RangeSession()
+        currentSession?.trackingMode = trackingMode
         swingCount = 0
         poseBuffer.removeAll()
         watchMotionBuffer.removeAll()
         
-        poseDetector.startDetecting()
-        isAnalyzing = true
+        // Ensure active provider is running
+        switch trackingMode {
+        case .vision2D:
+            if !poseDetector.isDetecting {
+                poseDetector.startDetecting()
+            }
+        case .arkit3D:
+            if let arTracker = arBodyTracker, !arTracker.isDetecting {
+                arTracker.startDetecting()
+            }
+        }
         
-        print("🏌️ Range session started")
+        isAnalyzing = true
+        print("🏌️ Range session started (mode: \(trackingMode.rawValue))")
     }
     
     /// End the current range session
     func endSession() -> RangeSession? {
-        poseDetector.stopDetecting()
         isAnalyzing = false
+        // Keep pose provider running for preview after session ends
+        // (it will be stopped when leaving the view)
         
         var session = currentSession
         session?.endTime = Date()
@@ -112,14 +213,21 @@ class SwingAnalyzerIOS: ObservableObject {
         return finalSession
     }
     
-    /// Process a camera frame
+    /// Fully stop pose detection (when leaving the view)
+    func stopDetecting() {
+        poseDetector.stopDetecting()
+        arBodyTracker?.stopDetecting()
+        isAnalyzing = false
+    }
+    
+    /// Process a camera frame (2D mode only) - always processes for pose preview
     func processFrame(_ pixelBuffer: CVPixelBuffer) {
-        guard isAnalyzing else { return }
+        guard trackingMode == .vision2D else { return }
         poseDetector.processFrame(pixelBuffer)
     }
     
     func processFrame(_ sampleBuffer: CMSampleBuffer) {
-        guard isAnalyzing else { return }
+        guard trackingMode == .vision2D else { return }
         poseDetector.processFrame(sampleBuffer)
     }
     
@@ -164,11 +272,13 @@ class SwingAnalyzerIOS: ObservableObject {
             poseBuffer.removeFirst()
         }
         
-        // Update live metrics
+        // Update live metrics (always, for preview)
         updateLiveMetrics(pose: pose)
         
-        // Detect swing phases
-        detectSwingPhase(pose: pose)
+        // Only detect swing phases when session is active
+        if isAnalyzing {
+            detectSwingPhase(pose: pose)
+        }
     }
     
     private func updateLiveMetrics(pose: PoseFrame) {

@@ -16,6 +16,10 @@ class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var isTracking = false
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     
+    // Error handling
+    @Published var locationError: String?
+    @Published var showLocationError = false
+    
     // Demo green location - in real app, this comes from course data
     var greenCenter: CLLocation?
     var greenFront: CLLocation?
@@ -111,12 +115,30 @@ class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        if let clError = error as? CLError, clError.code == .denied {
-            // Stop spamming logs if user denied location
-            locationManager.stopUpdatingLocation()
-            isTracking = false
+        if let clError = error as? CLError {
+            switch clError.code {
+            case .denied:
+                // User denied location access
+                locationManager.stopUpdatingLocation()
+                isTracking = false
+                locationError = "Location access denied. Enable in Settings > Privacy > Location."
+                showLocationError = true
+            case .locationUnknown:
+                // Temporary failure - don't show error, will retry
+                print("Location temporarily unavailable")
+            case .network:
+                locationError = "GPS signal weak. Move outdoors for better accuracy."
+                showLocationError = true
+                // Auto-dismiss after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                    self.showLocationError = false
+                }
+            default:
+                print("Location error: \(error.localizedDescription)")
+            }
+        } else {
+            print("Location error: \(error.localizedDescription)")
         }
-        print("Location error: \(error.localizedDescription)")
     }
     
     private func updateDistances() {

@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import Combine
+import SystemConfiguration
 
 /// Manages offline caching of course data for play without internet
 /// Automatically caches played/favorited courses and supports manual downloads
@@ -181,9 +182,78 @@ class OfflineCacheManager: ObservableObject {
     func cacheNearbyCourses(location: CLLocation, radius: CLLocationDistance = 50000, limit: Int = 5) async {
         guard autoDownloadEnabled else { return }
         
-        // This would integrate with the course search API to find and cache nearby courses
-        // For now, this is a placeholder for the API integration
-        print("📍 Would cache nearby courses within \(radius/1000)km of location")
+        // Check WiFi-only setting
+        if autoDownloadOnWiFiOnly && !isOnWiFi() {
+            print("📍 Skipping nearby course caching - not on WiFi")
+            return
+        }
+        
+        do {
+            // Convert radius from meters to miles for API
+            let radiusMiles = radius / 1609.34
+            
+            // Fetch nearby courses from API
+            let nearbyCourses = try await DataService.shared.fetchNearbyCourses(
+                latitude: location.coordinate.latitude,
+                longitude: location.coordinate.longitude,
+                radiusMiles: radiusMiles,
+                limit: limit
+            )
+            
+            print("📍 Found \(nearbyCourses.count) nearby courses within \(Int(radiusMiles)) miles")
+            
+            // Cache courses that aren't already cached (up to limit)
+            var cachedCount = 0
+            for course in nearbyCourses {
+                guard cachedCount < limit else { break }
+                guard !isCached(course.id) else { continue }
+                
+                // Only cache courses with hole data (more useful offline)
+                if course.holeData != nil {
+                    do {
+                        try await cacheCourse(course, priority: .normal)
+                        cachedCount += 1
+                    } catch {
+                        print("⚠️ Failed to cache \(course.name): \(error.localizedDescription)")
+                    }
+                }
+            }
+            
+            if cachedCount > 0 {
+                print("✅ Cached \(cachedCount) nearby courses for offline use")
+            }
+        } catch {
+            print("⚠️ Failed to fetch nearby courses: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Check if device is on WiFi
+    private func isOnWiFi() -> Bool {
+        // Use NWPathMonitor for accurate network status
+        // For simplicity, we'll use a basic check
+        var zeroAddress = sockaddr_in()
+        zeroAddress.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+        zeroAddress.sin_family = sa_family_t(AF_INET)
+        
+        guard let defaultRouteReachability = withUnsafePointer(to: &zeroAddress, {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { zeroSockAddress in
+                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
+            }
+        }) else {
+            return false
+        }
+        
+        var flags: SCNetworkReachabilityFlags = []
+        if !SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags) {
+            return false
+        }
+        
+        // Check if reachable via WiFi (not cellular)
+        let isReachable = flags.contains(.reachable)
+        let needsConnection = flags.contains(.connectionRequired)
+        let isWWAN = flags.contains(.isWWAN)
+        
+        return isReachable && !needsConnection && !isWWAN
     }
     
     // MARK: - Private Methods

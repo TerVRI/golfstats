@@ -1,16 +1,25 @@
 import SwiftUI
+import CoreLocation
 
 /**
  * Toggle view between Map (MapKit) and Schematic (SVG) visualizations
  */
 struct CourseVisualizationToggleView: View {
     let holeData: [HoleData]
+    let courseCoordinate: CLLocationCoordinate2D?  // Fallback course location
+    let courseName: String?
     
     @State private var visualizationMode: VisualizationMode = .map
     
     enum VisualizationMode {
         case map
         case schematic
+    }
+    
+    init(holeData: [HoleData], courseCoordinate: CLLocationCoordinate2D? = nil, courseName: String? = nil) {
+        self.holeData = holeData
+        self.courseCoordinate = courseCoordinate
+        self.courseName = courseName
     }
     
     var body: some View {
@@ -32,7 +41,9 @@ struct CourseVisualizationToggleView: View {
                     CourseVisualizerView(
                         holeData: holeData,
                         initialHole: 1,
-                        showSatellite: false
+                        showSatellite: true,
+                        fallbackCoordinate: courseCoordinate,
+                        courseName: courseName
                     )
                     .frame(minHeight: 450)
                 case .schematic:

@@ -32,7 +32,7 @@ class AuthManager: ObservableObject {
     }
     
     private let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
-    private let supabaseKey = "sb_publishable_JftEdMATFsi78Ba8rIFObg_tpOeIS2J"
+    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthbnZocXdyZmt6cWt0dXZweG5wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzNTQwNDYsImV4cCI6MjA4MzkzMDA0Nn0.ZeTqSva8VrJUTkFWvaIrmgwvYdHbTScp5YEfC8hiris"
     private var currentAppleNonce: String?
     
     private var accessToken: String? {

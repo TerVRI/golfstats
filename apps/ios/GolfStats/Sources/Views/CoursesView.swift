@@ -591,26 +591,15 @@ struct CourseRow: View {
 }
 
 struct CourseDetailView: View {
-    let course: Course
+    @State var course: Course
     @EnvironmentObject var roundManager: RoundManager
     @State private var weather: Weather?
     @State private var isLoadingWeather = false
+    @State private var isFetchingHoleData = false
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Debug: Log course hole_data status
-                let _ = {
-                    if let holeData = course.holeData {
-                        print("🔍 Course '\(course.name)': holeData = \(holeData.count) holes")
-                        if !holeData.isEmpty {
-                            print("   ✅ First hole has: par=\(holeData[0].par), tees=\(holeData[0].teeLocations?.count ?? 0), fairway=\(holeData[0].fairway != nil ? "yes" : "no")")
-                        }
-                    } else {
-                        print("🔍 Course '\(course.name)': holeData = nil")
-                    }
-                }()
-                
                 // Header
                 VStack(spacing: 8) {
                     Text(course.name)
@@ -686,18 +675,42 @@ struct CourseDetailView: View {
                     
                     if let holeData = course.holeData, !holeData.isEmpty {
                         // Toggle between Map and Schematic views
-                        CourseVisualizationToggleView(holeData: holeData)
-                            .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                        CourseVisualizationToggleView(
+                            holeData: holeData,
+                            courseCoordinate: course.coordinate,
+                            courseName: course.name
+                        )
+                        .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    } else if isFetchingHoleData {
+                        VStack(spacing: 12) {
+                            ProgressView()
+                            Text("Loading hole-by-hole layout...")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
+                        .background(Color("BackgroundSecondary"))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                    } else if let coordinate = course.coordinate {
+                        // No hole data but we have course coordinates - show satellite map
+                        CourseVisualizationToggleView(
+                            holeData: [],
+                            courseCoordinate: coordinate,
+                            courseName: course.name
+                        )
+                        .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                     } else {
-                        // Show message if no visualization data
+                        // No coordinates available - show unavailable message
                         VStack(spacing: 12) {
                             Image(systemName: "map")
                                 .font(.system(size: 48))
                                 .foregroundColor(.gray)
-                            Text("Visualization Not Available")
+                            Text("Location Not Available")
                                 .font(.headline)
                                 .foregroundColor(.white)
-                            Text("This course doesn't have hole-by-hole layout data yet.")
+                            Text("This course doesn't have location coordinates.")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                                 .multilineTextAlignment(.center)
@@ -764,7 +777,53 @@ struct CourseDetailView: View {
         .navigationBarTitleDisplayMode(.large)
         .task {
             await loadWeather()
+            await fetchHoleDataIfNeeded()
         }
+    }
+    
+    private func fetchHoleDataIfNeeded() async {
+        // Skip if we already have data
+        if let hd = course.holeData, !hd.isEmpty {
+            return
+        }
+        
+        isFetchingHoleData = true
+        
+        do {
+            if let fetchedHoleData = try await CourseBundleLoader.shared.fetchHoleData(for: course.id) {
+                // Update local state
+                let updatedCourse = Course(
+                    id: course.id,
+                    name: course.name,
+                    city: course.city,
+                    state: course.state,
+                    country: course.country,
+                    address: course.address,
+                    phone: course.phone,
+                    website: course.website,
+                    courseRating: course.courseRating,
+                    slopeRating: course.slopeRating,
+                    par: course.par,
+                    holes: course.holes,
+                    latitude: course.latitude,
+                    longitude: course.longitude,
+                    avgRating: course.avgRating,
+                    reviewCount: course.reviewCount,
+                    holeData: fetchedHoleData,
+                    updatedAt: course.updatedAt,
+                    createdAt: course.createdAt
+                )
+                self.course = updatedCourse
+                
+                // Update cache
+                await CourseBundleLoader.shared.updateCourseHoleData(courseId: course.id, holeData: fetchedHoleData)
+                print("✅ On-demand hole_data loaded for \(course.name)")
+            }
+        } catch {
+            print("❌ Error fetching on-demand hole_data: \(error)")
+        }
+        
+        isFetchingHoleData = false
     }
     
     private func formatLocation(course: Course) -> String {

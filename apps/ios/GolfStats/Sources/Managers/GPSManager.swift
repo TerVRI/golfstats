@@ -126,6 +126,27 @@ class GPSManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     // MARK: - Utility
     
+    /// Compass bearing from current location to green center (0-360 degrees)
+    var bearingToTarget: Int? {
+        guard let current = currentLocation, let target = greenCenter else { return nil }
+        return Int(bearing(from: current.coordinate, to: target))
+    }
+    
+    /// Calculate bearing between two coordinates (0-360 degrees)
+    private func bearing(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
+        let lat1 = from.latitude * .pi / 180
+        let lat2 = to.latitude * .pi / 180
+        let dLon = (to.longitude - from.longitude) * .pi / 180
+        
+        let y = sin(dLon) * cos(lat2)
+        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+        
+        var bearing = atan2(y, x) * 180 / .pi
+        bearing = (bearing + 360).truncatingRemainder(dividingBy: 360)
+        
+        return bearing
+    }
+    
     func distanceTo(_ coordinate: CLLocationCoordinate2D) -> Int? {
         guard let current = currentLocation else { return nil }
         let target = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)

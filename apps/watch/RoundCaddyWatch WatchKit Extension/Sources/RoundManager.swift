@@ -37,7 +37,15 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
     @Published var roundStartTime: Date?
     @Published var lastSyncedToPhone: Date?
     
+    // Error handling
+    @Published var syncError: String?
+    @Published var showSyncError = false
+    @Published var isPhoneReachable = false
+    @Published var hasPendingSync = false
+    
     private var wcSession: WCSession?
+    private var pendingSyncRetryCount = 0
+    private let maxSyncRetries = 3
     private let clubBagKey = "syncedClubBag"
     private let roundStateKey = "cachedRoundState"
     
@@ -465,23 +473,73 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
             if let action = message["action"] as? String, 
                action == "roundEnded" || action == "roundStateUpdate" {
                 wcSession?.transferUserInfo(message)
+                DispatchQueue.main.async {
+                    self.hasPendingSync = true
+                }
             }
             return false
         }
-        session.sendMessage(message, replyHandler: nil) { error in
-            print("Error sending message: \(error.localizedDescription)")
+        
+        session.sendMessage(message, replyHandler: { [weak self] _ in
+            // Message sent successfully
+            DispatchQueue.main.async {
+                self?.pendingSyncRetryCount = 0
+                self?.hasPendingSync = false
+                self?.syncError = nil
+                self?.showSyncError = false
+            }
+        }) { [weak self] error in
+            DispatchQueue.main.async {
+                self?.handleSyncError(error, for: message)
+            }
         }
         return true
+    }
+    
+    private func handleSyncError(_ error: Error, for message: [String: Any]) {
+        pendingSyncRetryCount += 1
+        
+        // For important messages, retry or queue for later
+        if let action = message["action"] as? String,
+           action == "roundEnded" || action == "roundStateUpdate" || action == "shotAdded" {
+            
+            if pendingSyncRetryCount < maxSyncRetries {
+                // Retry after a delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                    _ = self?.sendMessageToPhone(message)
+                }
+            } else {
+                // Max retries reached - queue for background transfer
+                wcSession?.transferUserInfo(message)
+                hasPendingSync = true
+                syncError = "Unable to sync with iPhone. Data will sync when connection is restored."
+                showSyncError = true
+                
+                // Auto-dismiss error after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+                    self?.showSyncError = false
+                }
+            }
+        }
+        
+        print("Sync error (attempt \(pendingSyncRetryCount)): \(error.localizedDescription)")
     }
     
     // MARK: - WCSessionDelegate
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        if let error = error {
-            print("WCSession activation error: \(error.localizedDescription)")
-        } else if activationState == .activated {
-            // Connection restored - resync if we have an active round
-            DispatchQueue.main.async {
+        DispatchQueue.main.async {
+            if let error = error {
+                self.syncError = "Watch connection error: \(error.localizedDescription)"
+                self.showSyncError = true
+                
+                // Auto-dismiss after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                    self.showSyncError = false
+                }
+            } else if activationState == .activated {
+                self.isPhoneReachable = session.isReachable
+                // Connection restored - resync if we have an active round
                 self.resyncToPhone()
             }
         }
@@ -501,10 +559,16 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
     #endif
     
     func sessionReachabilityDidChange(_ session: WCSession) {
-        if session.isReachable {
-            // Connection restored - resync cached round data
-            DispatchQueue.main.async {
+        DispatchQueue.main.async {
+            self.isPhoneReachable = session.isReachable
+            
+            if session.isReachable {
+                // Connection restored - resync cached round data
                 print("Watch connectivity restored - resyncing round data")
+                self.pendingSyncRetryCount = 0
+                self.hasPendingSync = false
+                self.syncError = nil
+                self.showSyncError = false
                 self.resyncToPhone()
             }
         }
@@ -516,9 +580,23 @@ class RoundManager: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
     
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        DispatchQueue.main.async {
+            self.handleMessage(message)
+        }
+        // Send acknowledgment
+        replyHandler(["received": true, "timestamp": Date().timeIntervalSince1970])
+    }
+    
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
         DispatchQueue.main.async {
             self.handleMessage(userInfo)
+        }
+    }
+    
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        DispatchQueue.main.async {
+            self.handleMessage(applicationContext)
         }
     }
     

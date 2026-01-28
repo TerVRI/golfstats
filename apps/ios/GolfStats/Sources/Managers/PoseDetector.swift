@@ -4,12 +4,12 @@ import AVFoundation
 import CoreImage
 import Combine
 
-/// Detects human body poses from camera frames using Apple Vision framework
-class PoseDetector: ObservableObject {
+/// Detects human body poses from camera frames using Apple Vision framework (2D)
+class PoseDetector: ObservableObject, BodyPoseProvider {
     
     // MARK: - Published State
     
-    @Published var isDetecting = false
+    @Published private(set) var isDetecting = false
     @Published var currentPose: PoseFrame?
     @Published var detectionConfidence: Float = 0
     @Published var isPersonDetected = false
@@ -18,12 +18,35 @@ class PoseDetector: ObservableObject {
     
     // Alignment guidance
     @Published var alignmentStatus: AlignmentStatus = .searching
-    @Published var alignmentMessage: String = "Position yourself in frame"
+    @Published var alignmentMessage: String = "Point camera at swing position"
+    
+    // MARK: - BodyPoseProvider Conformance
+    
+    var currentPosePublisher: AnyPublisher<PoseFrame?, Never> {
+        $currentPose.eraseToAnyPublisher()
+    }
+    
+    var alignmentStatusPublisher: AnyPublisher<AlignmentStatus, Never> {
+        $alignmentStatus.eraseToAnyPublisher()
+    }
+    
+    var alignmentMessagePublisher: AnyPublisher<String, Never> {
+        $alignmentMessage.eraseToAnyPublisher()
+    }
+    
+    var supports3D: Bool { false }
+    var requiresSpecialHardware: Bool { false }
+    
+    static func isAvailable() -> Bool {
+        // Vision body pose detection is available on iOS 14+
+        return true
+    }
     
     // MARK: - Configuration
     
     /// Minimum confidence threshold for pose detection
-    var minimumConfidence: Float = 0.5
+    /// Lowered from 0.5 to 0.3 to detect more joints in challenging conditions
+    var minimumConfidence: Float = 0.3
     
     /// Whether to use 3D pose detection (iOS 17+)
     var use3DPose: Bool = false
@@ -36,6 +59,9 @@ class PoseDetector: ObservableObject {
     private var frameIndex = 0
     private var lastProcessedTime: Date?
     private let minimumFrameInterval: TimeInterval
+    
+    /// One-Euro Filter smoother for reducing joint jitter
+    private let poseSmoother = PoseSmoother(minCutoff: 1.5, beta: 0.5, dCutoff: 1.0)
     
     // Vision requests
     private lazy var bodyPoseRequest: VNDetectHumanBodyPoseRequest = {
@@ -70,6 +96,7 @@ class PoseDetector: ObservableObject {
         isDetecting = false
         isPersonDetected = false
         alignmentStatus = .searching
+        poseSmoother.reset() // Reset filter state for next session
         print("🎥 Pose detection stopped")
     }
     
@@ -127,7 +154,15 @@ class PoseDetector: ObservableObject {
         frameIndex += 1
         
         // Extract body points
-        let pose = extractPoseFrame(from: observation, timestamp: timestamp)
+        let rawPose = extractPoseFrame(from: observation, timestamp: timestamp)
+        
+        // Apply One-Euro Filter smoothing to reduce jitter
+        let pose = poseSmoother.smooth(rawPose)
+        
+        // Debug: Log joint count periodically
+        if frameIndex % 60 == 0 {
+            print("👁️ 2D Pose: \(pose.allJoints.count) joints detected, confidence: \(String(format: "%.2f", pose.confidence))")
+        }
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -185,8 +220,12 @@ class PoseDetector: ObservableObject {
     }
     
     private func point(from observation: VNHumanBodyPoseObservation, joint: VNHumanBodyPoseObservation.JointName) -> CGPoint? {
-        guard let point = try? observation.recognizedPoint(joint),
-              point.confidence > minimumConfidence else {
+        guard let point = try? observation.recognizedPoint(joint) else {
+            return nil
+        }
+        // Use a lower confidence for individual joints than the overall pose
+        // This allows more joints to be detected while still filtering noise
+        guard point.confidence > 0.1 else {
             return nil
         }
         // Convert from Vision coordinates (bottom-left origin) to standard (top-left origin)
@@ -200,13 +239,14 @@ class PoseDetector: ObservableObject {
             if self.isPersonDetected {
                 // Person was detected but now lost
                 self.onPersonLost?()
+                self.poseSmoother.reset() // Reset smoother when person is lost
             }
             
             self.isPersonDetected = false
             self.isPersonInFrame = false
             self.detectionConfidence = 0
             self.alignmentStatus = .searching
-            self.alignmentMessage = "Position yourself in frame"
+            self.alignmentMessage = "Point camera at swing position"
         }
     }
     

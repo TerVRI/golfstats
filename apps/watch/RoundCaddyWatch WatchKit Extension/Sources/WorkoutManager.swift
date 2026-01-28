@@ -14,6 +14,10 @@ class WorkoutManager: NSObject, ObservableObject {
     @Published var elapsedTime: TimeInterval = 0
     @Published var authorizationStatus: HKAuthorizationStatus = .notDetermined
     
+    // Error handling
+    @Published var errorMessage: String?
+    @Published var showError = false
+    
     // MARK: - Private Properties
     
     private let healthStore = HKHealthStore()
@@ -68,6 +72,10 @@ class WorkoutManager: NSObject, ObservableObject {
             
             return true
         } catch {
+            await MainActor.run {
+                self.errorMessage = "HealthKit access denied. Enable in Settings > Privacy > Health."
+                self.showError = true
+            }
             print("HealthKit authorization error: \(error.localizedDescription)")
             return false
         }
@@ -115,6 +123,15 @@ class WorkoutManager: NSObject, ObservableObject {
             print("🏌️ Golf workout started")
             
         } catch {
+            await MainActor.run {
+                self.errorMessage = "Failed to start workout tracking. Your round will continue without HealthKit data."
+                self.showError = true
+                
+                // Auto-dismiss after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+                    self?.showError = false
+                }
+            }
             print("Failed to start workout: \(error.localizedDescription)")
             throw error
         }
@@ -149,6 +166,21 @@ class WorkoutManager: NSObject, ObservableObject {
             print("✅ Golf workout saved: \(workout?.duration ?? 0 / 60) minutes, \(workout?.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0) kcal")
             
         } catch {
+            await MainActor.run {
+                self.errorMessage = "Workout data couldn't be saved to Health. Your round data is still saved."
+                self.showError = true
+                
+                // Clean up anyway
+                self.isWorkoutActive = false
+                self.stopElapsedTimer()
+                self.session = nil
+                self.builder = nil
+                
+                // Auto-dismiss after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+                    self?.showError = false
+                }
+            }
             print("Failed to save workout: \(error.localizedDescription)")
             throw error
         }
@@ -225,6 +257,15 @@ extension WorkoutManager: HKWorkoutSessionDelegate {
     }
     
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            self?.errorMessage = "Workout tracking interrupted. Your round data is still being saved."
+            self?.showError = true
+            
+            // Auto-dismiss after 5 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+                self?.showError = false
+            }
+        }
         print("Workout session failed: \(error.localizedDescription)")
     }
 }

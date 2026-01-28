@@ -2,6 +2,32 @@ import Foundation
 import CoreMotion
 import simd
 
+// MARK: - Body Tracking Mode
+
+/// Tracking mode selection
+enum BodyTrackingMode: String, CaseIterable, Codable {
+    case vision2D = "2D (Standard)"
+    case arkit3D = "3D (LiDAR)"
+    
+    var description: String {
+        switch self {
+        case .vision2D:
+            return "Standard camera-based tracking. Works on all devices."
+        case .arkit3D:
+            return "LiDAR-enhanced 3D tracking with full body mesh. Requires iPhone 12 Pro or later."
+        }
+    }
+    
+    var iconName: String {
+        switch self {
+        case .vision2D:
+            return "person.crop.rectangle"
+        case .arkit3D:
+            return "cube.transparent"
+        }
+    }
+}
+
 // MARK: - Range Session
 
 /// Represents a complete practice session at the driving range
@@ -12,6 +38,7 @@ struct RangeSession: Identifiable, Codable {
     var swings: [CombinedSwingCapture]
     var selectedClub: String?
     var notes: String?
+    var trackingMode: BodyTrackingMode?
     
     // Computed properties
     var duration: TimeInterval {
@@ -143,6 +170,29 @@ struct PoseFrame: Codable {
     
     // Detection confidence (0-1)
     var confidence: Float
+    
+    // 3D joint positions (only populated in ARKit mode)
+    // Note: Not included in Codable since SIMD3<Float> doesn't auto-conform
+    var joints3D: [PoseJoint3D]?
+    
+    // Custom Codable to exclude joints3D
+    enum CodingKeys: String, CodingKey {
+        case timestamp, frameIndex
+        case nose, leftShoulder, rightShoulder, leftElbow, rightElbow
+        case leftWrist, rightWrist, leftHip, rightHip
+        case leftKnee, rightKnee, leftAnkle, rightAnkle
+        case spineAngle, hipRotation, shoulderRotation
+        case leftArmAngle, rightArmAngle, confidence
+    }
+}
+
+/// 3D joint position for PoseFrame (for ARKit mode)
+/// Note: Separate from Joint3D in ARBodyTrackingManager which has more properties
+struct PoseJoint3D {
+    let name: String
+    let position: SIMD3<Float>      // 3D world position
+    let screenPosition: CGPoint     // Projected 2D screen position
+    let confidence: Float
 }
 
 /// Marks a detected swing phase with its timestamp

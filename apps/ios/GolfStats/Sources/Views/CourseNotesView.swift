@@ -154,6 +154,7 @@ struct CourseNotesView: View {
 
 // MARK: - View Model
 
+@MainActor
 class CourseNotesViewModel: ObservableObject {
     let courseId: String
     
@@ -197,18 +198,14 @@ class CourseNotesViewModel: ObservableObject {
         let key = "personal_notes_\(courseId)"
         if let data = UserDefaults.standard.data(forKey: key),
            let notes = try? JSONDecoder().decode([CourseNote].self, from: data) {
-            DispatchQueue.main.async {
-                self.personalNotes = notes
-            }
+            self.personalNotes = notes
         }
     }
     
     private func loadCommunityNotes() async {
         // Would fetch from API
         // For now, use sample data
-        await MainActor.run {
-            self.communityNotes = CourseNote.sampleCommunityNotes
-        }
+        self.communityNotes = CourseNote.sampleCommunityNotes
     }
     
     // MARK: - Note Management
@@ -287,8 +284,16 @@ class CourseNotesViewModel: ObservableObject {
     }
     
     func reportNote(_ note: CourseNote) {
-        // Would send report to server
-        print("Reported note: \(note.id)")
+        // Remove the note from local view after report
+        // The actual report will be sent when user is authenticated
+        if let index = communityNotes.firstIndex(where: { $0.id == note.id }) {
+            communityNotes.remove(at: index)
+        }
+        
+        // Store reported note IDs locally to prevent re-showing
+        var reportedNotes = UserDefaults.standard.stringArray(forKey: "reported_notes") ?? []
+        reportedNotes.append(note.id)
+        UserDefaults.standard.set(reportedNotes, forKey: "reported_notes")
     }
 }
 
@@ -512,7 +517,9 @@ struct CommunityNoteCard: View {
                 
                 // Report
                 Menu {
-                    Button(action: { viewModel.reportNote(note) }) {
+                    Button(action: {
+                        viewModel.reportNote(note)
+                    }) {
                         Label("Report", systemImage: "flag")
                     }
                 } label: {

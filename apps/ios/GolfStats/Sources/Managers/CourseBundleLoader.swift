@@ -173,7 +173,7 @@ actor CourseBundleLoader {
         
         var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/courses")!
         urlComponents.queryItems = [
-            URLQueryItem(name: "select", value: "*"),
+            URLQueryItem(name: "select", value: "id,name,city,state,country,address,phone,website,course_rating,slope_rating,par,holes,latitude,longitude,avg_rating,review_count,updated_at,created_at"),
             URLQueryItem(name: "updated_at", value: "gt.\(date.ISO8601Format())"),
             URLQueryItem(name: "order", value: "updated_at.desc"),
             URLQueryItem(name: "limit", value: "1000") // Get up to 1000 updated courses
@@ -280,18 +280,119 @@ actor CourseBundleLoader {
             courseMap[course.id] = course
         }
         
-        // Override with updated courses (they're newer and may have hole_data)
+        // Override with updated courses
         for course in updated {
-            courseMap[course.id] = course
-            // Debug: log if this course has hole_data
-            if let holeData = course.holeData, !holeData.isEmpty {
-                print("✅ Merged course '\(course.name)' with \(holeData.count) holes of data")
+            // If the updated course doesn't have hole_data but the existing one does, preserve the existing hole_data
+            if let existing = courseMap[course.id], course.holeData == nil {
+                let mergedCourse = Course(
+                    id: course.id,
+                    name: course.name,
+                    city: course.city,
+                    state: course.state,
+                    country: course.country,
+                    address: course.address,
+                    phone: course.phone,
+                    website: course.website,
+                    courseRating: course.courseRating,
+                    slopeRating: course.slopeRating,
+                    par: course.par,
+                    holes: course.holes,
+                    latitude: course.latitude,
+                    longitude: course.longitude,
+                    avgRating: course.avgRating,
+                    reviewCount: course.reviewCount,
+                    holeData: existing.holeData, // Preserve existing hole_data
+                    updatedAt: course.updatedAt,
+                    createdAt: course.createdAt
+                )
+                courseMap[course.id] = mergedCourse
+            } else {
+                courseMap[course.id] = course
             }
         }
         
         let merged = Array(courseMap.values)
-        print("🔄 Merged \(bundled.count) bundled + \(updated.count) updated = \(merged.count) total courses")
         return merged
+    }
+
+    /// Fetch hole_data for a specific course on-demand
+    func fetchHoleData(for courseId: String) async throws -> [HoleData]? {
+        let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
+        let supabaseKey = "sb_publishable_JftEdMATFsi78Ba8rIFObg_tpOeIS2J"
+        
+        // Try both courses and course_contributions tables
+        let tables = ["courses", "course_contributions"]
+        
+        for table in tables {
+            var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/\(table)")!
+            urlComponents.queryItems = [
+                URLQueryItem(name: "select", value: "hole_data"),
+                URLQueryItem(name: "id", value: "eq.\(courseId)")
+            ]
+            
+            var request = URLRequest(url: urlComponents.url!)
+            request.setValue(supabaseKey, forHTTPHeaderField: "apikey")
+            
+            let (data, _) = try await URLSession.shared.data(for: request)
+            
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]],
+               let first = json.first,
+               let holeDataRaw = first["hole_data"] {
+                
+                // Decode the hole_data part
+                let holeDataJSON = try JSONSerialization.data(withJSONObject: holeDataRaw)
+                let decoder = makeDecoder()
+                let holeData = try decoder.decode([HoleData].self, from: holeDataJSON)
+                
+                // Skip if it's just a placeholder (ONLY one entry with hole_number <= 0)
+                // But allow data that has hole 0 (course-wide hazards) + real holes
+                if holeData.count == 1, let firstHole = holeData.first, firstHole.holeNumber <= 0 {
+                    return nil
+                }
+                
+                // Also skip if ALL holes have number <= 0
+                if holeData.allSatisfy({ $0.holeNumber <= 0 }) {
+                    return nil
+                }
+                
+                return holeData
+            }
+        }
+        
+        return nil
+    }
+
+    /// Update a specific course in the cache with new hole_data
+    func updateCourseHoleData(courseId: String, holeData: [HoleData]) async {
+        guard var courses = loadCachedCourses() ?? (loadBundledCourses() as [Course]?) else { return }
+        
+        if let index = courses.firstIndex(where: { $0.id == courseId }) {
+            let oldCourse = courses[index]
+            let updatedCourse = Course(
+                id: oldCourse.id,
+                name: oldCourse.name,
+                city: oldCourse.city,
+                state: oldCourse.state,
+                country: oldCourse.country,
+                address: oldCourse.address,
+                phone: oldCourse.phone,
+                website: oldCourse.website,
+                courseRating: oldCourse.courseRating,
+                slopeRating: oldCourse.slopeRating,
+                par: oldCourse.par,
+                holes: oldCourse.holes,
+                latitude: oldCourse.latitude,
+                longitude: oldCourse.longitude,
+                avgRating: oldCourse.avgRating,
+                reviewCount: oldCourse.reviewCount,
+                holeData: holeData,
+                updatedAt: oldCourse.updatedAt,
+                createdAt: oldCourse.createdAt
+            )
+            courses[index] = updatedCourse
+            cacheCourses(courses)
+            print("💾 Updated hole_data for '\(oldCourse.name)' in cache")
+        }
     }
 }
 

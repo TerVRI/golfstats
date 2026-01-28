@@ -903,6 +903,7 @@ struct SGBarRow: View {
                 .foregroundColor(.white)
                 .frame(width: 90, alignment: .leading)
             
+            // Bar chart container
             GeometryReader { geo in
                 let centerX = geo.size.width / 2
                 let maxValue = 3.0
@@ -910,10 +911,9 @@ struct SGBarRow: View {
                 
                 ZStack {
                     // Background
-                    Rectangle()
+                    RoundedRectangle(cornerRadius: 4)
                         .fill(Color.gray.opacity(0.2))
                         .frame(height: 24)
-                        .cornerRadius(4)
                     
                     // Center line
                     Rectangle()
@@ -932,14 +932,16 @@ struct SGBarRow: View {
                             y: 12
                         )
                 }
+                .frame(height: 24)
             }
             .frame(height: 24)
+            .clipped() // Prevent overflow
             
             Text(formatSG(value))
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundColor(value >= 0 ? .green : .red)
-                .frame(width: 50, alignment: .trailing)
+                .frame(width: 55, alignment: .trailing) // Slightly wider for negative numbers
         }
     }
     

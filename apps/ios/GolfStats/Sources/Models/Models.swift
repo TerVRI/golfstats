@@ -373,8 +373,10 @@ struct Coordinate: Codable {
             var unkeyed = try decoder.unkeyedContainer()
             let first = try unkeyed.decode(Double.self)
             let second = try unkeyed.decode(Double.self)
-            // Support GeoJSON [lon, lat] as well as [lat, lon]
-            if abs(first) > 90, abs(second) <= 90 {
+            
+            // Standard order is [lat, lon]
+            // We only swap if first is clearly a longitude (> 90 or < -90)
+            if abs(first) > 90 {
                 lat = second
                 lon = first
             } else {

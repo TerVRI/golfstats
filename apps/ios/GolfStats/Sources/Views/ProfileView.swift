@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var watchSyncManager: WatchSyncManager
+    @EnvironmentObject var userProfileManager: UserProfileManager
     @Environment(\.openURL) private var openURL
     @StateObject private var golfBag = GolfBag.shared
     @State private var stats: UserStats = .empty
@@ -11,20 +12,31 @@ struct ProfileView: View {
     @State private var showBagEditor = false
     @State private var showPaywall = false
     @State private var showDeleteAlert = false
+    @State private var showSettings = false
+    @State private var showOnboarding = false
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Profile Header
+                    // Profile Header with Edit Button
                     VStack(spacing: 16) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.green.opacity(0.2))
-                                .frame(width: 100, height: 100)
-                            Text(authManager.currentUser?.initials ?? "G")
-                                .font(.system(size: 40, weight: .bold))
-                                .foregroundColor(.green)
+                        ZStack(alignment: .bottomTrailing) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.green.opacity(0.2))
+                                    .frame(width: 100, height: 100)
+                                Text(authManager.currentUser?.initials ?? "G")
+                                    .font(.system(size: 40, weight: .bold))
+                                    .foregroundColor(.green)
+                            }
+                            
+                            NavigationLink(destination: EditProfileView()) {
+                                Image(systemName: "pencil.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.green)
+                                    .background(Circle().fill(Color("Background")))
+                            }
                         }
                         
                         VStack(spacing: 4) {
@@ -37,6 +49,22 @@ struct ProfileView: View {
                                 Text(email)
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
+                            }
+                            
+                            // Show profile info summary
+                            if let profile = userProfileManager.userProfile {
+                                HStack(spacing: 12) {
+                                    if let handicap = profile.handicapIndex {
+                                        ProfileInfoBadge(icon: "number", text: String(format: "%.1f", handicap))
+                                    }
+                                    
+                                    ProfileInfoBadge(icon: "hand.raised", text: profile.handedness.shortName)
+                                    
+                                    if let targetHcp = profile.targetHandicap {
+                                        ProfileInfoBadge(icon: "target", text: "→ \(Int(targetHcp))")
+                                    }
+                                }
+                                .padding(.top, 8)
                             }
                         }
                     }
@@ -59,6 +87,24 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal)
                     }
+                    
+                    // Settings Button
+                    Button {
+                        showSettings = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "gearshape.fill")
+                            Text("Settings")
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color("BackgroundSecondary"))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
                     
                     // Notifications Button
                     NavigationLink(destination: NotificationsView()) {
@@ -258,12 +304,28 @@ struct ProfileView: View {
         .sheet(isPresented: $showPaywall) {
             ProPaywallView()
         }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+        }
+        .fullScreenCover(isPresented: $showOnboarding) {
+            UserProfileOnboardingView()
+        }
         .task {
             await loadStats()
         }
         .onAppear {
             // Sync bag to watch when profile loads
             watchSyncManager.sendBagToWatch(clubs: golfBag.clubNames)
+            
+            // Check if onboarding is needed
+            if userProfileManager.needsOnboarding {
+                showOnboarding = true
+            }
+        }
+        .onChange(of: userProfileManager.needsOnboarding) { _, needsOnboarding in
+            if needsOnboarding {
+                showOnboarding = true
+            }
         }
     }
     
@@ -379,9 +441,32 @@ struct BagEditorView: View {
     }
 }
 
+// MARK: - Profile Info Badge
+
+struct ProfileInfoBadge: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption)
+            Text(text)
+                .font(.caption)
+                .fontWeight(.medium)
+        }
+        .foregroundColor(.green)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color.green.opacity(0.2))
+        .cornerRadius(8)
+    }
+}
+
 #Preview {
     ProfileView()
         .environmentObject(AuthManager())
         .environmentObject(WatchSyncManager())
+        .environmentObject(UserProfileManager.shared)
         .preferredColorScheme(.dark)
 }

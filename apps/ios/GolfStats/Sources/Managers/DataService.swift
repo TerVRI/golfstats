@@ -4,7 +4,7 @@ actor DataService {
     static let shared = DataService()
     
     private let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
-    private let supabaseKey = "sb_publishable_JftEdMATFsi78Ba8rIFObg_tpOeIS2J"
+    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthbnZocXdyZmt6cWt0dXZweG5wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzNTQwNDYsImV4cCI6MjA4MzkzMDA0Nn0.ZeTqSva8VrJUTkFWvaIrmgwvYdHbTScp5YEfC8hiris"
     
     private init() {}
     
@@ -873,6 +873,120 @@ actor DataService {
         
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
+            throw DataError.saveFailed
+        }
+    }
+    
+    // MARK: - Course Note Reporting
+
+    func reportCourseNote(
+        noteId: String,
+        courseId: String,
+        reporterId: String,
+        authHeaders: [String: String],
+        reason: String
+    ) async throws {
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/course_note_reports")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let body: [String: Any] = [
+            "note_id": noteId,
+            "course_id": courseId,
+            "reporter_id": reporterId,
+            "reason": reason,
+            "status": "pending",
+            "created_at": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
+            throw DataError.saveFailed
+        }
+    }
+    
+    // MARK: - User Profile
+    
+    /// Fetch user profile from server
+    func fetchUserProfile(userId: String, authHeaders: [String: String]) async throws -> UserProfile? {
+        var urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/user_profiles")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "user_id", value: "eq.\(userId)"),
+            URLQueryItem(name: "limit", value: "1")
+        ]
+        
+        var request = URLRequest(url: urlComponents.url!)
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw DataError.fetchFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        let profiles = try decoder.decode([UserProfile].self, from: data)
+        return profiles.first
+    }
+    
+    /// Save or update user profile
+    func saveUserProfile(_ profile: UserProfile, authHeaders: [String: String]) async throws {
+        // Use upsert to create or update
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/user_profiles")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("return=representation", forHTTPHeaderField: "Prefer")
+        request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        request.httpBody = try encoder.encode(profile)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+            throw DataError.saveFailed
+        }
+    }
+    
+    /// Submit an issue report
+    func submitIssueReport(_ report: IssueReport, authHeaders: [String: String]) async throws {
+        let urlComponents = URLComponents(string: "\(supabaseUrl)/rest/v1/issue_reports")!
+        
+        var request = URLRequest(url: urlComponents.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        request.httpBody = try encoder.encode(report)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
             throw DataError.saveFailed
         }
     }

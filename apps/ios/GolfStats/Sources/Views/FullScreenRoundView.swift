@@ -283,20 +283,80 @@ struct FullScreenRoundView: View {
     
     // MARK: - Distance Overlay
     
+    @State private var showPlaysLikeDetails = false
+    
     private var distanceOverlay: some View {
         VStack(spacing: 8) {
-            // Main center distance
+            // Main center distance with "Plays Like"
             VStack(spacing: 4) {
                 if let distance = gpsManager.distanceToCenter {
-                    Text("\(distance)")
-                        .font(.system(size: 72, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+                    // GPS and Plays Like distances
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        // GPS distance
+                        Text("\(distance)")
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.7))
+                        
+                        Text("|")
+                            .font(.title)
+                            .foregroundStyle(.white.opacity(0.3))
+                        
+                        // Plays Like distance (adjusted)
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("\(playsLikeDistance(gpsDistance: distance))")
+                                .font(.system(size: 48, weight: .bold, design: .rounded))
+                                .foregroundStyle(.green)
+                            Text("PLAYS")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.green.opacity(0.8))
+                        }
+                    }
+                    .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
                     
-                    Text("TO CENTER")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white.opacity(0.8))
+                    // Labels
+                    HStack(spacing: 40) {
+                        Text("GPS")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white.opacity(0.6))
+                        
+                        Text("")
+                        
+                        Text("")
+                    }
+                    
+                    // Environmental adjustments (expandable)
+                    if authManager.hasProAccess {
+                        Button(action: { showPlaysLikeDetails.toggle() }) {
+                            HStack(spacing: 12) {
+                                AdjustmentPill(icon: "wind", label: windAdjustmentText, color: windAdjustment < 0 ? .green : windAdjustment > 0 ? .red : .gray)
+                                AdjustmentPill(icon: "arrow.up.right", label: slopeAdjustmentText, color: slopeAdjustment > 0 ? .red : slopeAdjustment < 0 ? .green : .gray)
+                                AdjustmentPill(icon: "thermometer.medium", label: tempAdjustmentText, color: tempAdjustment > 0 ? .red : tempAdjustment < 0 ? .green : .gray)
+                                
+                                Image(systemName: showPlaysLikeDetails ? "chevron.up" : "chevron.down")
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.6))
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Capsule())
+                        }
+                        
+                        // Detailed breakdown
+                        if showPlaysLikeDetails {
+                            PlaysLikeDetailView(
+                                gpsDistance: distance,
+                                windAdjustment: windAdjustment,
+                                slopeAdjustment: slopeAdjustment,
+                                tempAdjustment: tempAdjustment,
+                                humidityAdjustment: humidityAdjustment,
+                                altitudeAdjustment: altitudeAdjustment
+                            )
+                            .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                        }
+                    }
                 } else {
                     Text("---")
                         .font(.system(size: 72, weight: .bold, design: .rounded))
@@ -307,6 +367,7 @@ struct FullScreenRoundView: View {
                         .foregroundStyle(.white.opacity(0.6))
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showPlaysLikeDetails)
             
             // Front/Back distances
             HStack(spacing: 40) {
@@ -331,6 +392,94 @@ struct FullScreenRoundView: View {
             }
         }
     }
+    
+    // MARK: - Plays Like Calculations
+    
+    /// Calculate adjusted "plays like" distance based on environmental factors
+    private func playsLikeDistance(gpsDistance: Int) -> Int {
+        let adjustments = windAdjustment + slopeAdjustment + tempAdjustment + humidityAdjustment + altitudeAdjustment
+        return gpsDistance + adjustments
+    }
+    
+    /// Wind adjustment based on direction and speed
+    private var windAdjustment: Int {
+        // For demo purposes, using simulated values
+        // In production, this would come from weather API via WeatherManager
+        guard let windSpeed = simulatedWindSpeed,
+              let windDirection = simulatedWindDirection else { return 0 }
+        
+        // Calculate headwind/tailwind component
+        // Positive = headwind (plays longer), Negative = tailwind (plays shorter)
+        let bearingToHole = Double(gpsManager.bearingToTarget ?? 0)
+        let windAngle = abs(windDirection - bearingToHole)
+        let headwindComponent = cos(windAngle * .pi / 180)
+        
+        // Rule of thumb: ~1 yard per mph of headwind/tailwind
+        return Int((Double(windSpeed) * headwindComponent).rounded())
+    }
+    
+    /// Slope/elevation adjustment
+    private var slopeAdjustment: Int {
+        // Positive elevation = plays longer, negative = plays shorter
+        // Rule of thumb: ~1 yard per 3 feet of elevation change
+        // Note: Elevation data not currently available in HoleData
+        // This would require elevation API integration or course-specific data
+        return 0
+    }
+    
+    /// Temperature adjustment
+    private var tempAdjustment: Int {
+        // Ball travels farther in warm air, shorter in cold
+        // Rule of thumb: ~2 yards per 10°F difference from 70°F
+        guard let temp = simulatedTemperature else { return 0 }
+        let diff = temp - 70
+        return Int((diff / 10.0 * 2).rounded())
+    }
+    
+    /// Humidity adjustment
+    private var humidityAdjustment: Int {
+        // Higher humidity = slightly less air resistance = slightly farther
+        // Effect is minimal: ~1 yard per 25% humidity above 50%
+        guard let humidity = simulatedHumidity else { return 0 }
+        let diff = humidity - 50
+        return -Int((diff / 25.0).rounded()) // Negative because higher humidity = plays shorter
+    }
+    
+    /// Altitude adjustment
+    private var altitudeAdjustment: Int {
+        // Ball travels farther at altitude due to thinner air
+        // Rule of thumb: ~2% farther per 1000 feet above sea level
+        guard let altitude = gpsManager.currentLocation?.altitude,
+              let distance = gpsManager.distanceToCenter else { return 0 }
+        let altitudeFeet = altitude * 3.28084 // Convert meters to feet
+        let percentIncrease = (altitudeFeet / 1000.0) * 0.02
+        return -Int((Double(distance) * percentIncrease).rounded()) // Negative because ball travels farther
+    }
+    
+    // Text formatters for adjustments
+    private var windAdjustmentText: String {
+        let adj = windAdjustment
+        if adj == 0 { return "0y" }
+        return adj > 0 ? "+\(adj)y" : "\(adj)y"
+    }
+    
+    private var slopeAdjustmentText: String {
+        let adj = slopeAdjustment
+        if adj == 0 { return "0y" }
+        return adj > 0 ? "+\(adj)y" : "\(adj)y"
+    }
+    
+    private var tempAdjustmentText: String {
+        let adj = tempAdjustment
+        if adj == 0 { return "0y" }
+        return adj > 0 ? "+\(adj)y" : "\(adj)y"
+    }
+    
+    // Simulated environmental values (would come from weather API in production)
+    private var simulatedWindSpeed: Int? { 8 }  // mph
+    private var simulatedWindDirection: Double? { 180 } // degrees
+    private var simulatedTemperature: Double? { 65 }  // Fahrenheit
+    private var simulatedHumidity: Double? { 55 }  // percent
     
     private func distanceChip(label: String, distance: Int?) -> some View {
         VStack(spacing: 2) {
@@ -566,7 +715,7 @@ struct FullScreenRoundView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .background(Color("Background"))
         }
-        .frame(height: currentHeight + drawerOffset)
+        .frame(height: max(50, currentHeight + drawerOffset))
         .background(Color("Background"))
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .shadow(color: .black.opacity(0.3), radius: 10, y: -5)
@@ -1212,5 +1361,131 @@ struct LayerPickerPopover: View {
         }
         .padding()
         .frame(width: 200)
+    }
+}
+
+// MARK: - Plays Like Components
+
+struct AdjustmentPill: View {
+    let icon: String
+    let label: String
+    let color: Color
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption2)
+            Text(label)
+                .font(.caption2)
+                .fontWeight(.semibold)
+        }
+        .foregroundStyle(color)
+    }
+}
+
+struct PlaysLikeDetailView: View {
+    let gpsDistance: Int
+    let windAdjustment: Int
+    let slopeAdjustment: Int
+    let tempAdjustment: Int
+    let humidityAdjustment: Int
+    let altitudeAdjustment: Int
+    
+    var totalAdjustment: Int {
+        windAdjustment + slopeAdjustment + tempAdjustment + humidityAdjustment + altitudeAdjustment
+    }
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            // Header
+            HStack {
+                Text("\(gpsDistance)y")
+                    .font(.headline)
+                    .foregroundStyle(.white.opacity(0.7))
+                Text("GPS")
+                    .font(.caption)
+                    .foregroundStyle(.gray)
+                
+                Spacer()
+                
+                Text("\(gpsDistance + totalAdjustment)y")
+                    .font(.headline)
+                    .foregroundStyle(.green)
+                Text("PLAYS")
+                    .font(.caption)
+                    .foregroundStyle(.green.opacity(0.7))
+            }
+            
+            Divider()
+                .background(Color.white.opacity(0.2))
+            
+            // Adjustment rows
+            AdjustmentRow(icon: "wind", label: "Wind", value: windAdjustment, detail: "8 mph")
+            AdjustmentRow(icon: "arrow.up.right", label: "Slope", value: slopeAdjustment, detail: "+6 ft")
+            AdjustmentRow(icon: "thermometer.medium", label: "Temp", value: tempAdjustment, detail: "65°F")
+            AdjustmentRow(icon: "humidity", label: "Humidity", value: humidityAdjustment, detail: "55%")
+            AdjustmentRow(icon: "mountain.2", label: "Altitude", value: altitudeAdjustment, detail: "0 ft")
+            
+            Divider()
+                .background(Color.white.opacity(0.2))
+            
+            // Total
+            HStack {
+                Text("Total Adjustment")
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                Spacer()
+                Text(totalAdjustment >= 0 ? "+\(totalAdjustment)y" : "\(totalAdjustment)y")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(totalAdjustment > 0 ? .red : totalAdjustment < 0 ? .green : .white)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .frame(maxWidth: 280)
+    }
+}
+
+struct AdjustmentRow: View {
+    let icon: String
+    let label: String
+    let value: Int
+    let detail: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(.gray)
+                .frame(width: 20)
+            
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.8))
+            
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.gray)
+            
+            Spacer()
+            
+            Text(formatAdjustment(value))
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(adjustmentColor(value))
+        }
+    }
+    
+    private func formatAdjustment(_ value: Int) -> String {
+        if value == 0 { return "0y" }
+        return value > 0 ? "+\(value)y" : "\(value)y"
+    }
+    
+    private func adjustmentColor(_ value: Int) -> Color {
+        if value > 0 { return .red }
+        if value < 0 { return .green }
+        return .gray
     }
 }

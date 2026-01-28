@@ -111,8 +111,9 @@ class DataImportManager: ObservableObject {
     }
     
     private func importFIT(from url: URL) async throws -> ImportResult {
-        // FIT files are binary - would need FIT SDK for full support
-        // For now, return a placeholder
+        // FIT files are Garmin's proprietary binary format used by most Garmin devices.
+        // Full support requires the FIT SDK which has licensing restrictions.
+        // Users should export their data as JSON or CSV from Garmin Connect instead.
         throw ImportError.fitParsingNotSupported
     }
     
@@ -660,7 +661,7 @@ enum ImportError: LocalizedError {
         case .parseError(let message):
             return "Parse error: \(message)"
         case .fitParsingNotSupported:
-            return "FIT file parsing not yet supported"
+            return "FIT files are not supported. Please export your data as JSON or CSV from Garmin Connect, then import that file instead."
         case .tcxGolfNotSupported:
             return "TCX files don't have good golf support"
         }
@@ -785,10 +786,12 @@ import SwiftUI
 
 struct DataImportView: View {
     @ObservedObject var importManager = DataImportManager.shared
+    @EnvironmentObject var authManager: AuthManager
     @State private var showFilePicker = false
     @State private var importedRounds: [ImportedRound] = []
     @State private var selectedRounds: Set<UUID> = []
     @State private var showImportConfirmation = false
+    @State private var showAuthError = false
     
     var body: some View {
         List {
@@ -902,12 +905,96 @@ struct DataImportView: View {
     }
     
     private func finalizeImport() {
+        guard let userId = authManager.currentUser?.id else {
+            showAuthError = true
+            return
+        }
+        let authHeaders = authManager.authHeaders
         let roundsToImport = importedRounds.filter { selectedRounds.contains($0.id) }
-        // TODO: Save rounds to database
-        print("Importing \(roundsToImport.count) rounds")
         
-        importedRounds.removeAll()
-        selectedRounds.removeAll()
+        Task {
+            await saveImportedRounds(roundsToImport, userId: userId, authHeaders: authHeaders)
+        }
+    }
+    
+    private func saveImportedRounds(_ rounds: [ImportedRound], userId: String, authHeaders: [String: String]) async {
+        
+        let supabaseUrl = "https://kanvhqwrfkzqktuvpxnp.supabase.co"
+        var successCount = 0
+        
+        for round in rounds {
+            do {
+                // Build round data
+                var roundData: [String: Any] = [
+                    "user_id": userId,
+                    "course_name": round.courseName,
+                    "played_at": ISO8601DateFormatter().string(from: round.date).prefix(10).description,
+                    "total_score": round.score,
+                    "holes_played": round.holesPlayed,
+                    "scoring_format": "stroke",
+                    "import_source": round.source.rawValue
+                ]
+                
+                // Add stats if available
+                if let stats = round.stats {
+                    if let putts = stats.totalPutts { roundData["total_putts"] = putts }
+                    if let fwHit = stats.fairwaysHit { roundData["fairways_hit"] = fwHit }
+                    if let fwTotal = stats.fairwaysTotal { roundData["fairways_total"] = fwTotal }
+                    if let gir = stats.greensInReg { roundData["gir"] = gir }
+                    if let penalties = stats.penalties { roundData["penalties"] = penalties }
+                    if let sg = stats.strokesGained { roundData["strokes_gained_total"] = sg }
+                    if let sgDriving = stats.sgDriving { roundData["strokes_gained_off_tee"] = sgDriving }
+                    if let sgApproach = stats.sgApproach { roundData["strokes_gained_approach"] = sgApproach }
+                    if let sgShort = stats.sgShortGame { roundData["strokes_gained_around_green"] = sgShort }
+                    if let sgPutt = stats.sgPutting { roundData["strokes_gained_putting"] = sgPutt }
+                }
+                
+                // Build hole scores data
+                let holeScoresData: [[String: Any]] = round.holeScores.map { hole in
+                    var holeData: [String: Any] = [
+                        "hole_number": hole.holeNumber,
+                        "par": hole.par,
+                        "strokes": hole.strokes
+                    ]
+                    if let putts = hole.putts { holeData["putts"] = putts }
+                    if let fir = hole.fairwayHit { holeData["fairway_hit"] = fir }
+                    if let gir = hole.greenInReg { holeData["green_in_regulation"] = gir }
+                    if let penalties = hole.penalties { holeData["penalties"] = penalties }
+                    return holeData
+                }
+                
+                if !holeScoresData.isEmpty {
+                    roundData["hole_scores"] = holeScoresData
+                }
+                
+                // Make API request
+                var request = URLRequest(url: URL(string: "\(supabaseUrl)/rest/v1/rounds")!)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue("return=representation", forHTTPHeaderField: "Prefer")
+                
+                for (key, value) in authHeaders {
+                    request.setValue(value, forHTTPHeaderField: key)
+                }
+                
+                request.httpBody = try JSONSerialization.data(withJSONObject: roundData)
+                
+                let (_, response) = try await URLSession.shared.data(for: request)
+                
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 201 {
+                    successCount += 1
+                }
+            } catch {
+                print("Failed to import round \(round.courseName): \(error.localizedDescription)")
+            }
+        }
+        
+        print("Successfully imported \(successCount) of \(rounds.count) rounds")
+        
+        await MainActor.run {
+            importedRounds.removeAll()
+            selectedRounds.removeAll()
+        }
     }
 }
 

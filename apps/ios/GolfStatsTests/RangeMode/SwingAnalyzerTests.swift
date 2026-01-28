@@ -306,6 +306,145 @@ final class SwingAnalyzerTests: XCTestCase {
         XCTAssertEqual(variance, 0.667, accuracy: 0.01)
     }
     
+    // MARK: - Dual-Mode Tracking Tests
+    
+    func testAnalyzer_DefaultsTo2DMode() {
+        // Analyzer should default to Vision 2D mode
+        XCTAssertEqual(analyzer.trackingMode, .vision2D)
+    }
+    
+    func testAnalyzer_Has2DDetector() {
+        // Should always have a 2D pose detector
+        XCTAssertNotNil(analyzer.poseDetector)
+        XCTAssertFalse(analyzer.poseDetector.supports3D)
+    }
+    
+    func testAnalyzer_ActiveProvider_In2DMode() {
+        // In 2D mode, active provider should not support 3D
+        analyzer.trackingMode = .vision2D
+        let provider = analyzer.activePoseProvider
+        XCTAssertFalse(provider.supports3D)
+    }
+    
+    func testAnalyzer_TrackingModePreservedInSession() {
+        // When starting session, tracking mode should be preserved
+        analyzer.trackingMode = .vision2D
+        analyzer.startSession()
+        
+        XCTAssertEqual(analyzer.currentSession?.trackingMode, .vision2D)
+        
+        _ = analyzer.endSession()
+    }
+    
+    func testAnalyzer_StartPreview_2DMode() {
+        // Should not crash when starting preview in 2D mode
+        analyzer.trackingMode = .vision2D
+        analyzer.startPreview()
+        
+        // Pose detector should be detecting
+        XCTAssertTrue(analyzer.poseDetector.isDetecting)
+        
+        analyzer.stopDetecting()
+    }
+    
+    func testAnalyzer_StopDetecting_StopsBothProviders() {
+        // Start preview
+        analyzer.startPreview()
+        
+        // Stop detecting
+        analyzer.stopDetecting()
+        
+        // 2D detector should be stopped
+        XCTAssertFalse(analyzer.poseDetector.isDetecting)
+        
+        // 3D tracker (if available) should also be stopped
+        if let arTracker = analyzer.arBodyTracker {
+            XCTAssertFalse(arTracker.isDetecting)
+        }
+    }
+    
+    func testSession_With2DTrackingMode() {
+        // Generate session with 2D tracking mode
+        let session = MockDataGenerators.generateRangeSession(
+            swingCount: 3,
+            trackingMode: .vision2D
+        )
+        
+        XCTAssertEqual(session.trackingMode, .vision2D)
+        XCTAssertEqual(session.swingCount, 3)
+    }
+    
+    func testSession_With3DTrackingMode() {
+        // Generate session with 3D tracking mode
+        let session = MockDataGenerators.generateRangeSession(
+            swingCount: 3,
+            trackingMode: .arkit3D
+        )
+        
+        XCTAssertEqual(session.trackingMode, .arkit3D)
+        XCTAssertEqual(session.swingCount, 3)
+    }
+    
+    // MARK: - 3D Mock Data Tests
+    
+    func testMockGenerator_3DJoints() {
+        // Generate 3D joints at setup position
+        let joints = MockDataGenerators.generate3DJoints(progress: 0)
+        
+        // Should have all major joints
+        let jointNames = Set(joints.map { $0.name })
+        XCTAssertTrue(jointNames.contains("head"))
+        XCTAssertTrue(jointNames.contains("leftShoulder"))
+        XCTAssertTrue(jointNames.contains("rightShoulder"))
+        XCTAssertTrue(jointNames.contains("leftHip"))
+        XCTAssertTrue(jointNames.contains("rightHip"))
+    }
+    
+    func testMockGenerator_3DJoints_HeightRealistic() {
+        // Generate 3D joints
+        let joints = MockDataGenerators.generate3DJoints(progress: 0.5)
+        
+        // Head should be highest
+        let head = joints.first { $0.name == "head" }
+        let ankle = joints.first { $0.name == "leftAnkle" }
+        
+        XCTAssertNotNil(head)
+        XCTAssertNotNil(ankle)
+        XCTAssertGreaterThan(head!.position.y, ankle!.position.y)
+    }
+    
+    func testMockGenerator_3DSwingSequence() {
+        // Generate 3D swing sequence
+        let sequence = MockDataGenerators.generate3DSwingSequence(fps: 30)
+        
+        // Should have frames
+        XCTAssertGreaterThan(sequence.count, 30) // At least 1 second
+        
+        // Each frame should have joints
+        for frame in sequence {
+            XCTAssertGreaterThan(frame.count, 10)
+        }
+    }
+    
+    func testMockGenerator_3DShoulderRotation() {
+        // At setup, shoulders should be square (small rotation)
+        let setupJoints = MockDataGenerators.generate3DJoints(progress: 0)
+        let leftShoulder = setupJoints.first { $0.name == "leftShoulder" }!
+        let rightShoulder = setupJoints.first { $0.name == "rightShoulder" }!
+        
+        // Z positions should be similar (square to camera)
+        XCTAssertEqual(leftShoulder.position.z, rightShoulder.position.z, accuracy: 0.05)
+        
+        // At top of backswing, shoulders should be rotated
+        let topJoints = MockDataGenerators.generate3DJoints(progress: 0.5)
+        let topLeftShoulder = topJoints.first { $0.name == "leftShoulder" }!
+        let topRightShoulder = topJoints.first { $0.name == "rightShoulder" }!
+        
+        // Z positions should be different (rotated)
+        let zDiff = abs(topLeftShoulder.position.z - topRightShoulder.position.z)
+        XCTAssertGreaterThan(zDiff, 0.1)
+    }
+    
     // MARK: - Helper Methods
     
     private func calculateTempoScore(ratio: Double, target: Double) -> Double {

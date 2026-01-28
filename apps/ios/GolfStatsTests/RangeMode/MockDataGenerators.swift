@@ -1,4 +1,5 @@
 import Foundation
+import simd
 @testable import GolfStats
 
 /// Generates mock data for testing Range Mode components
@@ -371,12 +372,14 @@ enum MockDataGenerators {
     /// Generate a complete range session with multiple swings
     static func generateRangeSession(
         swingCount: Int = 10,
-        includeVariation: Bool = true
+        includeVariation: Bool = true,
+        trackingMode: BodyTrackingMode = .vision2D
     ) -> RangeSession {
         var session = RangeSession()
         session.startTime = Date().addingTimeInterval(-600) // 10 minutes ago
         session.endTime = Date()
         session.selectedClub = "7 Iron"
+        session.trackingMode = trackingMode
         
         for i in 0..<swingCount {
             let swingType: MockSwingType
@@ -399,6 +402,164 @@ enum MockDataGenerators {
         }
         
         return session
+    }
+    
+    // MARK: - 3D Joint Generation
+    
+    /// Generate 3D joints for a pose at given swing progress
+    static func generate3DJoints(
+        progress: Double,
+        swingType: MockSwingType = .normal
+    ) -> [Joint3D] {
+        let (shoulderRotation, hipRotation, _) = calculateBodyAngles(progress: progress, swingType: swingType)
+        
+        // Convert degrees to radians
+        let shoulderRad = Float(shoulderRotation * .pi / 180)
+        let hipRad = Float(hipRotation * .pi / 180)
+        
+        var joints: [Joint3D] = []
+        
+        // Base height (meters)
+        let headHeight: Float = 1.7
+        let shoulderHeight: Float = 1.4
+        let hipHeight: Float = 0.95
+        let kneeHeight: Float = 0.5
+        let ankleHeight: Float = 0.05
+        
+        // Base widths (meters)
+        let shoulderWidth: Float = 0.4
+        let hipWidth: Float = 0.24
+        let stanceWidth: Float = 0.24
+        
+        // Head
+        joints.append(createJoint3D(
+            name: "head",
+            x: 0,
+            y: headHeight,
+            z: 0
+        ))
+        
+        // Shoulders (rotated)
+        joints.append(createJoint3D(
+            name: "leftShoulder",
+            x: -shoulderWidth/2 * cos(shoulderRad),
+            y: shoulderHeight,
+            z: -shoulderWidth/2 * sin(shoulderRad)
+        ))
+        joints.append(createJoint3D(
+            name: "rightShoulder",
+            x: shoulderWidth/2 * cos(shoulderRad),
+            y: shoulderHeight,
+            z: shoulderWidth/2 * sin(shoulderRad)
+        ))
+        
+        // Elbows
+        let elbowOffset = calculateElbowPosition(progress: progress)
+        joints.append(createJoint3D(
+            name: "leftElbow",
+            x: -0.25 + Float(elbowOffset.x),
+            y: 1.2 + Float(elbowOffset.y),
+            z: -0.1
+        ))
+        joints.append(createJoint3D(
+            name: "rightElbow",
+            x: 0.25 - Float(elbowOffset.x),
+            y: 1.2 + Float(elbowOffset.y),
+            z: -0.1
+        ))
+        
+        // Wrists
+        let wristOffset = calculateWristPosition(progress: progress)
+        joints.append(createJoint3D(
+            name: "leftWrist",
+            x: -0.1 + Float(wristOffset.x),
+            y: 1.0 + Float(wristOffset.y),
+            z: -0.2
+        ))
+        joints.append(createJoint3D(
+            name: "rightWrist",
+            x: 0.1 + Float(wristOffset.x),
+            y: 1.0 + Float(wristOffset.y),
+            z: -0.2
+        ))
+        
+        // Hips (rotated)
+        joints.append(createJoint3D(
+            name: "leftHip",
+            x: -hipWidth/2 * cos(hipRad),
+            y: hipHeight,
+            z: -hipWidth/2 * sin(hipRad)
+        ))
+        joints.append(createJoint3D(
+            name: "rightHip",
+            x: hipWidth/2 * cos(hipRad),
+            y: hipHeight,
+            z: hipWidth/2 * sin(hipRad)
+        ))
+        
+        // Knees
+        joints.append(createJoint3D(
+            name: "leftKnee",
+            x: -stanceWidth/2,
+            y: kneeHeight,
+            z: 0
+        ))
+        joints.append(createJoint3D(
+            name: "rightKnee",
+            x: stanceWidth/2,
+            y: kneeHeight,
+            z: 0
+        ))
+        
+        // Ankles
+        joints.append(createJoint3D(
+            name: "leftAnkle",
+            x: -stanceWidth/2,
+            y: ankleHeight,
+            z: 0
+        ))
+        joints.append(createJoint3D(
+            name: "rightAnkle",
+            x: stanceWidth/2,
+            y: ankleHeight,
+            z: 0
+        ))
+        
+        return joints
+    }
+    
+    /// Generate a sequence of 3D joint data for a swing
+    static func generate3DSwingSequence(
+        duration: TimeInterval = 1.2,
+        fps: Int = 30,
+        swingType: MockSwingType = .normal
+    ) -> [[Joint3D]] {
+        var sequence: [[Joint3D]] = []
+        let frameCount = Int(duration * Double(fps))
+        
+        for i in 0..<frameCount {
+            let progress = Double(i) / Double(frameCount)
+            let joints = generate3DJoints(progress: progress, swingType: swingType)
+            sequence.append(joints)
+        }
+        
+        return sequence
+    }
+    
+    private static func createJoint3D(name: String, x: Float, y: Float, z: Float) -> Joint3D {
+        // Simple orthographic projection for screen position
+        let screenX = CGFloat(0.5 + Double(x))
+        let screenY = CGFloat(1.0 - Double(y) / 2.0)
+        
+        return Joint3D(
+            name: name,
+            position: SIMD3<Float>(x, y, z),
+            screenPosition: CGPoint(
+                x: max(0, min(1, screenX)),
+                y: max(0, min(1, screenY))
+            ),
+            confidence: 0.95
+        )
     }
 }
 

@@ -17,6 +17,7 @@ struct RoundCaddyApp: App {
     @StateObject private var roundManager = RoundManager()
     @StateObject private var watchSyncManager = WatchSyncManager()
     @StateObject private var subscriptionManager = SubscriptionManager()
+    @StateObject private var userProfileManager = UserProfileManager()
     @Environment(\.scenePhase) private var scenePhase
     
     var body: some Scene {
@@ -27,6 +28,7 @@ struct RoundCaddyApp: App {
                 .environmentObject(roundManager)
                 .environmentObject(watchSyncManager)
                 .environmentObject(subscriptionManager)
+                .environmentObject(userProfileManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
                     // Lock to portrait during loading
@@ -57,9 +59,14 @@ struct ContentView: View {
     @EnvironmentObject var watchSyncManager: WatchSyncManager
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     
+    // TEMP: Set to true to test polygon visualization
+    private let testPolygonMode = false
+    
     var body: some View {
         Group {
-            if authManager.isLoading {
+            if testPolygonMode {
+                PolygonTestView()
+            } else if authManager.isLoading {
                 LoadingView()
             } else if authManager.isAuthenticated {
                 MainTabView()
@@ -123,10 +130,78 @@ struct LoadingView: View {
     }
 }
 
+// MARK: - Polygon Test View
+struct PolygonTestView: View {
+    @State private var holeData: [HoleData]? = nil
+    @State private var isLoading = true
+    @State private var errorMessage: String? = nil
+    @State private var courseName = "Loading..."
+    
+    // Riverside Golf Club - verified to have full polygon data
+    let courseId = "6aafb345-32a0-4cac-9b95-959a5ab2453c"
+    
+    var body: some View {
+        NavigationStack {
+            Group {
+                if isLoading {
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        Text("Loading polygon data...")
+                            .foregroundColor(.gray)
+                    }
+                } else if let error = errorMessage {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 50))
+                            .foregroundColor(.red)
+                        Text(error)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                    }
+                } else if let holeData = holeData {
+                    CourseVisualizerView(holeData: holeData, initialHole: 1, showSatellite: true)
+                } else {
+                    Text("No data available")
+                        .foregroundColor(.gray)
+                }
+            }
+            .navigationTitle(courseName)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .task {
+            await loadCourseData()
+        }
+    }
+    
+    private func loadCourseData() async {
+        do {
+            // Fetch hole data from Supabase
+            if let data = try await CourseBundleLoader.shared.fetchHoleData(for: courseId) {
+                self.holeData = data
+                self.courseName = "Riverside Golf Club"
+                print("✅ Loaded \(data.count) holes")
+                if let h1 = data.first {
+                    print("   Hole 1: green=\(h1.green?.count ?? 0) pts, fairway=\(h1.fairway?.count ?? 0) pts, bunkers=\(h1.bunkers?.count ?? 0)")
+                }
+            } else {
+                self.errorMessage = "No hole data found for this course"
+            }
+        } catch {
+            self.errorMessage = "Error: \(error.localizedDescription)"
+            print("❌ Error loading hole data: \(error)")
+        }
+        self.isLoading = false
+    }
+}
+
 #Preview {
     ContentView()
         .environmentObject(AuthManager())
         .environmentObject(GPSManager())
         .environmentObject(RoundManager())
         .environmentObject(WatchSyncManager())
+        .environmentObject(SubscriptionManager())
+        .environmentObject(UserProfileManager())
 }

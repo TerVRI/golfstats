@@ -173,7 +173,9 @@ struct RoundModeLockedSheet: View {
                         }
                     }
                     
-                    Button(action: { /* Show paywall */ }) {
+                    NavigationLink {
+                        ProPaywallView()
+                    } label: {
                         Text("Upgrade to Pro")
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
@@ -280,8 +282,7 @@ struct AccessLevelBanner: View {
             }
             .buttonStyle(.plain)
             .sheet(isPresented: $showPaywall) {
-                // ProPaywallView()
-                Text("Paywall")
+                ProPaywallView()
             }
         }
     }

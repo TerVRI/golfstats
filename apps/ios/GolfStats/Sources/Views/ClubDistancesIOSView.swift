@@ -46,7 +46,7 @@ struct ClubDistancesIOSView: View {
         .alert("Reset Club Distances?", isPresented: $showingResetAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Reset", role: .destructive) {
-                // TODO: Implement reset
+                watchSyncManager.resetClubDistances()
             }
         } message: {
             Text("This will clear all learned club distances. This cannot be undone.")

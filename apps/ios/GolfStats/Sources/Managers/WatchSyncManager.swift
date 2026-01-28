@@ -72,6 +72,27 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
     
+    /// Reset all learned club distances
+    func resetClubDistances() {
+        clubDistances = []
+        UserDefaults.standard.removeObject(forKey: clubDistancesKey)
+        
+        // Notify watch to also clear its club distance data
+        guard let session = session, session.activationState == .activated else { return }
+        
+        let message: [String: Any] = [
+            "action": "resetClubDistances"
+        ]
+        
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil) { error in
+                print("Error sending reset to watch: \(error.localizedDescription)")
+            }
+        } else {
+            session.transferUserInfo(message)
+        }
+    }
+    
     // MARK: - Send Data to Watch
     
     func sendCourseToWatch(course: Course) {
@@ -450,21 +471,25 @@ class WatchSyncManager: NSObject, ObservableObject, WCSessionDelegate {
     func sendRoundStateToWatch(isActive: Bool, currentHole: Int, courseName: String, holeScores: [HoleScore]) {
         guard let session = session, session.activationState == .activated, session.isReachable else { return }
         
+        // Build scores array, only including non-nil values (WCSession doesn't support NSNull)
+        let scoresData = holeScores.map { hole -> [String: Any] in
+            var dict: [String: Any] = [
+                "holeNumber": hole.holeNumber,
+                "par": hole.par
+            ]
+            if let score = hole.score { dict["score"] = score }
+            if let putts = hole.putts { dict["putts"] = putts }
+            if let fairwayHit = hole.fairwayHit { dict["fairwayHit"] = fairwayHit }
+            if let gir = hole.gir { dict["gir"] = gir }
+            return dict
+        }
+        
         let message: [String: Any] = [
             "action": "roundStateUpdate",
             "isRoundActive": isActive,
             "currentHole": currentHole,
             "courseName": courseName,
-            "scores": holeScores.map { hole -> [String: Any] in
-                [
-                    "holeNumber": hole.holeNumber,
-                    "par": hole.par,
-                    "score": hole.score as Any,
-                    "putts": hole.putts as Any,
-                    "fairwayHit": hole.fairwayHit as Any,
-                    "gir": hole.gir as Any
-                ]
-            },
+            "scores": scoresData,
             "timestamp": Date().timeIntervalSince1970
         ]
         

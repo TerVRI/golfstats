@@ -32,141 +32,182 @@ struct CourseSVGVisualizerView: View {
         viewMode == .overview ? holeData : (currentHole.map { [$0] } ?? [])
     }
     
+    /// Check if hole data has any valid coordinates for visualization
+    var hasValidCoordinates: Bool {
+        for hole in holeData {
+            if hole.greenCenter != nil { return true }
+            if hole.teeLocations?.isEmpty == false { return true }
+            if hole.green?.isEmpty == false { return true }
+            if hole.fairway?.isEmpty == false { return true }
+            if hole.bunkers?.isEmpty == false { return true }
+            if hole.waterHazards?.isEmpty == false { return true }
+        }
+        return false
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
-            // Controls
-            VStack(spacing: 12) {
-                // Mode toggle and hole selector
-                HStack {
-                    if viewMode == .hole {
-                        Picker("Hole", selection: $selectedHole) {
-                            ForEach(holeData, id: \.holeNumber) { hole in
-                                Text("Hole \(hole.holeNumber) - Par \(hole.par)")
-                                    .tag(hole.holeNumber)
+            // Controls - only show when we have valid coordinate data
+            if hasValidCoordinates && !holeData.isEmpty {
+                VStack(spacing: 12) {
+                    // Mode toggle and hole selector
+                    HStack {
+                        if viewMode == .hole {
+                            Picker("Hole", selection: $selectedHole) {
+                                ForEach(holeData, id: \.holeNumber) { hole in
+                                    Text("Hole \(hole.holeNumber) - Par \(hole.par)")
+                                        .tag(hole.holeNumber)
+                                }
                             }
+                            .pickerStyle(.menu)
                         }
-                        .pickerStyle(.menu)
+                        
+                        Spacer()
+                        
+                        // View mode toggle
+                        Picker("View", selection: $viewMode) {
+                            Text("Hole").tag(VisualizationMode.hole)
+                            Text("Overview").tag(VisualizationMode.overview)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 150)
                     }
                     
-                    Spacer()
-                    
-                    // View mode toggle
-                    Picker("View", selection: $viewMode) {
-                        Text("Hole").tag(VisualizationMode.hole)
-                        Text("Overview").tag(VisualizationMode.overview)
+                    // Layer toggles
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            LayerToggleButtonWithLabel(
+                                icon: "eye.fill",
+                                label: "Fairway",
+                                isOn: $showLayers.fairway,
+                                color: .green
+                            )
+                            LayerToggleButtonWithLabel(
+                                icon: "flag.fill",
+                                label: "Green",
+                                isOn: $showLayers.green,
+                                color: .green
+                            )
+                            LayerToggleButtonWithLabel(
+                                icon: "square.fill",
+                                label: "Bunkers",
+                                isOn: $showLayers.bunkers,
+                                color: .yellow
+                            )
+                            LayerToggleButtonWithLabel(
+                                icon: "drop.fill",
+                                label: "Water",
+                                isOn: $showLayers.water,
+                                color: .blue
+                            )
+                            LayerToggleButtonWithLabel(
+                                icon: "location.fill",
+                                label: "Tees",
+                                isOn: Binding(
+                                    get: { true },
+                                    set: { _ in }
+                                ),
+                                color: .blue
+                            )
+                            LayerToggleButtonWithLabel(
+                                icon: "mappin.circle.fill",
+                                label: "Pin",
+                                isOn: Binding(
+                                    get: { true },
+                                    set: { _ in }
+                                ),
+                                color: .red
+                            )
+                        }
+                        .padding(.horizontal)
                     }
-                    .pickerStyle(.segmented)
-                    .frame(width: 150)
                 }
-                
-                // Layer toggles
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        LayerToggleButtonWithLabel(
-                            icon: "eye.fill",
-                            label: "Fairway",
-                            isOn: $showLayers.fairway,
-                            color: .green
-                        )
-                        LayerToggleButtonWithLabel(
-                            icon: "flag.fill",
-                            label: "Green",
-                            isOn: $showLayers.green,
-                            color: .green
-                        )
-                        LayerToggleButtonWithLabel(
-                            icon: "square.fill",
-                            label: "Bunkers",
-                            isOn: $showLayers.bunkers,
-                            color: .yellow
-                        )
-                        LayerToggleButtonWithLabel(
-                            icon: "drop.fill",
-                            label: "Water",
-                            isOn: $showLayers.water,
-                            color: .blue
-                        )
-                        LayerToggleButtonWithLabel(
-                            icon: "location.fill",
-                            label: "Tees",
-                            isOn: Binding(
-                                get: { true },
-                                set: { _ in }
-                            ),
-                            color: .blue
-                        )
-                        LayerToggleButtonWithLabel(
-                            icon: "mappin.circle.fill",
-                            label: "Pin",
-                            isOn: Binding(
-                                get: { true },
-                                set: { _ in }
-                            ),
-                            color: .red
-                        )
-                    }
-                    .padding(.horizontal)
-                }
+                .padding()
+                .background(Color("BackgroundSecondary"))
             }
-            .padding()
-            .background(Color("BackgroundSecondary"))
             
-            // SVG Canvas
-            ZStack {
-                GeometryReader { geometry in
-                    Canvas { context, size in
-                        let bounds = calculateBounds()
-                        let scale = min(size.width / max(bounds.width, 0.001), size.height / max(bounds.height, 0.001)) * 0.9
-                        let offsetX = (size.width - bounds.width * scale) / 2
-                        let offsetY = (size.height - bounds.height * scale) / 2
-                        
-                        // Background
-                        context.fill(
-                            Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 0),
-                            with: .color(Color(red: 0.94, green: 0.98, blue: 0.96))
-                        )
-                        
-                        // Draw each hole
-                        for hole in displayHoles {
-                            drawHole(hole, in: context, size: size, bounds: bounds, scale: scale, offsetX: offsetX, offsetY: offsetY)
-                        }
-                    }
-                    .background(Color(red: 0.94, green: 0.98, blue: 0.96))
-                }
-                
-                // Hole number labels for overview mode (overlay)
-                if viewMode == .overview {
+            // SVG Canvas or "No Coordinates" message
+            if hasValidCoordinates {
+                ZStack {
                     GeometryReader { geometry in
-                        let bounds = calculateBounds()
-                        let scale = min(geometry.size.width / max(bounds.width, 0.001), geometry.size.height / max(bounds.height, 0.001)) * 0.9
-                        let offsetX = (geometry.size.width - bounds.width * scale) / 2
-                        let offsetY = (geometry.size.height - bounds.height * scale) / 2
-                        
-                        ForEach(displayHoles, id: \.holeNumber) { hole in
-                            if let greenCenter = hole.greenCenter {
-                                let point = gpsToPoint(
-                                    lat: greenCenter.lat,
-                                    lon: greenCenter.lon,
-                                    bounds: bounds,
-                                    size: geometry.size,
-                                    scale: scale,
-                                    offsetX: offsetX,
-                                    offsetY: offsetY
-                                )
-                                
-                                Text("\(hole.holeNumber)")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.black)
-                                    .padding(4)
-                                    .background(Color.white.opacity(0.8))
-                                    .cornerRadius(4)
-                                    .position(x: point.x, y: point.y - 30)
+                        Canvas { context, size in
+                            let bounds = calculateBounds()
+                            let scale = min(size.width / max(bounds.width, 0.001), size.height / max(bounds.height, 0.001)) * 0.9
+                            let offsetX = (size.width - bounds.width * scale) / 2
+                            let offsetY = (size.height - bounds.height * scale) / 2
+                            
+                            // Background
+                            context.fill(
+                                Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 0),
+                                with: .color(Color(red: 0.94, green: 0.98, blue: 0.96))
+                            )
+                            
+                            // Draw each hole
+                            for hole in displayHoles {
+                                drawHole(hole, in: context, size: size, bounds: bounds, scale: scale, offsetX: offsetX, offsetY: offsetY)
+                            }
+                        }
+                        .background(Color(red: 0.94, green: 0.98, blue: 0.96))
+                    }
+                    
+                    // Hole number labels for overview mode (overlay)
+                    if viewMode == .overview {
+                        GeometryReader { geometry in
+                            let bounds = calculateBounds()
+                            let scale = min(geometry.size.width / max(bounds.width, 0.001), geometry.size.height / max(bounds.height, 0.001)) * 0.9
+                            let offsetX = (geometry.size.width - bounds.width * scale) / 2
+                            let offsetY = (geometry.size.height - bounds.height * scale) / 2
+                            
+                            ForEach(displayHoles, id: \.holeNumber) { hole in
+                                if let greenCenter = hole.greenCenter {
+                                    let point = gpsToPoint(
+                                        lat: greenCenter.lat,
+                                        lon: greenCenter.lon,
+                                        bounds: bounds,
+                                        size: geometry.size,
+                                        scale: scale,
+                                        offsetX: offsetX,
+                                        offsetY: offsetY
+                                    )
+                                    
+                                    Text("\(hole.holeNumber)")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.black)
+                                        .padding(4)
+                                        .background(Color.white.opacity(0.8))
+                                        .cornerRadius(4)
+                                        .position(x: point.x, y: point.y - 30)
+                                }
                             }
                         }
                     }
                 }
+                .frame(height: viewMode == .overview ? 600 : 400)
+            } else {
+                // No valid coordinates - show informative message
+                VStack(spacing: 16) {
+                    Image(systemName: "square.grid.3x3.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    
+                    Text("Schematic Data Incomplete")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                    
+                    Text("This course has hole information but is missing geographic coordinates needed for the schematic view.")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    Text("Hole data: \(holeData.filter { $0.holeNumber > 0 }.count) holes (par values available)")
+                        .font(.caption)
+                        .foregroundColor(.gray.opacity(0.7))
+                }
+                .frame(height: viewMode == .overview ? 600 : 400)
+                .frame(maxWidth: .infinity)
+                .background(Color(red: 0.94, green: 0.98, blue: 0.96))
             }
-            .frame(height: viewMode == .overview ? 600 : 400)
             
             // Hole info
             if viewMode == .hole, let hole = currentHole {
@@ -268,6 +309,13 @@ struct CourseSVGVisualizerView: View {
                     maxLon = max(maxLon, coord.lon)
                 }
             }
+        }
+        
+        // If no coordinates found, return safe defaults
+        if minLat == Double.infinity || maxLat == -Double.infinity ||
+           minLon == Double.infinity || maxLon == -Double.infinity {
+            // Return small default bounds (won't actually be rendered since hasValidCoordinates will be false)
+            return (minLat: 0, maxLat: 1, minLon: 0, maxLon: 1, width: 1, height: 1)
         }
         
         // Add padding

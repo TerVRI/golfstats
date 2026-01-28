@@ -1,11 +1,6 @@
 /**
- * Parallel OSM Mapper (TURBO VERSION)
- * 
- * Features:
- * - 3 Parallel Workers
- * - Server Rotation (4 global instances)
- * - Intelligent Rate Limiting & Error Handling
- * - ETA Tracking
+ * Parallel OSM Mapper - FIXED VERSION
+ * Each worker gets a dedicated server to avoid rate limits
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -13,7 +8,6 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { fetchCourseHoleData, formatForDatabase } from './fetch-osm-hole-data';
 
-// Load environment variables
 const envPath = path.join(process.cwd(), '.env.local');
 dotenv.config({ path: envPath });
 
@@ -27,165 +21,200 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Global Overpass instances to rotate through
+// All public Overpass API servers
 const SERVERS = [
   "https://overpass-api.de/api/interpreter",
   "https://lz4.overpass-api.de/api/interpreter",
   "https://z.overpass-api.de/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
-  "https://overpass.openstreetmap.ru/api/interpreter",
   "https://overpass.osm.ch/api/interpreter",
-  "https://overpass.hotosm.org/api/interpreter"
+  "https://overpass.openstreetmap.fr/api/interpreter",
+  "https://overpass.nchc.org.tw/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 ];
 
 let successCount = 0;
 let emptyCount = 0;
 let errorCount = 0;
-let totalStarted = 0;
+const startTime = Date.now();
 
-/**
- * Process a single course with retry logic using alternative servers
- */
-async function processCourse(course: any, workerId: number, isMainTable: boolean) {
-  const name = course.name || 'Unnamed Course';
-  let retryCount = 0;
-  let serverIndex = (workerId - 1 + totalStarted) % SERVERS.length;
+// Shared queue with mutex
+let courseQueue: Array<{ id: string; name: string; latitude: number; longitude: number; isMainTable: boolean }> = [];
+let queueLock = false;
 
-  while (retryCount < SERVERS.length) {
-    const server = SERVERS[serverIndex];
-    try {
-      const rawHoleData = await fetchCourseHoleData(
-        name,
-        course.latitude,
-        course.longitude,
-        server
-      );
-
-      const holeData = rawHoleData.length > 0 
-        ? formatForDatabase(rawHoleData) 
-        : [{ hole_number: 0, par: 0 }]; // Placeholder to mark as "checked"
-      
-      const { error: updateError } = await supabase
-        .from(isMainTable ? 'courses' : 'course_contributions')
-        .update({
-          hole_data: holeData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', course.id);
-
-      if (updateError) {
-        throw new Error(`DB Update failed: ${updateError.message}`);
-      }
-
-      if (rawHoleData.length > 0) {
-        successCount++;
-        console.log(`[Worker ${workerId}] ✨ SUCCESS: Found ${rawHoleData.length} holes for ${name}`);
-      } else {
-        emptyCount++;
-        console.log(`[Worker ${workerId}] ∅ EMPTY: No mapping found for ${name}`);
-      }
-      return true;
-
-    } catch (e: any) {
-      console.error(`[Worker ${workerId}] ⚠️ Server ${new URL(server).hostname} failed for ${name}: ${e.message}`);
-      
-      if (e.message.includes('429') || e.message.includes('504') || e.message.includes('Timeout') || e.message.includes('Non-JSON')) {
-        retryCount++;
-        serverIndex = (serverIndex + 1) % SERVERS.length;
-        console.log(`[Worker ${workerId}] 🔄 Retrying with server: ${new URL(SERVERS[serverIndex]).hostname} (Retry ${retryCount}/${SERVERS.length})...`);
-        await new Promise(r => setTimeout(r, 5000 * retryCount)); // Heavy backoff
-      } else {
-        errorCount++;
-        return false;
-      }
-    }
-  }
-
-  console.error(`[Worker ${workerId}] ❌ Failed ${name} after ${retryCount} retries.`);
-  console.log(`[Worker ${workerId}] 🛡️  Cooldown for 10 seconds...`);
-  await new Promise(r => setTimeout(r, 10000));
-  errorCount++;
-  return false;
-}
-
-async function startTurboMapping() {
-  console.log('='.repeat(60));
-  console.log('🚀 STARTING TURBO MAPPER (Sequential Recovery Mode)');
-  console.log(`🌍 Rotating through ${SERVERS.length} global Overpass servers`);
-  console.log('🛡️  Safety: 10s cooldown if all servers fail');
-  console.log('='.repeat(60) + '\n');
-
-  const CONCURRENCY = 1; // Drop to sequential to avoid IP blocks
-  let batchSize = 10;
-  let startTime = Date.now();
-
-  while (true) {
-    // 1. Fetch batch from course_contributions first
-    let { data: batch, error } = await supabase
+async function refillQueueSafe() {
+  if (queueLock || courseQueue.length > 30) return;
+  queueLock = true;
+  
+  try {
+    const { data: batch } = await supabase
       .from('course_contributions')
       .select('id, name, latitude, longitude')
       .not('latitude', 'is', null)
       .not('longitude', 'is', null)
-      .or('hole_data.is.null,hole_data.eq.[]')
-      .order('id', { ascending: true })
-      .limit(batchSize);
-
-    if (error) {
-      console.error('❌ Error fetching contributions:', error.message);
-      break;
+      .is('hole_data', null)
+      .limit(50);
+    
+    if (batch && batch.length > 0) {
+      const ids = batch.map(b => b.id);
+      await supabase.from('course_contributions')
+        .update({ hole_data: [{ hole_number: -2 }] })
+        .in('id', ids);
+      batch.forEach(b => courseQueue.push({ ...b, isMainTable: false }));
     }
+    
+    const { data: mainBatch } = await supabase
+      .from('courses')
+      .select('id, name, latitude, longitude')
+      .not('latitude', 'is', null)
+      .not('longitude', 'is', null)
+      .is('hole_data', null)
+      .limit(20);
+    
+    if (mainBatch && mainBatch.length > 0) {
+      const ids = mainBatch.map(b => b.id);
+      await supabase.from('courses')
+        .update({ hole_data: [{ hole_number: -2 }] })
+        .in('id', ids);
+      mainBatch.forEach(b => courseQueue.push({ ...b, isMainTable: true }));
+    }
+  } catch (e) {
+    // Ignore refill errors
+  } finally {
+    queueLock = false;
+  }
+}
 
-    let isMainTable = false;
+async function getNextCourseSafe() {
+  if (courseQueue.length < 10) {
+    await refillQueueSafe();
+  }
+  return courseQueue.shift() || null;
+}
 
-    // 2. If no contributions, check main courses table
-    if (!batch || batch.length === 0) {
-      const { data: mainBatch, error: mainError } = await supabase
-        .from('courses')
-        .select('id, name, latitude, longitude')
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null)
-        .or('hole_data.is.null,hole_data.eq.[]')
-        .order('id', { ascending: true })
-        .limit(batchSize);
+async function releaseCourse(course: { id: string; isMainTable: boolean }) {
+  try {
+    await supabase
+      .from(course.isMainTable ? 'courses' : 'course_contributions')
+      .update({ hole_data: null })
+      .eq('id', course.id);
+  } catch (e) {
+    // Ignore
+  }
+}
 
-      if (mainError) {
-        console.error('❌ Error fetching main courses:', mainError.message);
+function printProgress() {
+  const elapsed = (Date.now() - startTime) / 1000;
+  const total = successCount + emptyCount;
+  const rate = total / (elapsed / 60);
+  process.stdout.write(`\r📊 ${successCount} mapped | ${emptyCount} empty | ${errorCount} err | ${rate.toFixed(0)}/min | Q:${courseQueue.length}    `);
+}
+
+async function worker(workerId: number, server: string) {
+  const serverName = new URL(server).hostname;
+  console.log(`[W${workerId}] 🚀 Using ${serverName}`);
+  
+  let idleCount = 0;
+  let cooldownUntil = 0;
+  
+  while (true) {
+    // Check cooldown
+    if (Date.now() < cooldownUntil) {
+      const wait = Math.ceil((cooldownUntil - Date.now()) / 1000);
+      if (wait > 60) {
+        console.log(`[W${workerId}] 💤 Cooldown ${wait}s, shutting down`);
         break;
       }
-      batch = mainBatch;
-      isMainTable = true;
+      await new Promise(r => setTimeout(r, 5000));
+      continue;
     }
-
-    if (!batch || batch.length === 0) {
-      console.log('✅ No more courses needing mapping data found.');
-      break;
+    
+    const course = await getNextCourseSafe();
+    
+    if (!course) {
+      idleCount++;
+      if (idleCount > 5) {
+        console.log(`[W${workerId}] ✅ Done`);
+        break;
+      }
+      await new Promise(r => setTimeout(r, 3000));
+      continue;
     }
-
-    console.log(`\n📦 Processing batch of ${batch.length} courses...`);
-
-    // Process in parallel chunks of CONCURRENCY
-    for (let i = 0; i < batch.length; i += CONCURRENCY) {
-      const chunk = batch.slice(i, i + CONCURRENCY);
-      totalStarted += chunk.length;
+    
+    idleCount = 0;
+    
+    try {
+      const rawHoleData = await fetchCourseHoleData(
+        course.name || 'Unknown',
+        course.latitude,
+        course.longitude,
+        server
+      );
       
-      await Promise.all(chunk.map((course, idx) => processCourse(course, idx + 1, isMainTable)));
+      const holeData = rawHoleData.length > 0 
+        ? formatForDatabase(rawHoleData) 
+        : [{ hole_number: 0, par: 0 }];
       
-      const elapsed = (Date.now() - startTime) / 1000;
-      const rate = totalStarted / (elapsed / 60);
-      console.log(`\n📊 PROGRESS: ${successCount} mapped | ${emptyCount} empty | ${errorCount} errors`);
-      console.log(`⏱️  Speed: ${rate.toFixed(1)} courses/min | Elapsed: ${Math.floor(elapsed / 60)}m`);
+      await supabase
+        .from(course.isMainTable ? 'courses' : 'course_contributions')
+        .update({ hole_data: holeData, updated_at: new Date().toISOString() })
+        .eq('id', course.id);
       
-      // Polite delay between parallel chunks
-      await new Promise(r => setTimeout(r, 10000));
+      if (rawHoleData.length > 0) {
+        successCount++;
+        console.log(`[W${workerId}] ✨ ${course.name}: ${rawHoleData.length} holes`);
+      } else {
+        emptyCount++;
+      }
+      
+      printProgress();
+      
+    } catch (e: any) {
+      const msg = e.message || '';
+      
+      if (msg.includes('429')) {
+        console.log(`[W${workerId}] ⏳ Rate limited, cooling 2min`);
+        cooldownUntil = Date.now() + 120000;
+      } else if (msg.includes('403')) {
+        console.log(`[W${workerId}] 🚫 Forbidden, cooling 5min`);
+        cooldownUntil = Date.now() + 300000;
+      } else if (msg.includes('504') || msg.includes('Timeout')) {
+        console.log(`[W${workerId}] ⏰ Timeout, cooling 1min`);
+        cooldownUntil = Date.now() + 60000;
+      }
+      
+      await releaseCourse(course);
+      errorCount++;
     }
+    
+    // Delay between requests - 3 seconds per worker
+    await new Promise(r => setTimeout(r, 3000));
   }
+}
 
+async function main() {
+  console.log('='.repeat(60));
+  console.log('🚀 PARALLEL OSM MAPPER - DEDICATED SERVER MODE');
+  console.log(`🌍 ${SERVERS.length} servers available`);
+  console.log('='.repeat(60));
+  
+  // Initial fill
+  await refillQueueSafe();
+  console.log(`📦 Queue: ${courseQueue.length} courses\n`);
+  
+  if (courseQueue.length === 0) {
+    console.log('❌ No courses to process!');
+    return;
+  }
+  
+  // One worker per server
+  const workers = SERVERS.map((server, i) => worker(i + 1, server));
+  await Promise.all(workers);
+  
   console.log('\n' + '='.repeat(60));
-  console.log('🏁 TURBO MAPPING COMPLETE');
-  console.log(`✅ Detailed maps: ${successCount}`);
-  console.log(`∅ Empty maps: ${emptyCount}`);
-  console.log(`❌ Errors: ${errorCount}`);
+  console.log('🏁 COMPLETE');
+  console.log(`📊 ${successCount} mapped | ${emptyCount} empty | ${errorCount} errors`);
   console.log('='.repeat(60));
 }
 
-startTurboMapping().catch(console.error);
+main().catch(console.error);

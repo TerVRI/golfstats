@@ -1,5 +1,7 @@
 import SwiftUI
 import AVFoundation
+import ARKit
+import RealityKit
 import Combine
 
 /// Main Range Mode view with camera preview and swing analysis
@@ -9,13 +11,18 @@ struct RangeModeView: View {
     
     var body: some View {
         ZStack {
-            // Camera preview layer
-            CameraPreviewView(session: viewModel.captureSession)
-                .ignoresSafeArea()
+            // Camera/AR preview layer based on tracking mode
+            if viewModel.trackingMode == .arkit3D {
+                ARBodyPreviewViewWrapper(tracker: viewModel.swingAnalyzer.arBodyTracker)
+                    .ignoresSafeArea()
+            } else {
+                CameraPreviewView(session: viewModel.captureSession)
+                    .ignoresSafeArea()
+            }
             
-            // Skeleton overlay
+            // Skeleton overlay (for 2D mode or when AR skeleton is hidden)
             if viewModel.showSkeleton, let pose = viewModel.currentPose {
-                SkeletonOverlayView(pose: pose)
+                SkeletonOverlayView(pose: pose, is3DMode: viewModel.trackingMode == .arkit3D)
                     .ignoresSafeArea()
             }
             
@@ -48,6 +55,7 @@ struct RangeModeView: View {
         .statusBarHidden()
         .onAppear {
             viewModel.setupCamera()
+            viewModel.startPosePreview()
         }
         .onDisappear {
             viewModel.cleanup()
@@ -56,6 +64,14 @@ struct RangeModeView: View {
             if let session = viewModel.completedSession {
                 RangeSessionSummaryView(session: session)
             }
+        }
+        .sheet(isPresented: $viewModel.showClubPicker) {
+            RangeClubPickerSheet(selectedClub: $viewModel.selectedClub)
+                .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $viewModel.showSettings) {
+            RangeModeSettingsSheet()
+                .presentationDetents([.medium])
         }
     }
     
@@ -141,11 +157,23 @@ struct RangeModeView: View {
                 }
             
             // Watch connection status
-            if !viewModel.isWatchConnected {
+            if viewModel.isWatchConnected {
                 HStack(spacing: 8) {
-                    Image(systemName: "applewatch.slash")
+                    Image(systemName: "applewatch.radiowaves.left.and.right")
+                        .foregroundColor(.green)
+                    Text("Apple Watch ready")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.black.opacity(0.5))
+                .cornerRadius(8)
+            } else {
+                HStack(spacing: 8) {
+                    Image(systemName: "applewatch")
                         .foregroundColor(.orange)
-                    Text("Apple Watch not connected")
+                    Text("Open RoundCaddy on Watch for motion data")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.8))
                 }
@@ -257,69 +285,109 @@ struct RangeModeView: View {
     // MARK: - Bottom Controls
     
     private var bottomControls: some View {
-        HStack(spacing: 40) {
-            // Club selector
-            Button(action: { viewModel.showClubPicker = true }) {
-                VStack(spacing: 4) {
-                    Image(systemName: "figure.golf")
-                        .font(.title2)
-                    Text(viewModel.selectedClub ?? "Club")
-                        .font(.caption)
-                }
-                .foregroundColor(.white)
-                .frame(width: 60, height: 60)
-                .background(Color.white.opacity(0.2))
-                .clipShape(Circle())
+        VStack(spacing: 16) {
+            // Tracking mode toggle (only show if ARKit available)
+            if viewModel.isARKitAvailable {
+                trackingModeToggle
             }
             
-            // Main action button
-            Button(action: viewModel.toggleSession) {
-                ZStack {
-                    Circle()
-                        .fill(viewModel.isSessionActive ? Color.red : Color.green)
-                        .frame(width: 80, height: 80)
-                    
-                    if viewModel.isSessionActive {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.white)
-                            .frame(width: 24, height: 24)
-                    } else {
+            HStack(spacing: 40) {
+                // Club selector
+                Button(action: { viewModel.showClubPicker = true }) {
+                    VStack(spacing: 4) {
+                        Image(systemName: "figure.golf")
+                            .font(.title2)
+                        Text(viewModel.selectedClub ?? "Club")
+                            .font(.caption)
+                    }
+                    .foregroundColor(.white)
+                    .frame(width: 60, height: 60)
+                    .background(Color.white.opacity(0.2))
+                    .clipShape(Circle())
+                }
+                
+                // Main action button
+                Button(action: viewModel.toggleSession) {
+                    ZStack {
                         Circle()
-                            .fill(Color.white)
-                            .frame(width: 24, height: 24)
+                            .fill(viewModel.isSessionActive ? Color.red : Color.green)
+                            .frame(width: 80, height: 80)
+                        
+                        if viewModel.isSessionActive {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.white)
+                                .frame(width: 24, height: 24)
+                        } else {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 24, height: 24)
+                        }
                     }
                 }
-            }
-            .disabled(!viewModel.canStartSession)
-            .opacity(viewModel.canStartSession ? 1 : 0.5)
-            
-            // Skeleton toggle
-            Button(action: { viewModel.showSkeleton.toggle() }) {
-                VStack(spacing: 4) {
-                    Image(systemName: viewModel.showSkeleton ? "figure.stand" : "figure.stand.line.dotted.figure.stand")
-                        .font(.title2)
-                    Text("Skeleton")
-                        .font(.caption)
+                .disabled(!viewModel.canStartSession)
+                .opacity(viewModel.canStartSession ? 1 : 0.5)
+                
+                // Skeleton toggle
+                Button(action: { viewModel.showSkeleton.toggle() }) {
+                    VStack(spacing: 4) {
+                        Image(systemName: viewModel.showSkeleton ? "figure.stand" : "figure.stand.line.dotted.figure.stand")
+                            .font(.title2)
+                        Text("Skeleton")
+                            .font(.caption)
+                    }
+                    .foregroundColor(viewModel.showSkeleton ? .green : .white)
+                    .frame(width: 60, height: 60)
+                    .background(Color.white.opacity(0.2))
+                    .clipShape(Circle())
                 }
-                .foregroundColor(viewModel.showSkeleton ? .green : .white)
-                .frame(width: 60, height: 60)
-                .background(Color.white.opacity(0.2))
-                .clipShape(Circle())
             }
         }
         .padding(.bottom, 40)
+    }
+    
+    // MARK: - Tracking Mode Toggle
+    
+    private var trackingModeToggle: some View {
+        HStack(spacing: 0) {
+            ForEach(BodyTrackingMode.allCases, id: \.self) { mode in
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewModel.trackingMode = mode
+                    }
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: mode.iconName)
+                            .font(.subheadline)
+                        Text(mode == .vision2D ? "2D" : "3D")
+                            .font(.subheadline.bold())
+                    }
+                    .foregroundColor(viewModel.trackingMode == mode ? .white : .white.opacity(0.6))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        viewModel.trackingMode == mode ?
+                            Color.green : Color.clear
+                    )
+                    .cornerRadius(8)
+                }
+                .disabled(mode == .arkit3D && !viewModel.isARKitAvailable)
+            }
+        }
+        .padding(4)
+        .background(Color.black.opacity(0.5))
+        .cornerRadius(12)
     }
 }
 
 // MARK: - View Model
 
 class RangeModeViewModel: NSObject, ObservableObject {
-    // Camera
+    // Camera (for 2D mode)
     let captureSession = AVCaptureSession()
     private var videoOutput: AVCaptureVideoDataOutput?
     
     // Analyzers
-    private let swingAnalyzer = SwingAnalyzerIOS()
+    let swingAnalyzer = SwingAnalyzerIOS()
     private let watchSync = WatchSwingSync.shared
     
     // State
@@ -341,6 +409,15 @@ class RangeModeViewModel: NSObject, ObservableObject {
     @Published var liveAcceleration: Double = 0
     @Published var lastTempo: Double?
     @Published var lastSpeed: Double?
+    
+    // Tracking mode
+    @Published var trackingMode: BodyTrackingMode = .vision2D {
+        didSet {
+            swingAnalyzer.trackingMode = trackingMode
+            handleTrackingModeChange()
+        }
+    }
+    @Published var isARKitAvailable = false
     
     // Settings
     @Published var showSkeleton = true
@@ -370,6 +447,7 @@ class RangeModeViewModel: NSObject, ObservableObject {
     
     override init() {
         super.init()
+        isARKitAvailable = swingAnalyzer.isARKitAvailable
         setupBindings()
     }
     
@@ -399,18 +477,61 @@ class RangeModeViewModel: NSObject, ObservableObject {
             .receive(on: DispatchQueue.main)
             .assign(to: &$liveSpineAngle)
         
-        // Bind pose detector state
+        // Bind 2D pose detector state
         swingAnalyzer.poseDetector.$currentPose
             .receive(on: DispatchQueue.main)
-            .assign(to: &$currentPose)
+            .sink { [weak self] pose in
+                guard self?.trackingMode == .vision2D else { return }
+                self?.currentPose = pose
+            }
+            .store(in: &cancellables)
         
         swingAnalyzer.poseDetector.$alignmentStatus
             .receive(on: DispatchQueue.main)
-            .assign(to: &$alignmentStatus)
+            .sink { [weak self] status in
+                guard self?.trackingMode == .vision2D else { return }
+                self?.alignmentStatus = status
+            }
+            .store(in: &cancellables)
         
         swingAnalyzer.poseDetector.$alignmentMessage
             .receive(on: DispatchQueue.main)
-            .assign(to: &$alignmentMessage)
+            .sink { [weak self] message in
+                guard self?.trackingMode == .vision2D else { return }
+                self?.alignmentMessage = message
+            }
+            .store(in: &cancellables)
+        
+        // Bind 3D AR body tracker state (if available)
+        if let arTracker = swingAnalyzer.arBodyTracker {
+            arTracker.$currentPose
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] pose in
+                    guard self?.trackingMode == .arkit3D else { return }
+                    self?.currentPose = pose
+                    // Debug: Log when 3D pose is received
+                    if let pose = pose, pose.allJoints.count > 0 {
+                        print("📱 ViewModel received 3D pose with \(pose.allJoints.count) joints")
+                    }
+                }
+                .store(in: &cancellables)
+            
+            arTracker.$alignmentStatus
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] status in
+                    guard self?.trackingMode == .arkit3D else { return }
+                    self?.alignmentStatus = status
+                }
+                .store(in: &cancellables)
+            
+            arTracker.$alignmentMessage
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] message in
+                    guard self?.trackingMode == .arkit3D else { return }
+                    self?.alignmentMessage = message
+                }
+                .store(in: &cancellables)
+        }
         
         // Bind Watch sync state
         watchSync.$isWatchReachable
@@ -436,6 +557,24 @@ class RangeModeViewModel: NSObject, ObservableObject {
         
         watchSync.onSwingMetricsReceived = { [weak self] metrics in
             self?.swingAnalyzer.receiveWatchSwingMetrics(metrics)
+        }
+    }
+    
+    private func handleTrackingModeChange() {
+        // Reset current pose when switching modes
+        currentPose = nil
+        alignmentStatus = .searching
+        
+        if trackingMode == .arkit3D {
+            // Stop 2D camera when switching to 3D
+            captureSession.stopRunning()
+            alignmentMessage = "Point camera at person for 3D tracking"
+        } else {
+            // Restart 2D camera when switching back
+            if !captureSession.isRunning {
+                startCameraSession()
+            }
+            alignmentMessage = "Point camera at your swing position"
         }
     }
     
@@ -517,20 +656,45 @@ class RangeModeViewModel: NSObject, ObservableObject {
             return
         }
         
-        // Configure for 60fps if available
+        // Configure camera - reset zoom to 1x and set frame rate
         do {
             try camera.lockForConfiguration()
-            if let format = camera.formats.first(where: { format in
-                let ranges = format.videoSupportedFrameRateRanges
-                return ranges.contains { $0.maxFrameRate >= 60 }
-            }) {
-                camera.activeFormat = format
-                camera.activeVideoMinFrameDuration = CMTime(value: 1, timescale: 60)
-                camera.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: 60)
+            
+            // Reset zoom to 1x (wide angle, no crop)
+            camera.videoZoomFactor = 1.0
+            
+            // Find best format: prioritize good FOV, then frame rate
+            // For swing analysis we want at least 30fps (60fps preferred for fast movements)
+            let currentFOV = camera.activeFormat.videoFieldOfView
+            
+            // Sort formats by FOV (descending) then max frame rate (descending)
+            let sortedFormats = camera.formats.sorted { a, b in
+                if abs(a.videoFieldOfView - b.videoFieldOfView) > 5 {
+                    return a.videoFieldOfView > b.videoFieldOfView
+                }
+                let aMaxFPS = a.videoSupportedFrameRateRanges.map { $0.maxFrameRate }.max() ?? 0
+                let bMaxFPS = b.videoSupportedFrameRateRanges.map { $0.maxFrameRate }.max() ?? 0
+                return aMaxFPS > bMaxFPS
             }
+            
+            // Find format with similar FOV and good frame rate
+            if let bestFormat = sortedFormats.first(where: { format in
+                let hasSimilarFOV = format.videoFieldOfView >= currentFOV - 5
+                let maxFPS = format.videoSupportedFrameRateRanges.map { $0.maxFrameRate }.max() ?? 0
+                return hasSimilarFOV && maxFPS >= 30
+            }) {
+                camera.activeFormat = bestFormat
+                
+                // Set to 30fps for smoother skeleton overlay (reduces CPU load)
+                // The camera captures at 30fps, matching the pose detector rate
+                camera.activeVideoMinFrameDuration = CMTime(value: 1, timescale: 30)
+                camera.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: 30)
+                print("📹 Camera configured: \(bestFormat.videoFieldOfView)° FOV @ 30fps")
+            }
+            
             camera.unlockForConfiguration()
         } catch {
-            print("⚠️ Could not configure camera frame rate: \(error)")
+            print("⚠️ Could not configure camera: \(error)")
             // Continue anyway - this is not critical
         }
         
@@ -617,11 +781,96 @@ class RangeModeViewModel: NSObject, ObservableObject {
         generator.notificationOccurred(.success)
     }
     
+    func startPosePreview() {
+        swingAnalyzer.startPreview()
+    }
+    
     func cleanup() {
         if isSessionActive {
             endSession()
         }
+        swingAnalyzer.stopDetecting()
         captureSession.stopRunning()
+    }
+}
+
+// MARK: - AR Body Preview View (for 3D LiDAR mode)
+
+@available(iOS 14.0, *)
+struct ARBodyPreviewView: UIViewRepresentable {
+    let tracker: ARBodyTracker?
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(tracker: tracker)
+    }
+    
+    func makeUIView(context: Context) -> ARView {
+        guard let tracker = tracker else {
+            // Return empty ARView if tracker not available
+            print("⚠️ ARBodyPreviewView: No tracker provided, showing black screen")
+            let emptyView = ARView(frame: .zero)
+            emptyView.environment.background = .color(.black)
+            return emptyView
+        }
+        
+        print("🎥 ARBodyPreviewView: Creating ARView...")
+        let arView = tracker.createARView(frame: .zero)
+        print("🎥 ARBodyPreviewView: ARView created, scheduling startDetecting...")
+        
+        // Start detecting after the view is created
+        // Use a small delay to ensure the view is fully set up
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            if !tracker.isDetecting {
+                print("🎥 ARBodyPreviewView: Calling startDetecting()...")
+                tracker.startDetecting()
+            } else {
+                print("🎥 ARBodyPreviewView: Tracker already detecting")
+            }
+        }
+        
+        return arView
+    }
+    
+    func updateUIView(_ uiView: ARView, context: Context) {
+        // Ensure tracking is started if view exists but tracking isn't running
+        if let tracker = tracker, !tracker.isDetecting {
+            tracker.startDetecting()
+        }
+    }
+    
+    static func dismantleUIView(_ uiView: ARView, coordinator: Coordinator) {
+        // Stop tracking when view is removed
+        coordinator.tracker?.stopDetecting()
+        print("🎥 3D AR body tracking stopped on view removal")
+    }
+    
+    class Coordinator {
+        let tracker: ARBodyTracker?
+        
+        init(tracker: ARBodyTracker?) {
+            self.tracker = tracker
+        }
+    }
+}
+
+// Wrapper for iOS 13 compatibility
+struct ARBodyPreviewViewWrapper: View {
+    let tracker: ARBodyTracker?
+    
+    var body: some View {
+        if #available(iOS 14.0, *) {
+            ARBodyPreviewView(tracker: tracker)
+        } else {
+            Color.black
+                .overlay(
+                    VStack(spacing: 12) {
+                        Image(systemName: "cube.transparent")
+                            .font(.largeTitle)
+                        Text("3D body tracking requires iOS 14+")
+                    }
+                    .foregroundColor(.white)
+                )
+        }
     }
 }
 
@@ -701,7 +950,8 @@ class CameraPreviewUIView: UIView {
         let deviceOrientation = UIDevice.current.orientation
         
         if #available(iOS 17.0, *) {
-            // iOS 17+ uses rotation angles
+            // iOS 17+ uses rotation angles for rear camera
+            // Angles are clockwise from landscape-right (home button left)
             let angle: CGFloat
             switch deviceOrientation {
             case .portrait:
@@ -709,9 +959,11 @@ class CameraPreviewUIView: UIView {
             case .portraitUpsideDown:
                 angle = 270
             case .landscapeLeft:
-                angle = 180
-            case .landscapeRight:
+                // Device rotated left (home button on right) - video needs 0° rotation
                 angle = 0
+            case .landscapeRight:
+                // Device rotated right (home button on left) - video needs 180° rotation
+                angle = 180
             default:
                 // Use portrait as default for face up/down/unknown
                 angle = 90
@@ -730,9 +982,9 @@ class CameraPreviewUIView: UIView {
                 case .portraitUpsideDown:
                     orientation = .portraitUpsideDown
                 case .landscapeLeft:
-                    orientation = .landscapeRight // Note: inverted
+                    orientation = .landscapeRight
                 case .landscapeRight:
-                    orientation = .landscapeLeft // Note: inverted
+                    orientation = .landscapeLeft
                 default:
                     orientation = .portrait
                 }
@@ -752,38 +1004,221 @@ class CameraPreviewUIView: UIView {
 
 struct SkeletonOverlayView: View {
     let pose: PoseFrame
+    var is3DMode: Bool = false
+    
+    // Colors based on tracking mode
+    private var boneColor: Color { is3DMode ? .cyan : .green }
+    private var jointColor: Color { is3DMode ? .cyan : .green }
+    private var glowColor: Color { is3DMode ? .cyan.opacity(0.3) : .green.opacity(0.3) }
     
     var body: some View {
         GeometryReader { geometry in
-            // Draw bones
-            ForEach(Array(pose.boneConnections.enumerated()), id: \.offset) { _, connection in
-                Path { path in
-                    let start = convertPoint(connection.0, in: geometry.size)
-                    let end = convertPoint(connection.1, in: geometry.size)
+            Canvas { context, size in
+                // Draw bones with smooth lines
+                for connection in pose.boneConnections {
+                    let start = convertPoint(connection.0, in: size, flip: !is3DMode)
+                    let end = convertPoint(connection.1, in: size, flip: !is3DMode)
+                    
+                    var path = Path()
                     path.move(to: start)
                     path.addLine(to: end)
+                    
+                    // Draw bone shadow for depth
+                    context.stroke(path, with: .color(.black.opacity(0.4)), lineWidth: is3DMode ? 6 : 5)
+                    // Draw bone
+                    context.stroke(path, with: .color(boneColor), lineWidth: is3DMode ? 4 : 3)
                 }
-                .stroke(Color.green, lineWidth: 3)
+                
+                // Draw joints
+                for joint in pose.allJoints {
+                    let point = convertPoint(joint.point, in: size, flip: !is3DMode)
+                    
+                    // Joint glow (larger in 3D mode)
+                    let glowSize: CGFloat = is3DMode ? 20 : 16
+                    let glowRect = CGRect(x: point.x - glowSize/2, y: point.y - glowSize/2, width: glowSize, height: glowSize)
+                    context.fill(Ellipse().path(in: glowRect), with: .color(glowColor))
+                    
+                    // Joint circle
+                    let jointSize: CGFloat = is3DMode ? 14 : 12
+                    let jointRect = CGRect(x: point.x - jointSize/2, y: point.y - jointSize/2, width: jointSize, height: jointSize)
+                    context.fill(Ellipse().path(in: jointRect), with: .color(jointColor))
+                    
+                    // In 3D mode, add white center dot for depth perception
+                    if is3DMode {
+                        let centerRect = CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6)
+                        context.fill(Ellipse().path(in: centerRect), with: .color(.white))
+                    }
+                }
             }
-            
-            // Draw joints
-            ForEach(Array(pose.allJoints.enumerated()), id: \.offset) { _, joint in
-                let point = convertPoint(joint.point, in: geometry.size)
-                Circle()
-                    .fill(Color.green)
-                    .frame(width: 12, height: 12)
-                    .position(point)
+        }
+        // Note: One-Euro Filter handles smoothing mathematically, no SwiftUI animation needed
+        // This prevents double-smoothing artifacts
+    }
+    
+    private func convertPoint(_ point: CGPoint, in size: CGSize, flip: Bool) -> CGPoint {
+        // Vision coordinates are normalized (0-1), convert to view coordinates
+        // For Vision (2D): origin is bottom-left, SwiftUI is top-left, so we flip Y
+        // For ARKit (3D): coordinates are already projected to screen space
+        return CGPoint(
+            x: point.x * size.width,
+            y: flip ? (1 - point.y) * size.height : point.y * size.height
+        )
+    }
+}
+
+// MARK: - Range Club Picker Sheet
+
+struct RangeClubPickerSheet: View {
+    @Binding var selectedClub: String?
+    @Environment(\.dismiss) private var dismiss
+    
+    private let clubs = [
+        ("Woods", ["Driver", "3W", "5W", "7W"]),
+        ("Hybrids", ["3H", "4H", "5H"]),
+        ("Irons", ["3i", "4i", "5i", "6i", "7i", "8i", "9i"]),
+        ("Wedges", ["PW", "GW", "SW", "LW"]),
+        ("Putter", ["Putter"])
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(clubs, id: \.0) { category, clubList in
+                    Section(category) {
+                        ForEach(clubList, id: \.self) { club in
+                            Button {
+                                selectedClub = club
+                                dismiss()
+                            } label: {
+                                HStack {
+                                    Text(club)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    if selectedClub == club {
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(.green)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Select Club")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Clear") {
+                        selectedClub = nil
+                        dismiss()
+                    }
+                    .foregroundColor(.red)
+                }
             }
         }
     }
+}
+
+// MARK: - Range Mode Settings Sheet
+
+struct RangeModeSettingsSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("rangeShowSkeleton") private var showSkeleton = true
+    @AppStorage("rangeAutoDetectSwing") private var autoDetectSwing = true
+    @AppStorage("rangeHapticFeedback") private var hapticFeedback = true
+    @AppStorage("rangeRecordVideo") private var recordVideo = false
+    @AppStorage("rangeTrackingMode") private var trackingModeRaw = BodyTrackingMode.vision2D.rawValue
     
-    private func convertPoint(_ point: CGPoint, in size: CGSize) -> CGPoint {
-        // Vision coordinates are normalized (0-1), convert to view coordinates
-        // Vision origin is bottom-left, SwiftUI is top-left, so we flip Y
-        return CGPoint(
-            x: point.x * size.width,
-            y: (1 - point.y) * size.height
-        )
+    private var isARKitAvailable: Bool {
+        if #available(iOS 14.0, *) {
+            return ARBodyTracker.isAvailable()
+        }
+        return false
+    }
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                // Tracking Mode Section
+                Section {
+                    ForEach(BodyTrackingMode.allCases, id: \.self) { mode in
+                        Button {
+                            trackingModeRaw = mode.rawValue
+                        } label: {
+                            HStack {
+                                Image(systemName: mode.iconName)
+                                    .foregroundColor(mode == .arkit3D ? .cyan : .green)
+                                    .frame(width: 24)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(mode.rawValue)
+                                        .foregroundColor(.primary)
+                                    Text(mode.description)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                if trackingModeRaw == mode.rawValue {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.green)
+                                }
+                            }
+                        }
+                        .disabled(mode == .arkit3D && !isARKitAvailable)
+                        .opacity(mode == .arkit3D && !isARKitAvailable ? 0.5 : 1)
+                    }
+                } header: {
+                    Text("Tracking Mode")
+                } footer: {
+                    if !isARKitAvailable {
+                        Text("3D tracking requires iPhone 12 Pro or later with LiDAR sensor")
+                    }
+                }
+                
+                Section("Display") {
+                    Toggle("Show Skeleton Overlay", isOn: $showSkeleton)
+                }
+                
+                Section("Detection") {
+                    Toggle("Auto-Detect Swings", isOn: $autoDetectSwing)
+                    Toggle("Haptic Feedback", isOn: $hapticFeedback)
+                }
+                
+                Section("Recording") {
+                    Toggle("Record Video Clips", isOn: $recordVideo)
+                    if recordVideo {
+                        Text("Videos will be saved to your photo library")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Section("Apple Watch") {
+                    HStack {
+                        Image(systemName: "applewatch")
+                        Text("Connect Watch for motion data fusion")
+                    }
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                }
+            }
+            .navigationTitle("Range Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
     }
 }
 
